@@ -66,6 +66,7 @@ function ProfileContent() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
   const [passwordResult, setPasswordResult] = useState<"success" | "error" | null>(null);
   const [passwordMessage, setPasswordMessage] = useState("");
 
@@ -105,9 +106,11 @@ function ProfileContent() {
         lastName: data.lastName,
         phone: data.phone || undefined,
         city: data.city || undefined,
-        avatar: avatarFile || undefined,
+        avatar: removeAvatar ? (null as unknown as File) : avatarFile || undefined,
       });
       await refreshProfile();
+      setAvatarFile(null);
+      setRemoveAvatar(false);
       toast.success("Profil başarıyla güncellendi!");
     } catch (err) {
       toast.error(
@@ -197,7 +200,12 @@ function ProfileContent() {
             >
               {/* Avatar upload */}
               <div className="space-y-2">
-                <Label className="text-gray-300">Profil Fotoğrafı</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-gray-300">Profil Fotoğrafı</Label>
+                  {user?.avatar && (
+                    <button type="button" onClick={() => { setAvatarFile(null); setRemoveAvatar(true); }} className="text-xs text-red-400 hover:text-red-300">Fotoğrafı Kaldır</button>
+                  )}
+                </div>
                 <FileUpload
                   value={avatarFile || user?.avatar || null}
                   onChange={setAvatarFile}
@@ -305,7 +313,7 @@ function ProfileContent() {
               <div className="flex justify-end pt-2">
                 <Button
                   type="submit"
-                  disabled={isSavingProfile || (!isProfileDirty && !avatarFile)}
+                  disabled={isSavingProfile || (!isProfileDirty && !avatarFile && !removeAvatar)}
                   className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
                 >
                   {isSavingProfile ? (
