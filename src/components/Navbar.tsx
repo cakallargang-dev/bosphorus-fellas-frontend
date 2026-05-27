@@ -77,10 +77,11 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger>
                   <Button
                     variant="ghost"
                     className="flex items-center gap-2 px-2 hover:bg-mancave-surface"
+                    tabIndex={-1}
                   >
                     <Avatar className="h-8 w-8 border border-mancave-border">
                       <AvatarImage
