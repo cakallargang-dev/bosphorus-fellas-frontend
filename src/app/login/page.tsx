@@ -1,0 +1,170 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { LogIn, Mail, Lock, Car } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "E-posta adresi zorunludur")
+    .email("Geçerli bir e-posta adresi giriniz"),
+  password: z
+    .string()
+    .min(1, "Şifre zorunludur")
+    .min(6, "Şifre en az 6 karakter olmalıdır"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
+export default function LoginPage() {
+  const { login, isAuthenticated, isAdmin } = useAuth();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    router.replace(isAdmin ? "/admin" : "/dashboard");
+    return null;
+  }
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setIsSubmitting(true);
+    try {
+      await login(data);
+      toast.success("Başarıyla giriş yaptınız!");
+      // login() updates state; redirect will happen on re-render
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Giriş yapılırken bir hata oluştu";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-4">
+      {/* Logo */}
+      <Link href="/" className="flex items-center gap-3 mb-8 group">
+        <div className="w-12 h-12 rounded border border-[#d4a853] flex items-center justify-center group-hover:bg-[#d4a853]/10 transition-colors">
+          <Car className="w-6 h-6 text-[#d4a853]" />
+        </div>
+        <div>
+          <div className="text-white font-semibold text-lg tracking-wider leading-tight">
+            BOSPHORUS
+          </div>
+          <div className="text-[#d4a853] text-sm tracking-[0.2em] leading-tight">
+            FELLAS
+          </div>
+        </div>
+      </Link>
+
+      <Card className="w-full max-w-md bg-gray-900/50 backdrop-blur border-gray-800">
+        <CardHeader className="text-center pb-4">
+          <div className="mx-auto w-10 h-10 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-3">
+            <LogIn className="w-5 h-5 text-[#d4a853]" />
+          </div>
+          <CardTitle className="text-white text-xl">Giriş Yap</CardTitle>
+          <CardDescription className="text-gray-500">
+            Bosphorus Fellas topluluğuna hoş geldiniz
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-300">
+                E-posta
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="ornek@email.com"
+                  className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 focus:ring-[#d4a853]/20"
+                  {...register("email")}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-400 text-xs">{errors.email.message}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-gray-300">
+                Şifre
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 focus:ring-[#d4a853]/20"
+                  {...register("password")}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-red-400 text-xs">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium h-11"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Giriş yapılıyor...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Giriş Yap
+                </span>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-gray-800 text-center">
+            <p className="text-sm text-gray-500">
+              Henüz üye değil misiniz?{" "}
+              <Link
+                href="/apply"
+                className="text-[#d4a853] hover:underline font-medium"
+              >
+                Başvuru yapın
+              </Link>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
