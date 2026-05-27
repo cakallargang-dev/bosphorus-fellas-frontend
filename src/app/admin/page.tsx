@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -1450,23 +1450,28 @@ function EventFormDialog({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
-    defaultValues: editingEvent
-      ? {
-          title: editingEvent.title,
-          description: editingEvent.description,
-          date: editingEvent.date
-            ? editingEvent.date.split("T")[0]
-            : "",
-          time: editingEvent.time,
-          location: editingEvent.location,
-          locationUrl: editingEvent.locationUrl || "",
-          maxParticipants: editingEvent.maxParticipants?.toString() || "",
-        }
-      : {},
+    defaultValues: {},
   });
+
+  useEffect(() => {
+    if (editingEvent) {
+      reset({
+        title: editingEvent.title || "",
+        description: editingEvent.description || "",
+        date: editingEvent.date ? editingEvent.date.split("T")[0] : "",
+        time: editingEvent.time || "",
+        location: editingEvent.location || "",
+        locationUrl: editingEvent.locationUrl || "",
+        maxParticipants: editingEvent.maxParticipants?.toString() || "",
+      });
+    } else {
+      reset({});
+    }
+  }, [editingEvent, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -1651,11 +1656,20 @@ function NewsSponsorForm({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<any>({
     resolver: zodResolver(schema as any),
     defaultValues,
   });
+
+  useEffect(() => {
+    if (editingItem) {
+      reset(defaultValues);
+    } else {
+      reset({});
+    }
+  }, [editingItem, reset]);
 
   const tierValue = type === "sponsor" ? watch("tier") : undefined;
 
