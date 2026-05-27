@@ -55,6 +55,7 @@ export interface MembershipApplication {
   status: "pending" | "approved" | "rejected";
   rejectionReason?: string;
   createdAt: string;
+  submittedAt?: string;
   reviewedAt?: string;
   reviewedBy?: string;
 }

@@ -400,7 +400,8 @@ function ApplicationsTab() {
                     </TableCell>
                     <TableCell className="text-gray-400">{app.email}</TableCell>
                     <TableCell className="text-gray-500 text-sm">
-                      {format(new Date(app.createdAt), "d MMM yyyy", { locale: tr })}
+                      {/* Safe date formatter */}
+{format(new Date(app.submittedAt || app.createdAt || Date.now()), "d MMM yyyy", { locale: tr })}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-xs ${badge.className}`}>

@@ -30,6 +30,17 @@ interface ApplicationDetailProps {
   onClose: () => void;
 }
 
+function safeDate(dateStr: string | null | undefined): Date | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function safeFormat(dateStr: string | null | undefined, fmt: string): string {
+  const d = safeDate(dateStr);
+  return d ? format(d, fmt, { locale: tr }) : '-';
+}
+
 const statusBadge: Record<string, { label: string; className: string }> = {
   pending: {
     label: "Bekliyor",
