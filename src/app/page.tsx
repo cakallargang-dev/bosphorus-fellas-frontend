@@ -92,14 +92,14 @@ export default function Home() {
                 Aramıza Katıl
               </Button>
             </Link>
-            <Link href="/events">
+            <Link href="/dashboard">
               <Button
                 variant="outline"
                 size="lg"
                 className="border-mancave-border text-gray-300 hover:bg-mancave-surface hover:text-white px-8 py-6 text-base"
               >
                 <Calendar className="w-5 h-5 mr-2" />
-                Etkinlikler
+                Dashboard
               </Button>
             </Link>
           </div>
@@ -155,7 +155,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-white">
                 Yaklaşan <span className="text-mancave-gold">Etkinlikler</span>
               </h2>
-              <Link href="/events">
+              <Link href="/dashboard">
                 <Button
                   variant="ghost"
                   className="text-gray-400 hover:text-white"

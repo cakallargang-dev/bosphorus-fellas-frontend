@@ -39,12 +39,12 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
       <CardContent className="p-5">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-lg bg-mancave-surface border border-mancave-border flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-gold/30 transition-colors">
-            {sponsor.logoUrl ? (
+            {(sponsor.logoUrl || sponsor.logo) ? (
               <img
                 src={
-                  sponsor.logoUrl.startsWith("http")
-                    ? sponsor.logoUrl
-                    : `${apiBase}${sponsor.logoUrl}`
+                  (sponsor.logoUrl || sponsor.logo || "").startsWith("http")
+                    ? (sponsor.logoUrl || sponsor.logo)
+                    : `${apiBase}${sponsor.logoUrl || sponsor.logo}`
                 }
                 alt={sponsor.name}
                 className="w-12 h-12 object-contain"
@@ -73,7 +73,7 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
               </p>
             )}
           </div>
-          {sponsor.websiteUrl && (
+          {(sponsor.websiteUrl || sponsor.website) && (
             <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-mancave-gold transition-colors shrink-0" />
           )}
         </div>
@@ -81,10 +81,11 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
     </Card>
   );
 
-  if (sponsor.websiteUrl) {
+  const url = sponsor.websiteUrl || sponsor.website;
+  if (url) {
     return (
       <a
-        href={sponsor.websiteUrl}
+        href={url}
         target="_blank"
         rel="noopener noreferrer"
         className="block"

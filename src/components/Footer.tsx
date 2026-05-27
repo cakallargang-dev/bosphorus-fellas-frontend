@@ -20,10 +20,10 @@ export function Footer() {
 
           <div className="flex items-center gap-6">
             <Link
-              href="/events"
+              href="/dashboard"
               className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
             >
-              Etkinlikler
+              Dashboard
             </Link>
             <Link
               href="/apply"

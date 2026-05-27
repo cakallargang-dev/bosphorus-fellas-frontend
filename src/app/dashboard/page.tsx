@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { dashboardApi } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { dashboardApi, eventsApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { StatsCard, iconMap } from "@/components/StatsCard";
@@ -31,6 +32,7 @@ export default function DashboardPage() {
 
 function DashboardContent() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const {
@@ -42,6 +44,24 @@ function DashboardContent() {
     queryKey: ["dashboard"],
     queryFn: () => dashboardApi.getData(),
     staleTime: 30_000,
+  });
+
+  const joinMutation = useMutation({
+    mutationFn: (id: string) => eventsApi.join(id),
+    onSuccess: () => {
+      toast.success("Etkinliğe katıldınız!");
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Katılım başarısız"),
+  });
+
+  const leaveMutation = useMutation({
+    mutationFn: (id: string) => eventsApi.leave(id),
+    onSuccess: () => {
+      toast.success("Etkinlikten ayrıldınız");
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Ayrılma başarısız"),
   });
 
   const initials = user
@@ -164,7 +184,14 @@ function DashboardContent() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {upcomingEvents.map((event) => (
-                    <EventCard key={event.id} event={event} />
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onJoin={(id) => joinMutation.mutate(id)}
+                      onLeave={(id) => leaveMutation.mutate(id)}
+                      isJoining={joinMutation.isPending}
+                      isLeaving={leaveMutation.isPending}
+                    />
                   ))}
                 </div>
               )}

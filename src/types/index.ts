@@ -144,7 +144,9 @@ export interface Sponsor {
   id: string;
   name: string;
   logoUrl: string;
+  logo?: string;
   websiteUrl?: string;
+  website?: string;
   description?: string;
   tier: "platinum" | "gold" | "silver" | "bronze";
   isActive: boolean;

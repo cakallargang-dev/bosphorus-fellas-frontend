@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/events", label: "Etkinlikler", icon: Calendar },
   { href: "/apply", label: "Üyelik Başvurusu", icon: User },
 ];
 
