@@ -77,6 +77,17 @@ async function request<T>(
   return data as T;
 }
 
+function appendFormData(formData: FormData, data: object): void {
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    if (value instanceof File || value instanceof Blob) {
+      formData.append(key, value);
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+}
+
 function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -103,11 +114,7 @@ export const authApi = {
 
   updateProfile: (data: ProfileUpdateData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<User>>("/api/auth/profile", {
       method: "PUT",
       body: formData,
@@ -138,11 +145,7 @@ export const landingApi = {
 export const applicationsApi = {
   submit: (data: ApplicationFormData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<MembershipApplication>>("/api/applications", {
       method: "POST",
       body: formData,
@@ -218,11 +221,7 @@ export const eventsApi = {
 
   create: (data: EventFormData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<Event>>("/api/events", {
       method: "POST",
       body: formData,
@@ -231,11 +230,7 @@ export const eventsApi = {
 
   update: (id: string, data: Partial<EventFormData>) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<Event>>(`/api/events/${id}`, {
       method: "PUT",
       body: formData,
@@ -276,11 +271,7 @@ export const newsApi = {
 
   create: (data: NewsFormData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<News>>("/api/news", {
       method: "POST",
       body: formData,
@@ -289,11 +280,7 @@ export const newsApi = {
 
   update: (id: string, data: Partial<NewsFormData>) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<News>>(`/api/news/${id}`, {
       method: "PUT",
       body: formData,
@@ -326,11 +313,7 @@ export const sponsorsApi = {
 
   create: (data: SponsorFormData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<Sponsor>>("/api/sponsors", {
       method: "POST",
       body: formData,
@@ -339,11 +322,7 @@ export const sponsorsApi = {
 
   update: (id: string, data: Partial<SponsorFormData>) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value);
-      }
-    });
+    appendFormData(formData, data);
     return request<ApiResponse<Sponsor>>(`/api/sponsors/${id}`, {
       method: "PUT",
       body: formData,

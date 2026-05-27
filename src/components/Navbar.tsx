@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const initials = user
@@ -110,24 +112,18 @@ export function Navbar() {
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-mancave-border" />
-                  <DropdownMenuItem asChild className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
-                    <Link href="/dashboard" className="flex items-center">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Panel
-                    </Link>
+                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Panel
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
-                    <Link href="/profile" className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      Profil
-                    </Link>
+                  <DropdownMenuItem onClick={() => router.push("/profile")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                    <User className="w-4 h-4 mr-2" />
+                    Profil
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem asChild className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
-                      <Link href="/admin" className="flex items-center">
-                        <Shield className="w-4 h-4 mr-2" />
-                        Yönetim
-                      </Link>
+                    <DropdownMenuItem onClick={() => router.push("/admin")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Yönetim
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator className="bg-mancave-border" />
