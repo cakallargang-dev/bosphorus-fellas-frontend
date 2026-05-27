@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Instagram, Film, X } from "lucide-react";
 
 export function Footer() {
   return (
@@ -46,14 +46,14 @@ export function Footer() {
               className="text-gray-600 hover:text-mancave-gold transition-colors"
               aria-label="Youtube"
             >
-              <Youtube className="w-4 h-4" />
+              <Film className="w-4 h-4" />
             </a>
             <a
               href="#"
               className="text-gray-600 hover:text-mancave-gold transition-colors"
-              aria-label="Twitter"
+              aria-label="X (Twitter)"
             >
-              <Twitter className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </a>
           </div>
         </div>
