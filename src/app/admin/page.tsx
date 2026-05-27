@@ -323,12 +323,19 @@ function ApplicationsTab() {
       action: "approve" | "reject";
       reason?: string;
     }) => applicationsApi.review({ applicationId: id, action, reason }),
-    onSuccess: (_, vars) => {
-      toast.success(
-        vars.action === "approve"
-          ? "Başvuru onaylandı!"
-          : "Başvuru reddedildi"
-      );
+    onSuccess: (data: any, vars) => {
+      if (vars.action === "approve" && data?.data?.tempPassword) {
+        toast.success("Başvuru onaylandı! 🎉", {
+          description: `Geçici şifre: ${data.data.tempPassword}\nÜye bu şifreyle giriş yapabilir.`,
+          duration: 15000,
+        });
+      } else {
+        toast.success(
+          vars.action === "approve"
+            ? "Başvuru onaylandı!"
+            : "Başvuru reddedildi"
+        );
+      }
       queryClient.invalidateQueries({ queryKey: ["admin", "applications"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
