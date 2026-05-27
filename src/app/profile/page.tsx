@@ -25,6 +25,7 @@ import {
   Save,
   Lock,
   Camera,
+  LogOut,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -59,7 +60,7 @@ export default function ProfilePage() {
 }
 
 function ProfileContent() {
-  const { user, refreshProfile } = useAuth();
+  const { user, refreshProfile, logout } = useAuth();
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -428,6 +429,20 @@ function ProfileContent() {
                 </Button>
               </div>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Logout */}
+        <Card className="bg-gray-900/50 backdrop-blur border-red-500/20">
+          <CardContent className="pt-6">
+            <Button
+              onClick={logout}
+              variant="destructive"
+              className="w-full bg-red-600 hover:bg-red-700 text-white"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Çıkış Yap
+            </Button>
           </CardContent>
         </Card>
       </div>

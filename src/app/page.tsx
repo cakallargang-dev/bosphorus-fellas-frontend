@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
 import { EventCard } from "@/components/EventCard";
 import { SponsorCard } from "@/components/SponsorCard";
@@ -60,7 +59,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-mancave-bg">
-      <Navbar />
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">
