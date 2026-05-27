@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Home, UserPlus, LogIn, LayoutDashboard, User } from "lucide-react";
+import { Home, UserPlus, LogIn, LayoutDashboard, Shield, MessageCircle, User } from "lucide-react";
 
 export function BottomNav() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -16,7 +16,9 @@ export function BottomNav() {
   ];
 
   const memberLinks = [
-    { href: isAdmin ? "/admin" : "/dashboard", label: "Panel", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    ...(isAdmin ? [{ href: "/admin", label: "Panel", icon: Shield }] : []),
+    { href: "/chat", label: "Sohbet", icon: MessageCircle },
     { href: "/profile", label: "Profil", icon: User },
   ];
 
@@ -31,7 +33,7 @@ export function BottomNav() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-0 flex-1 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-1 px-2 py-2 min-w-0 flex-1 transition-colors ${
                 isActive
                   ? "text-mancave-gold"
                   : "text-gray-500 hover:text-gray-300"
