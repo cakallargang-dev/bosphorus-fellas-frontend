@@ -9,6 +9,7 @@ import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
 import { EventCard } from "@/components/EventCard";
 import { SponsorCard } from "@/components/SponsorCard";
+import { useAuth } from "@/lib/auth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { landingApi } from "@/lib/api";
 import type { LandingPageStats, Event, Sponsor } from "@/types";
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
   const [stats, setStats] = useState<LandingPageStats | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
@@ -30,6 +32,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
     async function fetchData() {
       try {
         const [statsRes, eventsRes, sponsorsRes] = await Promise.all([
@@ -113,8 +119,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      {stats && !error && (
+      {/* Stats — only for authenticated users */}
+      {isAuthenticated && stats && !error && (
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-white text-center mb-12">
@@ -147,8 +153,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* Events Section */}
-      {events.length > 0 && (
+      {/* Events — only for authenticated users */}
+      {isAuthenticated && events.length > 0 && (
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-10">
@@ -173,8 +179,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* Sponsors Section */}
-      {sponsors.length > 0 && (
+      {/* Sponsors — only for authenticated users */}
+      {isAuthenticated && sponsors.length > 0 && (
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-white text-center mb-12">

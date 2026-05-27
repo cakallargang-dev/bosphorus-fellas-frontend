@@ -105,7 +105,19 @@ export function EventCard({
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <MapPin className="w-4 h-4 text-mancave-gold/60 shrink-0" />
-            <span className="truncate">{event.location}</span>
+            {event.locationUrl ? (
+              <a
+                href={event.locationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-mancave-gold hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {event.location}
+              </a>
+            ) : (
+              <span className="truncate">{event.location}</span>
+            )}
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Users className="w-4 h-4 text-mancave-gold/60 shrink-0" />
