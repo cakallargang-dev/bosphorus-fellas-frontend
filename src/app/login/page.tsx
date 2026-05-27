@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -28,15 +28,9 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login, isAuthenticated, isLoading, isAdmin } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.replace(isAdmin ? "/admin" : "/dashboard");
-    return null;
-  }
 
   const {
     register,
@@ -46,12 +40,23 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Redirect if already authenticated (in useEffect to follow Rules of Hooks)
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace(isAdmin ? "/admin" : "/dashboard");
+    }
+  }, [isAuthenticated, isLoading, isAdmin, router]);
+
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
     try {
       await login(data);
       toast.success("Başarıyla giriş yaptınız!");
-      // login() updates state; redirect will happen on re-render
+      // Show nothing while checking auth state
+  if (isLoading) return null;
+
+  // If already logged in, the useEffect above will redirect
+  if (isAuthenticated) return null;
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Giriş yapılırken bir hata oluştu";
