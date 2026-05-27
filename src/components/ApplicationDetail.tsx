@@ -18,7 +18,7 @@ import {
   Calendar,
   MapPin,
   Car,
-  Instagram,
+  Camera,
   Briefcase,
   FileText,
   Clock,
@@ -68,7 +68,7 @@ export function ApplicationDetail({
     { icon: MapPin, label: "Şehir", value: application.city },
     { icon: Car, label: "Araç", value: `${application.carYear} ${application.carBrand} ${application.carModel}` },
     application.instagram
-      ? { icon: Instagram, label: "Instagram", value: `@${application.instagram}` }
+      ? { icon: Camera, label: "Instagram", value: `@${application.instagram}` }
       : null,
     application.occupation
       ? { icon: Briefcase, label: "Meslek", value: application.occupation }

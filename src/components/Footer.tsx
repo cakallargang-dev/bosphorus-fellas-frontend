@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Film, X } from "lucide-react";
+import { Camera, Film, X } from "lucide-react";
 
 export function Footer() {
   return (
@@ -39,7 +39,7 @@ export function Footer() {
               className="text-gray-600 hover:text-mancave-gold transition-colors"
               aria-label="Instagram"
             >
-              <Instagram className="w-4 h-4" />
+              <Camera className="w-4 h-4" />
             </a>
             <a
               href="#"
