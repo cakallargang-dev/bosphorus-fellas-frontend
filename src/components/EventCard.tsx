@@ -36,7 +36,8 @@ export function EventCard({
   const isPast = event.status === "completed" || event.status === "cancelled";
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
-  const eventDate = new Date(event.date);
+  const eventDate = event.date ? new Date(event.date) : null;
+  const isInvalidDate = eventDate && isNaN(eventDate.getTime());
 
   return (
     <Card className="bg-mancave-card border-mancave-border overflow-hidden hover:border-mancave-gold/30 transition-all duration-300 group">
@@ -95,7 +96,7 @@ export function EventCard({
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Calendar className="w-4 h-4 text-mancave-gold/60 shrink-0" />
             <span>
-              {format(eventDate, "d MMMM yyyy", { locale: tr })}
+              {eventDate && !isInvalidDate ? format(eventDate, "d MMMM yyyy", { locale: tr }) : "-"}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">

@@ -875,7 +875,7 @@ function EventsTab() {
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-400 text-sm">
-                    {format(new Date(event.date), "d MMM yyyy", { locale: tr })}
+                    {format(new Date(event.date || Date.now()), "d MMM yyyy", { locale: tr })}
                   </TableCell>
                   <TableCell className="text-gray-500 text-sm max-w-[150px] truncate">
                     {event.location}
@@ -1118,7 +1118,7 @@ function NewsSubTab() {
                     {item.authorName}
                   </TableCell>
                   <TableCell className="text-gray-500 text-sm">
-                    {format(new Date(item.createdAt), "d MMM yyyy", {
+                    {format(new Date(item.createdAt || Date.now()), "d MMM yyyy", {
                       locale: tr,
                     })}
                   </TableCell>

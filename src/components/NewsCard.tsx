@@ -42,7 +42,7 @@ export function NewsCard({ news }: NewsCardProps) {
             </p>
             <div className="flex items-center gap-2 mt-3">
               <span className="text-xs text-gray-600">
-                {format(new Date(news.createdAt), "d MMM yyyy", { locale: tr })}
+                {format(new Date(news.createdAt || Date.now()), "d MMM yyyy", { locale: tr })}
               </span>
               {news.authorName && (
                 <>
