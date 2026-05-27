@@ -72,9 +72,7 @@ export function ApplicationDetail({
     {
       icon: Calendar,
       label: "Doğum Tarihi",
-      value: application.birthDate
-        ? format(new Date(application.birthDate), "d MMMM yyyy", { locale: tr })
-        : "-",
+      value: safeFormat(application.birthDate, "d MMMM yyyy"),
     },
     { icon: MapPin, label: "Şehir", value: application.city },
     { icon: Car, label: "Araç", value: `${application.carYear} ${application.carBrand} ${application.carModel}` },
@@ -177,16 +175,12 @@ export function ApplicationDetail({
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               Başvuru:{" "}
-              {format(new Date(application.createdAt), "d MMM yyyy HH:mm", {
-                locale: tr,
-              })}
+              {safeFormat(application.submittedAt || application.createdAt, "d MMM yyyy HH:mm")}
             </span>
             {application.reviewedAt && (
               <span>
                 Değerlendirme:{" "}
-                {format(new Date(application.reviewedAt), "d MMM yyyy HH:mm", {
-                  locale: tr,
-                })}
+                {safeFormat(application.reviewedAt, "d MMM yyyy HH:mm")}
               </span>
             )}
           </div>
