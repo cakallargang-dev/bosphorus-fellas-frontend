@@ -88,6 +88,26 @@ function appendFormData(formData: FormData, data: object): void {
   });
 }
 
+function hasFile(data: object): boolean {
+  return Object.values(data).some((v) => v instanceof File || v instanceof Blob);
+}
+
+function buildBody(data: object): BodyInit {
+  if (hasFile(data)) {
+    const fd = new FormData();
+    appendFormData(fd, data);
+    return fd;
+  }
+  // Filter out File fields (can't be serialized to JSON)
+  const json: Record<string, unknown> = {};
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && !(value instanceof File) && !(value instanceof Blob)) {
+      json[key] = value;
+    }
+  });
+  return JSON.stringify(json);
+}
+
 function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -113,11 +133,9 @@ export const authApi = {
   getProfile: () => request<ApiResponse<User>>("/api/auth/profile"),
 
   updateProfile: (data: ProfileUpdateData) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<User>>("/api/auth/profile", {
       method: "PUT",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
@@ -144,11 +162,9 @@ export const landingApi = {
 
 export const applicationsApi = {
   submit: (data: ApplicationFormData) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<MembershipApplication>>("/api/applications", {
       method: "POST",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
@@ -220,20 +236,16 @@ export const eventsApi = {
     request<ApiResponse<Event>>(`/api/events/${id}`),
 
   create: (data: EventFormData) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<Event>>("/api/events", {
       method: "POST",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
   update: (id: string, data: Partial<EventFormData>) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<Event>>(`/api/events/${id}`, {
       method: "PUT",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
@@ -270,20 +282,16 @@ export const newsApi = {
     request<ApiResponse<News>>(`/api/news/${id}`),
 
   create: (data: NewsFormData) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<News>>("/api/news", {
       method: "POST",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
   update: (id: string, data: Partial<NewsFormData>) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<News>>(`/api/news/${id}`, {
       method: "PUT",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
@@ -312,20 +320,16 @@ export const sponsorsApi = {
     request<ApiResponse<Sponsor>>(`/api/sponsors/${id}`),
 
   create: (data: SponsorFormData) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<Sponsor>>("/api/sponsors", {
       method: "POST",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
   update: (id: string, data: Partial<SponsorFormData>) => {
-    const formData = new FormData();
-    appendFormData(formData, data);
     return request<ApiResponse<Sponsor>>(`/api/sponsors/${id}`, {
       method: "PUT",
-      body: formData,
+      body: buildBody(data),
     });
   },
 
