@@ -430,6 +430,23 @@ export const productsApi = {
 };
 
 // ============================================================
+// Notifications
+// ============================================================
+
+export const notificationsApi = {
+  registerToken: (token: string, platform: string) =>
+    request<ApiResponse<{ message: string }>>("/api/notifications/register", {
+      method: "POST",
+      body: JSON.stringify({ token, platform }),
+    }),
+  unregisterToken: (token: string) =>
+    request<ApiResponse<{ message: string }>>("/api/notifications/unregister", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
+};
+
+// ============================================================
 // Chat
 // ============================================================
 

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomNav } from "@/components/BottomNav";
+import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 import { ThemeProvider } from "next-themes";
 import { useState, type ReactNode } from "react";
 
@@ -24,6 +25,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <PushNotificationProvider />
           <div className="pb-16">{children}</div>
           <BottomNav />
           <Toaster richColors position="top-right" />

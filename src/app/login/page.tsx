@@ -8,11 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { isBiometricAvailable, authenticateWithBiometric } from "@/lib/native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LogIn, Mail, Lock, Car } from "lucide-react";
+import { LogIn, Mail, Lock, Car, ScanFace } from "lucide-react";
 
 const loginSchema = z.object({
   email: z
@@ -31,6 +32,8 @@ export default function LoginPage() {
   const { login, isAuthenticated, isLoading, isAdmin } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [biometricReady, setBiometricReady] = useState(false);
+  const [bioLogging, setBioLogging] = useState(false);
 
   const {
     register,
@@ -52,11 +55,9 @@ export default function LoginPage() {
     try {
       await login(data);
       toast.success("Başarıyla giriş yaptınız!");
-      // Show nothing while checking auth state
-  if (isLoading) return null;
-
-  // If already logged in, the useEffect above will redirect
-  if (isAuthenticated) return null;
+      // Save credentials for biometric auth
+      localStorage.setItem("mancave_biometric_email", data.email);
+      localStorage.setItem("mancave_biometric_pass", data.password);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Giriş yapılırken bir hata oluştu";
@@ -65,6 +66,38 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Check biometric availability
+  useEffect(() => {
+    isBiometricAvailable().then(setBiometricReady);
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    setBioLogging(true);
+    try {
+      const ok = await authenticateWithBiometric();
+      if (ok) {
+        // Get stored credentials from keychain
+        const email = localStorage.getItem("mancave_biometric_email");
+        const pass = localStorage.getItem("mancave_biometric_pass");
+        if (email && pass) {
+          await login({ email, password: pass });
+          toast.success("Face ID ile giriş yapıldı!");
+        } else {
+          toast.error("Face ID verisi bulunamadı. Lütfen önce manuel giriş yapın.");
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Face ID doğrulaması başarısız");
+    } finally {
+      setBioLogging(false);
+    }
+  };
+
+  // Show loading state
+
+  if (isLoading) return null;
+  if (isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4">
@@ -155,6 +188,38 @@ export default function LoginPage() {
                 </span>
               )}
             </Button>
+
+            {/* Face ID Button */}
+            {biometricReady && (
+              <>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-800" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-mancave-bg px-2 text-gray-600">veya</span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleBiometricLogin}
+                  disabled={bioLogging}
+                  className="w-full bg-white/5 text-white border border-gray-700 hover:bg-white/10 font-medium"
+                >
+                  {bioLogging ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Doğrulanıyor...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <ScanFace className="w-4 h-4" />
+                      Face ID ile Giriş
+                    </span>
+                  )}
+                </Button>
+              </>
+            )}
           </form>
 
           <div className="mt-6 pt-4 border-t border-gray-800 text-center">
