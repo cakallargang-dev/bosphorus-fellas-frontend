@@ -481,10 +481,12 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Support Section — always at bottom */}
-          <div className="mt-6">
-            <SupportSection />
-          </div>
+          {/* Support Section — only on channel list */}
+          {!selectedChannel && (
+            <div className="mt-6">
+              <SupportSection />
+            </div>
+          )}
         </div>
       </Layout>
     </AuthGuard>
