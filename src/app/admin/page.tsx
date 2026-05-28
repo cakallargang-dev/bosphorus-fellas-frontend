@@ -74,6 +74,7 @@ import {
   Star,
   Clock,
   AlertTriangle,
+  KeyRound,
 } from "lucide-react";
 import type {
   MembershipApplication,
@@ -589,6 +590,24 @@ function MembersTab() {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: (id: string) => membersApi.resetPassword(id),
+    onSuccess: (data: any) => {
+      const tempPw = data?.data?.tempPassword;
+      toast.success("Şifre sıfırlandı!", {
+        description: tempPw
+          ? `Yeni geçici şifre: ${tempPw}`
+          : "Üye yeni şifreyle giriş yapabilir",
+        duration: 15000,
+      });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Şifre sıfırlama başarısız"
+      );
+    },
+  });
+
   const members = data?.data ?? [];
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -694,25 +713,46 @@ function MembersTab() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        toggleMutation.mutate({
-                          id: member.id,
-                          status:
-                            member.status === "active" ? "inactive" : "active",
-                        })
-                      }
-                      disabled={toggleMutation.isPending}
-                      className={
-                        member.status === "active"
-                          ? "border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
-                          : "border-green-500/30 text-green-400 hover:bg-green-500/10 text-xs"
-                      }
-                    >
-                      {member.status === "active" ? "Pasif Yap" : "Aktif Yap"}
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      {member.role !== "admin" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (
+                              confirm(
+                                `${member.firstName} ${member.lastName} için şifreyi sıfırlamak istediğinize emin misiniz?`
+                              )
+                            ) {
+                              resetPasswordMutation.mutate(member.id);
+                            }
+                          }}
+                          disabled={resetPasswordMutation.isPending}
+                          className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
+                        >
+                          <KeyRound className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          toggleMutation.mutate({
+                            id: member.id,
+                            status:
+                              member.status === "active" ? "inactive" : "active",
+                          })
+                        }
+                        disabled={toggleMutation.isPending}
+                        className={
+                          member.status === "active"
+                            ? "border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                            : "border-green-500/30 text-green-400 hover:bg-green-500/10 text-xs"
+                        }
+                      >
+                        {member.status === "active" ? "Pasif Yap" : "Aktif Yap"}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

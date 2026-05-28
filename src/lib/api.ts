@@ -147,6 +147,21 @@ export const authApi = {
 };
 
 // ============================================================
+// Reference Codes
+// ============================================================
+
+export const referansApi = {
+  getCode: () =>
+    request<ApiResponse<{ code: string; expiresAt: string }>>("/api/auth/referans-kodu"),
+
+  verifyCode: (code: string) =>
+    request<ApiResponse<{ ownerName: string }>>("/api/auth/referans-kodu/verify", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    }),
+};
+
+// ============================================================
 // Landing Page
 // ============================================================
 
@@ -216,6 +231,12 @@ export const membersApi = {
       method: "PUT",
       body: JSON.stringify({ status }),
     }),
+
+  resetPassword: (id: string) =>
+    request<ApiResponse<{ tempPassword: string }>>(
+      `/api/members/${id}/reset-password`,
+      { method: "POST" }
+    ),
 };
 
 // ============================================================
@@ -347,4 +368,28 @@ export const dashboardApi = {
   getData: () => request<ApiResponse<DashboardData>>("/api/dashboard"),
   getAdminStats: () =>
     request<ApiResponse<AdminDashboardStats>>("/api/dashboard/admin"),
+};
+
+// ============================================================
+// Chat
+// ============================================================
+
+export const chatApi = {
+  getMessages: (channel: string) =>
+    request<ApiResponse<any[]>>(`/api/chat/${channel}`),
+  sendMessage: (channel: string, content: string) =>
+    request<ApiResponse<any>>(`/api/chat/${channel}`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+  getSupport: () => request<ApiResponse<any[]>>("/api/chat/support"),
+  sendSupport: (content: string) =>
+    request<ApiResponse<any>>("/api/chat/support", {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    }),
+  toggleSupportReplied: (id: string) =>
+    request<ApiResponse<any>>(`/api/chat/support/${id}/reply`, {
+      method: "PUT",
+    }),
 };
