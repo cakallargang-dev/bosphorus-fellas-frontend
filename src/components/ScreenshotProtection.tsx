@@ -59,19 +59,18 @@ export function ScreenshotProtection() {
       }
     };
 
-    // ── Detect DevTools via size delta ──────────────────
-    // Heuristic: if window.innerWidth differs significantly from
-    // outerWidth, DevTools is likely open (side-docked).
+    // ── Detect DevTools via size delta (blur removed per user request) ──
+    // Kept disabled — uncomment the block below to re-enable.
+    /*
     let devToolsWarned = false;
     const detectDevTools = () => {
-      const threshold = 160; // px difference
+      const threshold = 160;
       if (
         window.outerWidth - window.innerWidth > threshold ||
         window.outerHeight - window.innerHeight > threshold
       ) {
         if (!devToolsWarned) {
           devToolsWarned = true;
-          // Overlay warning (non-blocking, just annoying)
           document.body.style.filter = "blur(8px)";
           document.body.style.pointerEvents = "none";
           setTimeout(() => {
@@ -82,11 +81,12 @@ export function ScreenshotProtection() {
         }
       }
     };
+    const dtInterval = setInterval(detectDevTools, 2000);
+    */
 
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
     document.addEventListener("keydown", onKeyDown);
-    const dtInterval = setInterval(detectDevTools, 2000);
 
     // ── CSS: disable text selection & iOS callout ──
     const style = document.createElement("style");
@@ -121,7 +121,6 @@ export function ScreenshotProtection() {
       document.removeEventListener("contextmenu", onContextMenu);
       document.removeEventListener("dragstart", onDragStart);
       document.removeEventListener("keydown", onKeyDown);
-      clearInterval(dtInterval);
       const el = document.getElementById("screenshot-protection");
       if (el) el.remove();
     };
