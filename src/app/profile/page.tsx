@@ -22,6 +22,7 @@ import {
   Mail,
   Phone,
   MapPin,
+  Car,
   Save,
   Lock,
   Camera,
@@ -37,6 +38,9 @@ const profileSchema = z.object({
   lastName: z.string().min(2, "Soyad en az 2 karakter olmalıdır"),
   phone: z.string().optional(),
   city: z.string().optional(),
+  carBrand: z.string().optional(),
+  carModel: z.string().optional(),
+  plateNumber: z.string().optional(),
   about: z.string().optional(),
 });
 
@@ -219,6 +223,9 @@ function ProfileContent() {
       lastName: user?.lastName ?? "",
       phone: user?.phone ?? "",
       city: user?.city ?? "",
+      carBrand: user?.carBrand ?? "",
+      carModel: user?.carModel ?? "",
+      plateNumber: user?.plateNumber ?? "",
       about: "",
     },
   });
@@ -240,6 +247,9 @@ function ProfileContent() {
         lastName: data.lastName,
         phone: data.phone || undefined,
         city: data.city || undefined,
+        carBrand: data.carBrand || undefined,
+        carModel: data.carModel || undefined,
+        plateNumber: data.plateNumber || undefined,
         avatar: removeAvatar ? (null as unknown as File) : avatarFile || undefined,
       });
       await refreshProfile();
@@ -429,6 +439,43 @@ function ProfileContent() {
                     />
                   </div>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="carBrand" className="text-gray-300">
+                  Araç Markası
+                </Label>
+                <div className="relative">
+                  <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  <Input
+                    id="carBrand"
+                    placeholder="BMW"
+                    className="pl-10 bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    {...registerProfile("carBrand")}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="carModel" className="text-gray-300">
+                  Araç Modeli
+                </Label>
+                <Input
+                  id="carModel"
+                  placeholder="M3"
+                  className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                  {...registerProfile("carModel")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plateNumber" className="text-gray-300">
+                  Plaka
+                </Label>
+                <Input
+                  id="plateNumber"
+                  placeholder="34 ABC 123"
+                  className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                  {...registerProfile("plateNumber")}
+                />
               </div>
 
               <div className="space-y-2">

@@ -6,6 +6,7 @@ import type {
   ApiResponse,
   PaginatedResponse,
   User,
+  UserPublicProfile,
   LoginRequest,
   LoginResponse,
   MembershipApplication,
@@ -146,6 +147,9 @@ export const authApi = {
       method: "PUT",
       body: JSON.stringify(data),
     }),
+
+  getPublicProfile: (userId: string) =>
+    request<ApiResponse<UserPublicProfile>>(`/api/users/${userId}/profile`),
 };
 
 // ============================================================

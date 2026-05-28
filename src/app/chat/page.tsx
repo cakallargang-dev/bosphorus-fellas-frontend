@@ -4,13 +4,17 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
-import { chatApi } from "@/lib/api";
+import { chatApi, authApi } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import {
   MessageCircle,
   Send,
@@ -23,8 +27,9 @@ import {
   Flame,
   Flag,
   Car,
+  X,
 } from "lucide-react";
-import type { ChatMessage, SupportMessage } from "@/types";
+import type { ChatMessage, SupportMessage, UserPublicProfile } from "@/types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -226,6 +231,9 @@ function ChannelChatView({
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<UserPublicProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
   const msgCountRef = useRef(0);
@@ -268,6 +276,21 @@ function ChannelChatView({
       }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleOpenProfile = async (userId: string) => {
+    if (userId === user?.id) return;
+    setProfileUserId(userId);
+    setProfileLoading(true);
+    setProfileData(null);
+    try {
+      const res = await authApi.getPublicProfile(userId);
+      setProfileData(res.data);
+    } catch {
+      setProfileData(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   const handleSend = async () => {
     const trimmed = input.trim();
@@ -330,19 +353,25 @@ function ChannelChatView({
                 msg.senderId === user?.id ? "flex-row-reverse" : ""
               }`}
             >
-              {/* Avatar */}
-              <Avatar className="w-8 h-8 shrink-0 mt-0.5">
-                <AvatarImage
-                  src={
-                    msg.sender?.avatar
-                      ? `${apiBase}${msg.sender.avatar}`
-                      : undefined
-                  }
-                />
-                <AvatarFallback className="bg-[#d4a853]/20 text-[#d4a853] text-xs">
-                  {msg.senderName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              {/* Avatar — clickable */}
+              <button
+                onClick={() => handleOpenProfile(msg.senderId)}
+                className="shrink-0 mt-0.5 cursor-pointer"
+                title="Profile bak"
+              >
+                <Avatar className="w-8 h-8 hover:ring-2 hover:ring-[#d4a853]/50 transition-all">
+                  <AvatarImage
+                    src={
+                      msg.sender?.avatar
+                        ? `${apiBase}${msg.sender.avatar}`
+                        : undefined
+                    }
+                  />
+                  <AvatarFallback className="bg-[#d4a853]/20 text-[#d4a853] text-xs">
+                    {msg.senderName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
               {/* Bubble */}
               <div
                 className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
@@ -356,6 +385,24 @@ function ChannelChatView({
                     {msg.senderId === user?.id ? "Sen" : msg.senderName}
                   </span>
                 </div>
+                {(msg.sender?.carBrand || msg.sender?.plateNumber) && (
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Car className="w-3 h-3 text-gray-600" />
+                    <span className="text-[10px] text-gray-500">
+                      {[msg.sender.carBrand, msg.sender.carModel]
+                        .filter(Boolean)
+                        .join(" ") || "—"}
+                      {msg.sender.plateNumber && (
+                        <>
+                          {" · "}
+                          <span className="text-gray-400 font-mono">
+                            {msg.sender.plateNumber}
+                          </span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                )}
                 <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                 <span className="text-[10px] text-gray-600 mt-1 block text-right">
                   {formatTime(msg.createdAt)}
@@ -390,6 +437,57 @@ function ChannelChatView({
           <Send className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Profile Dialog */}
+      <Dialog open={!!profileUserId} onOpenChange={() => setProfileUserId(null)}>
+        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-sm">
+          {profileLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-[#d4a853]/30 border-t-[#d4a853] rounded-full animate-spin" />
+            </div>
+          ) : profileData ? (
+            <div className="text-center space-y-4">
+              <Avatar className="w-20 h-20 mx-auto border-2 border-[#d4a853]/30">
+                <AvatarImage
+                  src={profileData.avatar ? `${apiBase}${profileData.avatar}` : undefined}
+                />
+                <AvatarFallback className="bg-[#d4a853]/10 text-[#d4a853] text-2xl">
+                  {profileData.firstName?.[0]}{profileData.lastName?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-white text-lg font-semibold">
+                  {profileData.firstName} {profileData.lastName}
+                </h3>
+              </div>
+              <div className="space-y-2 text-left bg-[#111] rounded-lg p-3">
+                {profileData.phone && (
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="text-gray-600 w-16 text-xs">Telefon</span>
+                    <span className="text-gray-300">{profileData.phone}</span>
+                  </div>
+                )}
+                {profileData.carBrand && (
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="text-gray-600 w-16 text-xs">Araç</span>
+                    <span className="text-gray-300">
+                      {[profileData.carBrand, profileData.carModel].filter(Boolean).join(" ")}
+                    </span>
+                  </div>
+                )}
+                {profileData.plateNumber && (
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="text-gray-600 w-16 text-xs">Plaka</span>
+                    <span className="text-gray-300 font-mono">{profileData.plateNumber}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-4">Profil yüklenemedi</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

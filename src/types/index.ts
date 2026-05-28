@@ -14,7 +14,21 @@ export interface User {
   role: "user" | "admin";
   avatar?: string;
   status: "active" | "inactive" | "pending";
+  carBrand?: string;
+  carModel?: string;
+  plateNumber?: string;
   createdAt: string;
+}
+
+export interface UserPublicProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  avatar?: string;
+  carBrand?: string;
+  carModel?: string;
+  plateNumber?: string;
 }
 
 export interface LoginRequest {
@@ -248,6 +262,9 @@ export interface ProfileUpdateData {
   about?: string;
   instagram?: string;
   avatar?: File;
+  carBrand?: string;
+  carModel?: string;
+  plateNumber?: string;
 }
 
 export interface PasswordChangeData {
@@ -265,6 +282,10 @@ export interface ChatMessage {
   createdAt: string;
   sender?: {
     avatar: string | null;
+    carBrand: string | null;
+    carModel: string | null;
+    plateNumber: string | null;
+    phone: string | null;
   };
 }
 
