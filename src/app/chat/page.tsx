@@ -73,9 +73,9 @@ function SupportSection() {
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
-  const [replying, setReplying] = useState<Record<string, boolean>>({});
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const { data, isLoading } = useQuery({
     queryKey: ["support-messages"],
@@ -85,13 +85,29 @@ function SupportSection() {
 
   const messages: SupportMessage[] = (data as any)?.data ?? [];
 
+  // Admin: group by sender, member: filter own messages
+  const memberIds = isAdmin
+    ? [...new Set(messages.map((m) => m.senderId))]
+    : [user?.id || ""];
+
+  // If admin hasn't selected a member, and there are members, auto-select first
+  useEffect(() => {
+    if (isAdmin && !selectedMemberId && memberIds.length > 0) {
+      setSelectedMemberId(memberIds[0]);
+    }
+  }, [isAdmin, selectedMemberId, memberIds]);
+
+  const filteredMessages = isAdmin
+    ? messages.filter((m) => m.senderId === selectedMemberId)
+    : messages;
+
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages.length, scrollToBottom]);
+  }, [filteredMessages.length, scrollToBottom]);
 
   const handleSend = async () => {
     const trimmed = input.trim();
@@ -108,124 +124,161 @@ function SupportSection() {
     }
   };
 
-  const handleReply = async (msgId: string) => {
-    const reply = replyInputs[msgId]?.trim();
-    if (!reply) return;
-    setReplying((p) => ({ ...p, [msgId]: true }));
+  const handleAdminSend = async () => {
+    const trimmed = input.trim();
+    if (!trimmed || sending || !selectedMemberId) return;
+    // Find the latest unread message from this member
+    const latestMsg = [...filteredMessages].reverse().find((m) => !m.replied && m.senderId === selectedMemberId);
+    if (!latestMsg) {
+      // If all messages are replied, reply to the last one
+      const lastMsg = [...filteredMessages].reverse().find((m) => m.senderId === selectedMemberId);
+      if (!lastMsg) return;
+      setSending(true);
+      try {
+        await chatApi.replySupport(lastMsg.id, trimmed);
+        setInput("");
+        queryClient.invalidateQueries({ queryKey: ["support-messages"] });
+      } catch {
+        // handled
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
+    setSending(true);
     try {
-      await chatApi.replySupport(msgId, reply);
-      setReplyInputs((p) => { const n = { ...p }; delete n[msgId]; return n; });
+      await chatApi.replySupport(latestMsg.id, trimmed);
+      setInput("");
       queryClient.invalidateQueries({ queryKey: ["support-messages"] });
     } catch {
       // handled
     } finally {
-      setReplying((p) => ({ ...p, [msgId]: false }));
+      setSending(false);
     }
   };
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+  // Get member name by ID
+  const getMemberName = (senderId: string) => {
+    const msg = messages.find((m) => m.senderId === senderId);
+    return msg?.senderName || "Üye";
+  };
 
-  // For admin: show list of members (grouped by sender)
-  const isAdminView = isAdmin && messages.length > 0;
+  // Count unreplied per member
+  const getUnrepliedCount = (senderId: string) =>
+    messages.filter((m) => m.senderId === senderId && !m.replied).length;
 
   return (
-    <div className="rounded-xl border border-mancave-border bg-mancave-bg/50 p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
-          <ShieldAlert className="w-4 h-4 text-[#3b82f6]" />
-        </div>
-        <h3 className="text-sm font-semibold text-white">
-          {isAdmin ? "Destek Talepleri" : "Yöneticiye Mesaj"}
-        </h3>
-        {!isAdmin && (
-          <span className="text-xs text-mancave-muted">Özel</span>
-        )}
-      </div>
-
-      {/* Messages */}
-      <div className="max-h-80 overflow-y-auto space-y-3 mb-3 pr-1">
-        {isLoading && (
-          <p className="text-center text-mancave-muted text-xs py-4">Yükleniyor...</p>
-        )}
-        {!isLoading && messages.length === 0 && (
-          <p className="text-center text-mancave-muted text-xs py-4">
-            {isAdmin ? "Henüz destek talebi yok." : "Yöneticiye özel mesaj gönderebilirsin."}
-          </p>
-        )}
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {/* User message */}
-              <div
-                className={`rounded-2xl p-3 text-sm ${
-                  msg.senderId === user?.id
-                    ? "bg-[#3b82f6]/15 text-white ml-4 rounded-tr-md"
-                    : "bg-white/5 text-white/90 mr-4 rounded-tl-md"
+    <div className="flex flex-col h-full">
+      {/* Admin: member selector */}
+      {isAdmin && memberIds.length > 0 && (
+        <div className="flex gap-1 overflow-x-auto pb-2 mb-2 border-b border-mancave-border no-scrollbar">
+          {memberIds.map((mid) => {
+            const unread = getUnrepliedCount(mid);
+            return (
+              <button
+                key={mid}
+                onClick={() => setSelectedMemberId(mid)}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
+                  selectedMemberId === mid
+                    ? "bg-[#3b82f6] text-white"
+                    : "bg-white/5 text-gray-400 hover:bg-white/10"
                 }`}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <Avatar className="w-5 h-5">
-                    <AvatarImage
-                      src={msg.sender?.avatar ? `${apiBase}${msg.sender.avatar}` : undefined}
-                    />
-                    <AvatarFallback className="text-[10px] bg-[#3b82f6]/20 text-[#3b82f6]">
-                      {msg.senderName.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs font-medium text-[#3b82f6]/70">
-                    {msg.senderId === user?.id ? "Sen" : msg.senderName}
+                {getMemberName(mid)}
+                {unread > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full font-bold">
+                    {unread}
                   </span>
-                  <span className="text-[10px] text-mancave-muted ml-auto">
-                    {formatTime(msg.createdAt)}
-                  </span>
-                </div>
-                <p className="whitespace-pre-wrap break-words text-sm">{msg.content}</p>
-              </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-              {/* Admin reply */}
-              {msg.reply && (
-                <div className="bg-[#3b82f6]/5 border border-[#3b82f6]/10 rounded-2xl rounded-tr-md p-3 text-sm mt-1 ml-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-[#3b82f6]">Yönetici</span>
-                    <span className="text-[10px] text-mancave-muted ml-auto">
-                      {msg.replyAt ? formatTime(msg.replyAt) : ""}
+      {/* Messages — chat bubbles */}
+      <div className="flex-1 overflow-y-auto space-y-2 pr-1 mb-3">
+        {isLoading && (
+          <p className="text-center text-gray-500 text-xs py-8">Yükleniyor...</p>
+        )}
+        {!isLoading && filteredMessages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <ShieldAlert className="w-10 h-10 mb-2 opacity-30" />
+            <p className="text-xs">
+              {isAdmin ? "Üye seç" : "Yöneticiye mesaj gönderebilirsin"}
+            </p>
+          </div>
+        )}
+        <AnimatePresence initial={false}>
+          {filteredMessages.map((msg) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, x: msg.senderId === user?.id ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Member message */}
+              <div
+                className={`flex gap-2 ${
+                  msg.senderId === user?.id ? "flex-row-reverse" : ""
+                }`}
+              >
+                <Avatar className="w-7 h-7 shrink-0 mt-0.5">
+                  <AvatarImage
+                    src={msg.sender?.avatar ? `${apiBase}${msg.sender.avatar}` : undefined}
+                  />
+                  <AvatarFallback className="text-[10px] bg-[#3b82f6]/20 text-[#3b82f6]">
+                    {msg.senderName.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div
+                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                    msg.senderId === user?.id
+                      ? "bg-[#3b82f6]/20 text-white rounded-tr-md"
+                      : "bg-white/5 text-white/90 rounded-tl-md"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-medium text-[#3b82f6]/70">
+                      {msg.senderId === user?.id ? "Sen" : msg.senderName}
+                    </span>
+                    <span className="text-[10px] text-gray-600 ml-auto">
+                      {formatTime(msg.createdAt)}
                     </span>
                   </div>
-                  <p className="text-white/80 text-sm">{msg.reply}</p>
+                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                 </div>
-              )}
+              </div>
 
-              {/* Admin reply input — only for unreplied messages */}
-              {isAdmin && !msg.replied && (
-                <div className="flex gap-1.5 mt-1 ml-4">
-                  <input
-                    type="text"
-                    value={replyInputs[msg.id] || ""}
-                    onChange={(e) =>
-                      setReplyInputs((p) => ({ ...p, [msg.id]: e.target.value }))
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleReply(msg.id);
-                      }
-                    }}
-                    placeholder="Cevapla..."
-                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder:text-mancave-muted outline-none focus:border-[#3b82f6]/50"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={() => handleReply(msg.id)}
-                    disabled={!replyInputs[msg.id]?.trim() || replying[msg.id]}
-                    className="h-8 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black text-xs"
+              {/* Admin reply — as a separate bubble */}
+              {msg.reply && (
+                <div
+                  className={`flex gap-2 mt-1 ${
+                    msg.senderId === user?.id ? "" : "flex-row-reverse"
+                  }`}
+                >
+                  <Avatar className="w-7 h-7 shrink-0 mt-0.5">
+                    <AvatarFallback className="text-[10px] bg-[#06b6d4]/20 text-[#06b6d4]">
+                      Y
+                    </AvatarFallback>
+                  </Avatar>
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                      msg.senderId === user?.id
+                        ? "bg-[#06b6d4]/10 text-white/90 rounded-tl-md"
+                        : "bg-[#06b6d4]/20 text-white rounded-tr-md"
+                    }`}
                   >
-                    Gönder
-                  </Button>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-medium text-[#06b6d4]">
+                        {isAdmin ? "Sen" : "Yönetici"}
+                      </span>
+                      <span className="text-[10px] text-gray-600 ml-auto">
+                        {msg.replyAt ? formatTime(msg.replyAt) : ""}
+                      </span>
+                    </div>
+                    <p className="whitespace-pre-wrap break-words">{msg.reply}</p>
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -234,31 +287,29 @@ function SupportSection() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input — only for non-admin */}
-      {!isAdmin && (
-        <div className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            placeholder="Yöneticiye mesaj yaz..."
-            className="min-h-[40px] h-[40px] resize-none bg-white/5 border-white/20 text-white placeholder:text-mancave-muted text-sm"
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!input.trim() || sending}
-            size="icon"
-            className="h-[40px] w-[40px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
+      {/* Input */}
+      <div className="flex gap-2">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              isAdmin ? handleAdminSend() : handleSend();
+            }
+          }}
+          placeholder={isAdmin ? "Cevap yaz..." : "Yöneticiye mesaj yaz..."}
+          className="min-h-[40px] h-[40px] resize-none bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-sm"
+        />
+        <Button
+          onClick={() => (isAdmin ? handleAdminSend() : handleSend())}
+          disabled={!input.trim() || sending}
+          size="icon"
+          className="h-[40px] w-[40px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
+        >
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
