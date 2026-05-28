@@ -66,9 +66,9 @@ function setReadCount(channel: string, count: number) {
   localStorage.setItem(READ_COUNTS_KEY, JSON.stringify(counts));
 }
 
-// ─── Support Section (Private Admin-Member Chat) ───
+// ─── Support Chat View (Full-screen Private Admin-Member Chat) ───
 
-function SupportSection() {
+function SupportChatView({ onBack }: { onBack: () => void }) {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
@@ -169,6 +169,29 @@ function SupportSection() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-3 pb-2 border-b border-mancave-border">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
+          className="h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div className="w-7 h-7 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
+          <ShieldAlert className="w-3.5 h-3.5 text-[#3b82f6]" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-white">
+            {isAdmin ? "Destek" : "Yönetici ile Sohbet"}
+          </h3>
+          <p className="text-[10px] text-gray-600">
+            {isAdmin ? "Üyelerle özel görüşme" : "Özel mesaj"}
+          </p>
+        </div>
+      </div>
+
       {/* Admin: member selector */}
       {isAdmin && memberIds.length > 0 && (
         <div className="flex gap-1 overflow-x-auto pb-2 mb-2 border-b border-mancave-border no-scrollbar">
@@ -688,22 +711,36 @@ export default function ChatPage() {
   const [selectedChannel, setSelectedChannel] = useState<
     (typeof CHANNELS)[number] | null
   >(null);
+  const [showSupport, setShowSupport] = useState(false);
 
   return (
     <AuthGuard>
       <Layout hideFooter>
         <div className="flex flex-col h-full">
-          {/* Compact header */}
+          {/* Compact header with support toggle */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
             <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
               <MessageCircle className="w-4 h-4 text-[#3b82f6]" />
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-base font-bold text-white">Sohbet</h2>
             </div>
+            {!selectedChannel && (
+              <button
+                onClick={() => setShowSupport((v) => !v)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
+                  showSupport
+                    ? "bg-[#3b82f6] text-white"
+                    : "bg-white/5 text-gray-400 hover:bg-white/10"
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                Destek
+              </button>
+            )}
           </div>
 
-          {/* Main Content — fills remaining space */}
+          {/* Main Content */}
           <div className="flex-1 overflow-hidden">
             {selectedChannel ? (
               <div className="h-full flex flex-col p-4">
@@ -712,13 +749,13 @@ export default function ChatPage() {
                   onBack={() => setSelectedChannel(null)}
                 />
               </div>
+            ) : showSupport ? (
+              <div className="h-full p-4">
+                <SupportChatView onBack={() => setShowSupport(false)} />
+              </div>
             ) : (
               <div className="h-full overflow-y-auto p-4">
                 <ChannelList onSelectChannel={setSelectedChannel} />
-                {/* Support Section */}
-                <div className="mt-4">
-                  <SupportSection />
-                </div>
               </div>
             )}
           </div>
