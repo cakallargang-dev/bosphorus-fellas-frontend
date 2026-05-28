@@ -66,13 +66,15 @@ function setReadCount(channel: string, count: number) {
   localStorage.setItem(READ_COUNTS_KEY, JSON.stringify(counts));
 }
 
-// ─── Support Section ─────────────────────────────────────────────────────────
+// ─── Support Section (Private Admin-Member Chat) ───
 
 function SupportSection() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
+  const [replying, setReplying] = useState<Record<string, boolean>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
@@ -100,43 +102,54 @@ function SupportSection() {
       setInput("");
       queryClient.invalidateQueries({ queryKey: ["support-messages"] });
     } catch {
-      // error handled by api layer
+      // handled
     } finally {
       setSending(false);
     }
   };
 
-  const handleToggleReplied = async (id: string) => {
+  const handleReply = async (msgId: string) => {
+    const reply = replyInputs[msgId]?.trim();
+    if (!reply) return;
+    setReplying((p) => ({ ...p, [msgId]: true }));
     try {
-      await chatApi.toggleSupportReplied(id);
+      await chatApi.replySupport(msgId, reply);
+      setReplyInputs((p) => { const n = { ...p }; delete n[msgId]; return n; });
       queryClient.invalidateQueries({ queryKey: ["support-messages"] });
     } catch {
       // handled
+    } finally {
+      setReplying((p) => ({ ...p, [msgId]: false }));
     }
   };
 
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+
+  // For admin: show list of members (grouped by sender)
+  const isAdminView = isAdmin && messages.length > 0;
+
   return (
-    <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
-          <ShieldAlert className="w-5 h-5 text-[#3b82f6]" />
+    <div className="rounded-xl border border-mancave-border bg-mancave-bg/50 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-7 h-7 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
+          <ShieldAlert className="w-4 h-4 text-[#3b82f6]" />
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-white">Destek</h3>
-          <p className="text-sm text-gray-400">
-            Sorularını veya sorunlarını buradan iletebilirsin
-          </p>
-        </div>
+        <h3 className="text-sm font-semibold text-white">
+          {isAdmin ? "Destek Talepleri" : "Yöneticiye Mesaj"}
+        </h3>
+        {!isAdmin && (
+          <span className="text-xs text-mancave-muted">Özel</span>
+        )}
       </div>
 
       {/* Messages */}
-      <div className="max-h-64 overflow-y-auto space-y-3 mb-4 pr-1">
+      <div className="max-h-80 overflow-y-auto space-y-3 mb-3 pr-1">
         {isLoading && (
-          <p className="text-center text-mancave-muted text-sm">Yükleniyor...</p>
+          <p className="text-center text-mancave-muted text-xs py-4">Yükleniyor...</p>
         )}
         {!isLoading && messages.length === 0 && (
-          <p className="text-center text-mancave-muted text-sm py-4">
-            Henüz destek mesajı yok. Bir şey sormak istersen aşağıdan yazabilirsin.
+          <p className="text-center text-mancave-muted text-xs py-4">
+            {isAdmin ? "Henüz destek talebi yok." : "Yöneticiye özel mesaj gönderebilirsin."}
           </p>
         )}
         <AnimatePresence initial={false}>
@@ -145,42 +158,73 @@ function SupportSection() {
               key={msg.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className={`rounded-lg p-3 text-sm ${
-                msg.senderId === user?.id
-                  ? "bg-[#3b82f6]/10 border border-[#3b82f6]/20 ml-4"
-                  : "bg-white/5 border border-white/10 mr-4"
-              }`}
+              transition={{ duration: 0.2 }}
             >
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-xs font-medium text-gray-400">
-                  {msg.senderId === user?.id ? "Sen" : msg.senderName}
-                </span>
-                <span className="text-xs text-mancave-muted">
-                  {formatTime(msg.createdAt)}
-                </span>
-              </div>
-              <p className="text-white/90 whitespace-pre-wrap">{msg.content}</p>
-              {isAdmin && (
-                <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-xs text-mancave-muted">
-                    {msg.replied ? (
-                      <span className="flex items-center gap-1 text-green-400">
-                        <Check className="w-3 h-3" /> Yanıtlandı
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-yellow-400">
-                        <Clock className="w-3 h-3" /> Bekliyor
-                      </span>
-                    )}
+              {/* User message */}
+              <div
+                className={`rounded-2xl p-3 text-sm ${
+                  msg.senderId === user?.id
+                    ? "bg-[#3b82f6]/15 text-white ml-4 rounded-tr-md"
+                    : "bg-white/5 text-white/90 mr-4 rounded-tl-md"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Avatar className="w-5 h-5">
+                    <AvatarImage
+                      src={msg.sender?.avatar ? `${apiBase}${msg.sender.avatar}` : undefined}
+                    />
+                    <AvatarFallback className="text-[10px] bg-[#3b82f6]/20 text-[#3b82f6]">
+                      {msg.senderName.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium text-[#3b82f6]/70">
+                    {msg.senderId === user?.id ? "Sen" : msg.senderName}
                   </span>
+                  <span className="text-[10px] text-mancave-muted ml-auto">
+                    {formatTime(msg.createdAt)}
+                  </span>
+                </div>
+                <p className="whitespace-pre-wrap break-words text-sm">{msg.content}</p>
+              </div>
+
+              {/* Admin reply */}
+              {msg.reply && (
+                <div className="bg-[#3b82f6]/5 border border-[#3b82f6]/10 rounded-2xl rounded-tr-md p-3 text-sm mt-1 ml-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-[#3b82f6]">Yönetici</span>
+                    <span className="text-[10px] text-mancave-muted ml-auto">
+                      {msg.replyAt ? formatTime(msg.replyAt) : ""}
+                    </span>
+                  </div>
+                  <p className="text-white/80 text-sm">{msg.reply}</p>
+                </div>
+              )}
+
+              {/* Admin reply input — only for unreplied messages */}
+              {isAdmin && !msg.replied && (
+                <div className="flex gap-1.5 mt-1 ml-4">
+                  <input
+                    type="text"
+                    value={replyInputs[msg.id] || ""}
+                    onChange={(e) =>
+                      setReplyInputs((p) => ({ ...p, [msg.id]: e.target.value }))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleReply(msg.id);
+                      }
+                    }}
+                    placeholder="Cevapla..."
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-white text-xs placeholder:text-mancave-muted outline-none focus:border-[#3b82f6]/50"
+                  />
                   <Button
-                    variant="outline"
                     size="sm"
-                    onClick={() => handleToggleReplied(msg.id)}
-                    className="h-7 text-xs border-white/20 text-gray-400 hover:text-white hover:border-white/40"
+                    onClick={() => handleReply(msg.id)}
+                    disabled={!replyInputs[msg.id]?.trim() || replying[msg.id]}
+                    className="h-8 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black text-xs"
                   >
-                    {msg.replied ? "Geri Al" : "Yanıtlandı"}
+                    Gönder
                   </Button>
                 </div>
               )}
@@ -190,29 +234,31 @@ function SupportSection() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex gap-2">
-        <Textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
-          placeholder="Mesajını yaz..."
-          className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-mancave-muted text-sm"
-        />
-        <Button
-          onClick={handleSend}
-          disabled={!input.trim() || sending}
-          size="icon"
-          className="h-[44px] w-[44px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
-        >
-          <Send className="w-4 h-4" />
-        </Button>
-      </div>
+      {/* Input — only for non-admin */}
+      {!isAdmin && (
+        <div className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Yöneticiye mesaj yaz..."
+            className="min-h-[40px] h-[40px] resize-none bg-white/5 border-white/20 text-white placeholder:text-mancave-muted text-sm"
+          />
+          <Button
+            onClick={handleSend}
+            disabled={!input.trim() || sending}
+            size="icon"
+            className="h-[40px] w-[40px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

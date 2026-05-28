@@ -451,8 +451,11 @@ export const chatApi = {
       method: "POST",
       body: JSON.stringify({ content }),
     }),
-  toggleSupportReplied: (id: string) =>
+  replySupport: (id: string, reply: string) =>
     request<ApiResponse<any>>(`/api/chat/support/${id}/reply`, {
       method: "PUT",
+      body: JSON.stringify({ reply }),
     }),
+  getSupportUnread: () =>
+    request<ApiResponse<{ count: number }>>("/api/chat/support/unread"),
 };

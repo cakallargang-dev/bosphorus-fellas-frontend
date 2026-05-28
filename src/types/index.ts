@@ -295,5 +295,10 @@ export interface SupportMessage {
   senderId: string;
   senderName: string;
   replied: boolean;
+  reply?: string;
+  replyAt?: string;
   createdAt: string;
+  sender?: {
+    avatar: string | null;
+  };
 }
