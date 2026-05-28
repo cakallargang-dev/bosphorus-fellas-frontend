@@ -594,8 +594,8 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <Layout>
-        <div className="flex flex-col h-[calc(100vh-5rem)]">
+      <Layout hideFooter>
+        <div className="flex flex-col h-full">
           {/* Compact header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
             <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
