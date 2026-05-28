@@ -187,26 +187,26 @@ function AdminContent() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8 bg-[#111] border border-gray-800 p-1 w-full flex-wrap h-auto">
-            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
+          <TabsList className="mb-8 bg-[#111] border border-gray-800 p-1 w-full flex overflow-x-auto gap-1 h-auto rounded-xl">
+            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <LayoutDashboard className="w-4 h-4" />
-              Dashboard
+              <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="applications" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
+            <TabsTrigger value="applications" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <FileText className="w-4 h-4" />
-              Başvurular
+              <span className="hidden sm:inline">Başvurular</span>
             </TabsTrigger>
-            <TabsTrigger value="members" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
+            <TabsTrigger value="members" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Users className="w-4 h-4" />
-              Üyeler
+              <span className="hidden sm:inline">Üyeler</span>
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
+            <TabsTrigger value="events" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Calendar className="w-4 h-4" />
-              Etkinlikler
+              <span className="hidden sm:inline">Etkinlikler</span>
             </TabsTrigger>
-            <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
+            <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Newspaper className="w-4 h-4" />
-              İçerik
+              <span className="hidden sm:inline">İçerik</span>
             </TabsTrigger>
           </TabsList>
 
