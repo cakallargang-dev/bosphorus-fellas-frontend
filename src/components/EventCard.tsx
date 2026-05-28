@@ -1,9 +1,11 @@
 "use client";
 
-import { Calendar, MapPin, Clock, Users } from "lucide-react";
+import { useState } from "react";
+import { Calendar, MapPin, Clock, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Event } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -32,9 +34,12 @@ export function EventCard({
   isLeaving = false,
   showActions = true,
 }: EventCardProps) {
+  const [showParticipants, setShowParticipants] = useState(false);
   const status = statusBadge[event.status] || statusBadge.upcoming;
   const isPast = event.status === "completed" || event.status === "cancelled";
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+  const participants = event.participants ?? [];
+  const hasParticipants = participants.length > 0;
 
   const eventDate = event.date ? new Date(event.date) : null;
   const isInvalidDate = eventDate && isNaN(eventDate.getTime());
@@ -117,11 +122,53 @@ export function EventCard({
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Users className="w-4 h-4 text-mancave-gold/60 shrink-0" />
-            <span>
-              {event.currentParticipants}
-              {event.maxParticipants ? ` / ${event.maxParticipants}` : ""} katılımcı
-            </span>
+            <button
+              onClick={() => setShowParticipants(!showParticipants)}
+              className="flex items-center gap-1 hover:text-mancave-gold transition-colors"
+            >
+              <span>
+                {event.currentParticipants}
+                {event.maxParticipants ? ` / ${event.maxParticipants}` : ""} katılımcı
+              </span>
+              {hasParticipants && (
+                showParticipants ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )
+              )}
+            </button>
           </div>
+
+          {/* Participants list */}
+          {showParticipants && hasParticipants && (
+            <div className="mt-2 pt-2 border-t border-white/5">
+              <div className="flex flex-wrap gap-1.5">
+                {participants.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-1.5 bg-white/5 rounded-full pr-2.5"
+                    title={p.userName}
+                  >
+                    <Avatar className="w-5 h-5">
+                      <AvatarImage
+                        src={p.userAvatar ? `${apiBase}${p.userAvatar}` : undefined}
+                      />
+                      <AvatarFallback className="text-[10px] bg-mancave-gold/20 text-mancave-gold">
+                        {p.userName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-gray-400">{p.userName}</span>
+                  </div>
+                ))}
+                {event.currentParticipants > participants.length && (
+                  <span className="text-xs text-gray-600 self-center">
+                    +{event.currentParticipants - participants.length} kişi daha
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
 
