@@ -10,6 +10,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   MessageCircle,
   Send,
@@ -221,6 +222,7 @@ function ChannelChatView({
   onBack: () => void;
 }) {
   const { user } = useAuth();
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -316,11 +318,18 @@ function ChannelChatView({
               }`}
             >
               {/* Avatar */}
-              <div className="w-8 h-8 rounded-full bg-[#d4a853]/20 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-[#d4a853]">
+              <Avatar className="w-8 h-8 shrink-0 mt-0.5">
+                <AvatarImage
+                  src={
+                    msg.sender?.avatar
+                      ? `${apiBase}${msg.sender.avatar}`
+                      : undefined
+                  }
+                />
+                <AvatarFallback className="bg-[#d4a853]/20 text-[#d4a853] text-xs">
                   {msg.senderName.charAt(0).toUpperCase()}
-                </span>
-              </div>
+                </AvatarFallback>
+              </Avatar>
               {/* Bubble */}
               <div
                 className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${

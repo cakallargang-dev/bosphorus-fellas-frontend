@@ -239,6 +239,9 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   createdAt: string;
+  sender?: {
+    avatar: string | null;
+  };
 }
 
 export interface SupportMessage {
