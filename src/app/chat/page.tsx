@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { chatApi, authApi } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -117,8 +118,8 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
       await chatApi.sendSupport(trimmed);
       setInput("");
       queryClient.invalidateQueries({ queryKey: ["support-messages"] });
-    } catch {
-      // handled
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Mesaj gönderilemedi");
     } finally {
       setSending(false);
     }
@@ -126,32 +127,38 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
 
   const handleAdminSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || sending || !selectedMemberId) return;
-    // Find the latest unread message from this member
-    const latestMsg = [...filteredMessages].reverse().find((m) => !m.replied && m.senderId === selectedMemberId);
-    if (!latestMsg) {
-      // If all messages are replied, reply to the last one
-      const lastMsg = [...filteredMessages].reverse().find((m) => m.senderId === selectedMemberId);
-      if (!lastMsg) return;
-      setSending(true);
-      try {
-        await chatApi.replySupport(lastMsg.id, trimmed);
-        setInput("");
-        queryClient.invalidateQueries({ queryKey: ["support-messages"] });
-      } catch {
-        // handled
-      } finally {
-        setSending(false);
-      }
+    if (!trimmed || sending) return;
+    
+    setSending(true);
+    
+    // If no member selected, show error
+    if (!selectedMemberId) {
+      toast.error("Önce bir üye seçin");
+      setSending(false);
       return;
     }
-    setSending(true);
+
     try {
-      await chatApi.replySupport(latestMsg.id, trimmed);
+      // Find the latest unreplied message from this member
+      const latestMsg = [...filteredMessages].reverse().find(
+        (m) => !m.replied && m.senderId === selectedMemberId
+      );
+      
+      const targetMsg = latestMsg || [...filteredMessages].reverse().find(
+        (m) => m.senderId === selectedMemberId
+      );
+      
+      if (!targetMsg) {
+        toast.error("Cevaplanacak mesaj bulunamadı");
+        setSending(false);
+        return;
+      }
+
+      await chatApi.replySupport(targetMsg.id, trimmed);
       setInput("");
       queryClient.invalidateQueries({ queryKey: ["support-messages"] });
-    } catch {
-      // handled
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Cevap gönderilemedi");
     } finally {
       setSending(false);
     }
