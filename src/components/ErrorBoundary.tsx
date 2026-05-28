@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
+        <div className="min-h-screen flex items-center justify-center bg-mancave-bg px-4">
           <div className="text-center space-y-4 max-w-md">
             <div className="w-16 h-16 mx-auto rounded-full border-2 border-red-500/30 flex items-center justify-center">
               <span className="text-red-500 text-2xl">!</span>
@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   this.setState({ hasError: false, error: null });
                   window.location.reload();
                 }}
-                className="px-6 py-2 bg-[#d4a853] text-black rounded-lg font-medium hover:bg-[#e2c278] transition-colors"
+                className="px-6 py-2 bg-[#3b82f6] text-black rounded-lg font-medium hover:bg-[#60a5fa] transition-colors"
               >
                 Tekrar Dene
               </button>

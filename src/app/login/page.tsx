@@ -67,17 +67,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-3 mb-8 group">
-        <div className="w-12 h-12 rounded border border-[#d4a853] flex items-center justify-center group-hover:bg-[#d4a853]/10 transition-colors">
-          <Car className="w-6 h-6 text-[#d4a853]" />
+        <div className="w-12 h-12 rounded border border-[#3b82f6] flex items-center justify-center group-hover:bg-[#3b82f6]/10 transition-colors">
+          <Car className="w-6 h-6 text-[#3b82f6]" />
         </div>
         <div>
           <div className="text-white font-semibold text-lg tracking-wider leading-tight">
             BOSPHORUS
           </div>
-          <div className="text-[#d4a853] text-sm tracking-[0.2em] leading-tight">
+          <div className="text-[#3b82f6] text-sm tracking-[0.2em] leading-tight">
             FELLAS
           </div>
         </div>
@@ -85,11 +85,11 @@ export default function LoginPage() {
 
       <Card className="w-full max-w-md bg-gray-900/50 backdrop-blur border-gray-800">
         <CardHeader className="text-center pb-4">
-          <div className="mx-auto w-10 h-10 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-3">
-            <LogIn className="w-5 h-5 text-[#d4a853]" />
+          <div className="mx-auto w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-3">
+            <LogIn className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <CardTitle className="text-white text-xl">Giriş Yap</CardTitle>
-          <CardDescription className="text-gray-500">
+          <CardDescription className="text-mancave-muted">
             Bosphorus Fellas topluluğuna hoş geldiniz
           </CardDescription>
         </CardHeader>
@@ -102,12 +102,12 @@ export default function LoginPage() {
                 E-posta
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="ornek@email.com"
-                  className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 focus:ring-[#d4a853]/20"
+                  className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
                   {...register("email")}
                 />
               </div>
@@ -122,12 +122,12 @@ export default function LoginPage() {
                 Şifre
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 focus:ring-[#d4a853]/20"
+                  className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
                   {...register("password")}
                 />
               </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium h-11"
+              className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium h-11"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -158,11 +158,11 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-4 border-t border-gray-800 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-mancave-muted">
               Henüz üye değil misiniz?{" "}
               <Link
                 href="/apply"
-                className="text-[#d4a853] hover:underline font-medium"
+                className="text-[#3b82f6] hover:underline font-medium"
               >
                 Başvuru yapın
               </Link>

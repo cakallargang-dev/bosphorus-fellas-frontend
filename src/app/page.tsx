@@ -62,26 +62,26 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-mancave-gold/5 via-transparent to-mancave-bg" />
+        <div className="absolute inset-0 bg-gradient-to-b from-mancave-blue/5 via-transparent to-mancave-bg" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_70%)]" />
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-16 h-16 rounded-xl border-2 border-mancave-gold flex items-center justify-center bg-mancave-gold/10">
-              <Shield className="w-8 h-8 text-mancave-gold" />
+            <div className="w-16 h-16 rounded-xl border-2 border-mancave-blue flex items-center justify-center bg-mancave-blue/10">
+              <Shield className="w-8 h-8 text-mancave-blue" />
             </div>
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">
             <span className="text-white">BOSPHORUS</span>{" "}
-            <span className="text-mancave-gold">FELLAS</span>
+            <span className="text-mancave-blue">FELLAS</span>
           </h1>
 
           <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto font-light">
             Ham Güç. Arınmış Ruh.
           </p>
 
-          <p className="text-base text-gray-500 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-mancave-muted max-w-xl mx-auto leading-relaxed">
             Premium otomotiv tutkunları için özel bir topluluk. Bosphorus
             Fellas; gücü, estetiği ve kardeşliği bir araya getirir.
           </p>
@@ -90,7 +90,7 @@ export default function Home() {
             <Link href="/apply">
               <Button
                 size="lg"
-                className="bg-mancave-gold text-black hover:bg-mancave-gold-light font-semibold px-8 py-6 text-base"
+                className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-semibold px-8 py-6 text-base"
               >
                 <Car className="w-5 h-5 mr-2" />
                 Aramıza Katıl
@@ -112,7 +112,7 @@ export default function Home() {
         {/* Scroll indicator */}
         <div className="absolute bottom-8 animate-bounce">
           <div className="w-6 h-10 rounded-full border-2 border-mancave-border flex items-start justify-center p-1.5">
-            <div className="w-1 h-2 rounded-full bg-mancave-gold" />
+            <div className="w-1 h-2 rounded-full bg-mancave-blue" />
           </div>
         </div>
       </section>
@@ -123,7 +123,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-white text-center mb-12">
               Rakamlarla{" "}
-              <span className="text-mancave-gold">Bosphorus Fellas</span>
+              <span className="text-mancave-blue">Bosphorus Fellas</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StatsCard
@@ -157,7 +157,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-10">
               <h2 className="text-2xl font-bold text-white">
-                Yaklaşan <span className="text-mancave-gold">Etkinlikler</span>
+                Yaklaşan <span className="text-mancave-blue">Etkinlikler</span>
               </h2>
               <Link href="/dashboard">
                 <Button
@@ -182,7 +182,7 @@ export default function Home() {
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-white text-center mb-12">
-              <span className="text-mancave-gold">Sponsorlarımız</span>
+              <span className="text-mancave-blue">Sponsorlarımız</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {sponsors.map((sponsor) => (
@@ -198,7 +198,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl font-bold text-white">
             Sen de Aramıza{" "}
-            <span className="text-mancave-gold">Katıl</span>
+            <span className="text-mancave-blue">Katıl</span>
           </h2>
           <p className="text-gray-400 max-w-lg mx-auto">
             Premium otomotiv topluluğumuzda yerini al. Etkinliklere katıl, özel
@@ -207,7 +207,7 @@ export default function Home() {
           <Link href="/apply">
             <Button
               size="lg"
-              className="bg-mancave-gold text-black hover:bg-mancave-gold-light font-semibold px-10 py-6 text-base mt-4"
+              className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-semibold px-10 py-6 text-base mt-4"
             >
               <Shield className="w-5 h-5 mr-2" />
               Başvuru Yap

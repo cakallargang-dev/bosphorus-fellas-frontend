@@ -38,12 +38,12 @@ export function AdminGuard({ children, fallback }: AdminGuardProps) {
           <h2 className="text-xl text-white font-semibold">
             Erişim Reddedildi
           </h2>
-          <p className="text-gray-500">
+          <p className="text-mancave-muted">
             Bu sayfaya erişmek için yönetici yetkisine sahip olmalısınız.
           </p>
           <button
             onClick={() => router.push("/dashboard")}
-            className="text-mancave-gold hover:underline text-sm mt-2"
+            className="text-mancave-blue hover:underline text-sm mt-2"
           >
             Panele Dön
           </button>

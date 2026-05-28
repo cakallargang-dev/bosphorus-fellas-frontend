@@ -100,10 +100,10 @@ function ReferenceCodeCard() {
     <Card className="bg-gray-900/50 backdrop-blur border-gray-800 mb-6">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
-          <Share2 className="w-5 h-5 text-[#d4a853]" />
+          <Share2 className="w-5 h-5 text-[#3b82f6]" />
           Referans Kodun
         </CardTitle>
-        <CardDescription className="text-gray-500">
+        <CardDescription className="text-mancave-muted">
           Arkadaşlarını davet etmek için referans kodunu paylaş
         </CardDescription>
       </CardHeader>
@@ -111,15 +111,15 @@ function ReferenceCodeCard() {
       <CardContent>
         {isLoading ? (
           <div className="flex items-center gap-3 py-4">
-            <div className="w-5 h-5 border-2 border-[#d4a853]/30 border-t-[#d4a853] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[#3b82f6]/30 border-t-[#3b82f6] rounded-full animate-spin" />
             <p className="text-gray-400 text-sm">Kod oluşturuluyor...</p>
           </div>
         ) : code && !isExpired ? (
           <div className="space-y-4">
             {/* Code display */}
-            <div className="bg-[#111] border border-gray-800 rounded-lg p-4">
+            <div className="bg-mancave-surface border border-gray-800 rounded-lg p-4">
               <div className="flex items-center justify-between">
-                <code className="text-3xl font-mono font-bold text-[#d4a853] tracking-[0.2em]">
+                <code className="text-3xl font-mono font-bold text-[#3b82f6] tracking-[0.2em]">
                   {code}
                 </code>
                 <Button
@@ -144,7 +144,7 @@ function ReferenceCodeCard() {
             </div>
 
             {/* Expiry info */}
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-mancave-muted">
               <Clock className="w-4 h-4" />
               <span>
                 Son kullanma:{" "}
@@ -164,7 +164,7 @@ function ReferenceCodeCard() {
             <Button
               onClick={fetchCode}
               variant="outline"
-              className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10"
+              className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-[#3b82f6]/10"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Yeni Kod Oluştur
@@ -296,10 +296,10 @@ function ProfileContent() {
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <User className="w-6 h-6 text-[#d4a853]" />
+            <User className="w-6 h-6 text-[#3b82f6]" />
             Profil Ayarları
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-mancave-muted mt-1">
             Profil bilgilerinizi güncelleyin ve şifrenizi değiştirin
           </p>
         </div>
@@ -309,7 +309,7 @@ function ProfileContent() {
           <CardHeader>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Avatar className="w-20 h-20 border-2 border-[#d4a853]/30">
+                <Avatar className="w-20 h-20 border-2 border-[#3b82f6]/30">
                   <AvatarImage
                     src={
                       user?.avatar
@@ -318,11 +318,11 @@ function ProfileContent() {
                     }
                     alt={user?.firstName}
                   />
-                  <AvatarFallback className="bg-[#d4a853]/10 text-[#d4a853] text-xl">
+                  <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#d4a853] flex items-center justify-center">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#3b82f6] flex items-center justify-center">
                   <Camera className="w-3 h-3 text-black" />
                 </div>
               </div>
@@ -330,7 +330,7 @@ function ProfileContent() {
                 <CardTitle className="text-white">
                   {user?.firstName} {user?.lastName}
                 </CardTitle>
-                <CardDescription className="text-gray-500">
+                <CardDescription className="text-mancave-muted">
                   {user?.email}
                 </CardDescription>
               </div>
@@ -366,7 +366,7 @@ function ProfileContent() {
                   </Label>
                   <Input
                     id="firstName"
-                    className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                     {...registerProfile("firstName")}
                   />
                   {profileErrors.firstName && (
@@ -381,7 +381,7 @@ function ProfileContent() {
                   </Label>
                   <Input
                     id="lastName"
-                    className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                     {...registerProfile("lastName")}
                   />
                   {profileErrors.lastName && (
@@ -397,15 +397,15 @@ function ProfileContent() {
                   E-posta
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="email"
                     value={user?.email ?? ""}
                     disabled
-                    className="pl-10 bg-[#111]/50 border-gray-800 text-gray-500 cursor-not-allowed"
+                    className="pl-10 bg-mancave-surface/50 border-gray-800 text-mancave-muted cursor-not-allowed"
                   />
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-mancave-muted">
                   E-posta adresiniz değiştirilemez
                 </p>
               </div>
@@ -416,11 +416,11 @@ function ProfileContent() {
                     Telefon
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                     <Input
                       id="phone"
                       placeholder="0555 555 55 55"
-                      className="pl-10 bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                      className="pl-10 bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                       {...registerProfile("phone")}
                     />
                   </div>
@@ -430,11 +430,11 @@ function ProfileContent() {
                     Şehir
                   </Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                     <Input
                       id="city"
                       placeholder="İstanbul"
-                      className="pl-10 bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                      className="pl-10 bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                       {...registerProfile("city")}
                     />
                   </div>
@@ -446,11 +446,11 @@ function ProfileContent() {
                   Araç Markası
                 </Label>
                 <div className="relative">
-                  <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="carBrand"
                     placeholder="BMW"
-                    className="pl-10 bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    className="pl-10 bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                     {...registerProfile("carBrand")}
                   />
                 </div>
@@ -462,7 +462,7 @@ function ProfileContent() {
                 <Input
                   id="carModel"
                   placeholder="M3"
-                  className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                  className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                   {...registerProfile("carModel")}
                 />
               </div>
@@ -473,7 +473,7 @@ function ProfileContent() {
                 <Input
                   id="plateNumber"
                   placeholder="34 ABC 123"
-                  className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                  className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                   {...registerProfile("plateNumber")}
                 />
               </div>
@@ -486,7 +486,7 @@ function ProfileContent() {
                   id="about"
                   placeholder="Kendinden kısaca bahset..."
                   rows={3}
-                  className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 resize-none"
+                  className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 resize-none"
                   {...registerProfile("about")}
                 />
               </div>
@@ -495,7 +495,7 @@ function ProfileContent() {
                 <Button
                   type="submit"
                   disabled={isSavingProfile || (!isProfileDirty && !avatarFile && !removeAvatar)}
-                  className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+                  className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
                 >
                   {isSavingProfile ? (
                     <span className="flex items-center gap-2">
@@ -521,10 +521,10 @@ function ProfileContent() {
         <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#d4a853]" />
+              <Lock className="w-5 h-5 text-[#3b82f6]" />
               Şifre Değiştir
             </CardTitle>
-            <CardDescription className="text-gray-500">
+            <CardDescription className="text-mancave-muted">
               Hesap güvenliğiniz için güçlü bir şifre kullanın
             </CardDescription>
           </CardHeader>
@@ -542,7 +542,7 @@ function ProfileContent() {
                   id="currentPassword"
                   type="password"
                   placeholder="••••••••"
-                  className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                  className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                   {...registerPassword("currentPassword")}
                 />
                 {passwordErrors.currentPassword && (
@@ -561,7 +561,7 @@ function ProfileContent() {
                     id="newPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                     {...registerPassword("newPassword")}
                   />
                   {passwordErrors.newPassword && (
@@ -578,7 +578,7 @@ function ProfileContent() {
                     id="confirmPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50"
+                    className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                     {...registerPassword("confirmPassword")}
                   />
                   {passwordErrors.confirmPassword && (
@@ -605,7 +605,7 @@ function ProfileContent() {
                 <Button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+                  className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
                 >
                   {isChangingPassword ? (
                     <span className="flex items-center gap-2">

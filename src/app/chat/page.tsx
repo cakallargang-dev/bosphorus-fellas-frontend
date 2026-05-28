@@ -116,10 +116,10 @@ function SupportSection() {
   };
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0a0a0a]/80 p-4 sm:p-6">
+    <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#d4a853]/20 flex items-center justify-center">
-          <ShieldAlert className="w-5 h-5 text-[#d4a853]" />
+        <div className="w-10 h-10 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
+          <ShieldAlert className="w-5 h-5 text-[#3b82f6]" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-white">Destek</h3>
@@ -132,10 +132,10 @@ function SupportSection() {
       {/* Messages */}
       <div className="max-h-64 overflow-y-auto space-y-3 mb-4 pr-1">
         {isLoading && (
-          <p className="text-center text-gray-500 text-sm">Yükleniyor...</p>
+          <p className="text-center text-mancave-muted text-sm">Yükleniyor...</p>
         )}
         {!isLoading && messages.length === 0 && (
-          <p className="text-center text-gray-500 text-sm py-4">
+          <p className="text-center text-mancave-muted text-sm py-4">
             Henüz destek mesajı yok. Bir şey sormak istersen aşağıdan yazabilirsin.
           </p>
         )}
@@ -148,7 +148,7 @@ function SupportSection() {
               transition={{ duration: 0.25 }}
               className={`rounded-lg p-3 text-sm ${
                 msg.senderId === user?.id
-                  ? "bg-[#d4a853]/10 border border-[#d4a853]/20 ml-4"
+                  ? "bg-[#3b82f6]/10 border border-[#3b82f6]/20 ml-4"
                   : "bg-white/5 border border-white/10 mr-4"
               }`}
             >
@@ -156,14 +156,14 @@ function SupportSection() {
                 <span className="text-xs font-medium text-gray-400">
                   {msg.senderId === user?.id ? "Sen" : msg.senderName}
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-mancave-muted">
                   {formatTime(msg.createdAt)}
                 </span>
               </div>
               <p className="text-white/90 whitespace-pre-wrap">{msg.content}</p>
               {isAdmin && (
                 <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-mancave-muted">
                     {msg.replied ? (
                       <span className="flex items-center gap-1 text-green-400">
                         <Check className="w-3 h-3" /> Yanıtlandı
@@ -202,13 +202,13 @@ function SupportSection() {
             }
           }}
           placeholder="Mesajını yaz..."
-          className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-sm"
+          className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-mancave-muted text-sm"
         />
         <Button
           onClick={handleSend}
           disabled={!input.trim() || sending}
           size="icon"
-          className="h-[44px] w-[44px] shrink-0 bg-[#d4a853] hover:bg-[#d4a853]/80 text-black"
+          className="h-[44px] w-[44px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
         >
           <Send className="w-4 h-4" />
         </Button>
@@ -327,17 +327,17 @@ function ChannelChatView({
         </div>
         <div>
           <h3 className="text-white font-medium text-sm">{channel.label}</h3>
-          <p className="text-gray-600 text-xs">{messages.length} mesaj</p>
+          <p className="text-mancave-muted text-xs">{messages.length} mesaj</p>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-2 mb-3 pr-1">
         {isLoading && (
-          <p className="text-center text-gray-500 text-sm py-8">Yükleniyor...</p>
+          <p className="text-center text-mancave-muted text-sm py-8">Yükleniyor...</p>
         )}
         {!isLoading && messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-mancave-muted">
             <Icon className="w-12 h-12 mb-3 opacity-30" />
             <p className="text-sm">Henüz mesaj yok. Sohbeti başlat!</p>
           </div>
@@ -359,7 +359,7 @@ function ChannelChatView({
                 className="shrink-0 mt-0.5 cursor-pointer"
                 title="Profile bak"
               >
-                <Avatar className="w-8 h-8 hover:ring-2 hover:ring-[#d4a853]/50 transition-all">
+                <Avatar className="w-8 h-8 hover:ring-2 hover:ring-[#3b82f6]/50 transition-all">
                   <AvatarImage
                     src={
                       msg.sender?.avatar
@@ -367,7 +367,7 @@ function ChannelChatView({
                         : undefined
                     }
                   />
-                  <AvatarFallback className="bg-[#d4a853]/20 text-[#d4a853] text-xs">
+                  <AvatarFallback className="bg-[#3b82f6]/20 text-[#3b82f6] text-xs">
                     {msg.senderName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -376,19 +376,19 @@ function ChannelChatView({
               <div
                 className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
                   msg.senderId === user?.id
-                    ? "bg-[#d4a853]/20 text-white rounded-tr-md"
+                    ? "bg-[#3b82f6]/20 text-white rounded-tr-md"
                     : "bg-white/5 text-white/90 rounded-tl-md"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-medium text-[#d4a853]/70">
+                  <span className="text-xs font-medium text-[#3b82f6]/70">
                     {msg.senderId === user?.id ? "Sen" : msg.senderName}
                   </span>
                 </div>
                 {(msg.sender?.carBrand || msg.sender?.plateNumber) && (
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Car className="w-3 h-3 text-gray-600" />
-                    <span className="text-[10px] text-gray-500">
+                    <Car className="w-3 h-3 text-mancave-muted" />
+                    <span className="text-[10px] text-mancave-muted">
                       {[msg.sender.carBrand, msg.sender.carModel]
                         .filter(Boolean)
                         .join(" ") || "—"}
@@ -404,7 +404,7 @@ function ChannelChatView({
                   </div>
                 )}
                 <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                <span className="text-[10px] text-gray-600 mt-1 block text-right">
+                <span className="text-[10px] text-mancave-muted mt-1 block text-right">
                   {formatTime(msg.createdAt)}
                 </span>
               </div>
@@ -426,13 +426,13 @@ function ChannelChatView({
             }
           }}
           placeholder="Mesaj yaz..."
-          className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-sm"
+          className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-mancave-muted text-sm"
         />
         <Button
           onClick={handleSend}
           disabled={!input.trim() || sending}
           size="icon"
-          className="h-[44px] w-[44px] shrink-0 bg-[#d4a853] hover:bg-[#d4a853]/80 text-black"
+          className="h-[44px] w-[44px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
         >
           <Send className="w-4 h-4" />
         </Button>
@@ -440,18 +440,18 @@ function ChannelChatView({
 
       {/* Profile Dialog */}
       <Dialog open={!!profileUserId} onOpenChange={() => setProfileUserId(null)}>
-        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-sm">
+        <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-sm">
           {profileLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-6 h-6 border-2 border-[#d4a853]/30 border-t-[#d4a853] rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-[#3b82f6]/30 border-t-[#3b82f6] rounded-full animate-spin" />
             </div>
           ) : profileData ? (
             <div className="text-center space-y-4">
-              <Avatar className="w-20 h-20 mx-auto border-2 border-[#d4a853]/30">
+              <Avatar className="w-20 h-20 mx-auto border-2 border-[#3b82f6]/30">
                 <AvatarImage
                   src={profileData.avatar ? `${apiBase}${profileData.avatar}` : undefined}
                 />
-                <AvatarFallback className="bg-[#d4a853]/10 text-[#d4a853] text-2xl">
+                <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-2xl">
                   {profileData.firstName?.[0]}{profileData.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
@@ -460,16 +460,16 @@ function ChannelChatView({
                   {profileData.firstName} {profileData.lastName}
                 </h3>
               </div>
-              <div className="space-y-2 text-left bg-[#111] rounded-lg p-3">
+              <div className="space-y-2 text-left bg-mancave-surface rounded-lg p-3">
                 {profileData.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="text-gray-600 w-16 text-xs">Telefon</span>
+                    <span className="text-mancave-muted w-16 text-xs">Telefon</span>
                     <span className="text-gray-300">{profileData.phone}</span>
                   </div>
                 )}
                 {profileData.carBrand && (
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="text-gray-600 w-16 text-xs">Araç</span>
+                    <span className="text-mancave-muted w-16 text-xs">Araç</span>
                     <span className="text-gray-300">
                       {[profileData.carBrand, profileData.carModel].filter(Boolean).join(" ")}
                     </span>
@@ -477,14 +477,14 @@ function ChannelChatView({
                 )}
                 {profileData.plateNumber && (
                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="text-gray-600 w-16 text-xs">Plaka</span>
+                    <span className="text-mancave-muted w-16 text-xs">Plaka</span>
                     <span className="text-gray-300 font-mono">{profileData.plateNumber}</span>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-4">Profil yüklenemedi</p>
+            <p className="text-center text-mancave-muted py-4">Profil yüklenemedi</p>
           )}
         </DialogContent>
       </Dialog>
@@ -560,12 +560,12 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
               <div className="flex items-center justify-between gap-2">
                 <span className="text-white font-medium text-sm">{ch.label}</span>
                 {info?.lastMessage && (
-                  <span className="text-[10px] text-gray-600 shrink-0">
+                  <span className="text-[10px] text-mancave-muted shrink-0">
                     {formatTime(info.lastMessage.createdAt)}
                   </span>
                 )}
               </div>
-              <p className="text-gray-500 text-xs truncate mt-0.5">
+              <p className="text-mancave-muted text-xs truncate mt-0.5">
                 {info?.lastMessage
                   ? `${info.lastMessage.senderName}: ${truncate(info.lastMessage.content)}`
                   : "Henüz mesaj yok"}
@@ -574,7 +574,7 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
 
             {/* Unread badge */}
             {unread > 0 && (
-              <Badge className="shrink-0 bg-[#d4a853] text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
+              <Badge className="shrink-0 bg-[#3b82f6] text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
                 {unread > 99 ? "99+" : unread}
               </Badge>
             )}
@@ -598,25 +598,25 @@ export default function ChatPage() {
         <div className="max-w-2xl mx-auto px-4 py-6">
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-[#d4a853]/10 flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-[#d4a853]" />
+            <div className="w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
+              <MessageCircle className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white">Sohbet</h2>
-              <p className="text-sm text-gray-500">Kulüp içi iletişim</p>
+              <p className="text-sm text-mancave-muted">Kulüp içi iletişim</p>
             </div>
           </div>
 
           {/* Main Content */}
           {selectedChannel ? (
-            <div className="rounded-xl border border-white/10 bg-[#0a0a0a]/80 p-4 sm:p-6">
+            <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
               <ChannelChatView
                 channel={selectedChannel}
                 onBack={() => setSelectedChannel(null)}
               />
             </div>
           ) : (
-            <div className="rounded-xl border border-white/10 bg-[#0a0a0a]/80 p-4 sm:p-6">
+            <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
               <ChannelList onSelectChannel={setSelectedChannel} />
             </div>
           )}

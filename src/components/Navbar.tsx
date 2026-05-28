@@ -45,14 +45,14 @@ export function Navbar() {
             href="/"
             className="flex items-center gap-3 group shrink-0"
           >
-            <div className="w-9 h-9 rounded border border-mancave-gold flex items-center justify-center group-hover:bg-mancave-gold/10 transition-colors">
-              <span className="text-mancave-gold font-bold text-sm">BF</span>
+            <div className="w-9 h-9 rounded border border-mancave-blue flex items-center justify-center group-hover:bg-mancave-blue/10 transition-colors">
+              <span className="text-mancave-blue font-bold text-sm">BF</span>
             </div>
             <div className="hidden sm:block">
               <div className="text-white font-semibold text-sm tracking-wider leading-tight">
                 BOSPHORUS
               </div>
-              <div className="text-mancave-gold text-xs tracking-[0.2em] leading-tight">
+              <div className="text-mancave-blue text-xs tracking-[0.2em] leading-tight">
                 FELLAS
               </div>
             </div>
@@ -89,7 +89,7 @@ export function Navbar() {
                         src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : undefined}
                         alt={user?.firstName}
                       />
-                      <AvatarFallback className="bg-mancave-gold/10 text-mancave-gold text-xs">
+                      <AvatarFallback className="bg-mancave-blue/10 text-mancave-blue text-xs">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -106,7 +106,7 @@ export function Navbar() {
                     <p className="text-sm text-white font-medium truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-mancave-muted truncate">
                       {user?.email}
                     </p>
                   </div>
@@ -149,7 +149,7 @@ export function Navbar() {
                 <Link href="/apply">
                   <Button
                     size="sm"
-                    className="bg-mancave-gold text-black hover:bg-mancave-gold-light font-medium"
+                    className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-medium"
                   >
                     Başvur
                   </Button>
@@ -195,7 +195,7 @@ export function Navbar() {
                       <AvatarImage
                         src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : undefined}
                       />
-                      <AvatarFallback className="bg-mancave-gold/10 text-mancave-gold text-xs">
+                      <AvatarFallback className="bg-mancave-blue/10 text-mancave-blue text-xs">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -203,7 +203,7 @@ export function Navbar() {
                       <p className="text-sm text-white font-medium">
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <p className="text-xs text-mancave-muted">{user?.email}</p>
                     </div>
                   </div>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
@@ -258,7 +258,7 @@ export function Navbar() {
                     </Button>
                   </Link>
                   <Link href="/apply" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full bg-mancave-gold text-black hover:bg-mancave-gold-light font-medium">
+                    <Button className="w-full bg-mancave-blue text-black hover:bg-mancave-blue-light font-medium">
                       Başvur
                     </Button>
                   </Link>

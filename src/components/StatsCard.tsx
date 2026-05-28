@@ -26,12 +26,12 @@ export function StatsCard({
   trendUp,
 }: StatsCardProps) {
   return (
-    <div className="bg-mancave-card border border-mancave-border rounded-lg p-5 hover:border-mancave-gold/30 transition-colors">
+    <div className="bg-mancave-card border border-mancave-border rounded-lg p-5 hover:border-mancave-blue/30 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-500 uppercase tracking-wider">
+        <span className="text-sm text-mancave-muted uppercase tracking-wider">
           {title}
         </span>
-        <div className="text-mancave-gold/60">
+        <div className="text-mancave-blue/60">
           {icon}
         </div>
       </div>

@@ -260,10 +260,10 @@ export default function ApplyPage() {
                 sürede size dönüş yapılacaktır.
               </p>
 
-              <div className="bg-[#d4a853]/10 border border-[#d4a853]/20 rounded-lg p-4 mb-6">
+              <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-lg p-4 mb-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-[#d4a853]" />
-                  <span className="text-[#d4a853] text-sm font-medium">
+                  <Clock className="w-4 h-4 text-[#3b82f6]" />
+                  <span className="text-[#3b82f6] text-sm font-medium">
                     Başvuru Durumu
                   </span>
                 </div>
@@ -307,17 +307,17 @@ export default function ApplyPage() {
               <div
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-[#d4a853]/10 border border-[#d4a853]/30 text-[#d4a853]"
+                    ? "bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6]"
                     : isDone
                     ? "bg-green-500/10 border border-green-500/30 text-green-500"
-                    : "bg-gray-900/50 border border-gray-800 text-gray-600"
+                    : "bg-gray-900/50 border border-gray-800 text-mancave-muted"
                 }`}
               >
                 <ps.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{ps.label}</span>
               </div>
               {idx < PRELIMINARY_STEPS.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-gray-700" />
+                <ArrowRight className="w-4 h-4 text-mancave-muted" />
               )}
             </div>
           );
@@ -336,13 +336,13 @@ export default function ApplyPage() {
         <div className="max-w-2xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="mx-auto w-14 h-14 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-4">
-              <Heart className="w-7 h-7 text-[#d4a853]" />
+            <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
+              <Heart className="w-7 h-7 text-[#3b82f6]" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
               Üyelik Başvurusu
             </h1>
-            <p className="text-gray-500">
+            <p className="text-mancave-muted">
               Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
             </p>
           </div>
@@ -355,14 +355,14 @@ export default function ApplyPage() {
               <CardTitle className="text-white text-lg">
                 KVKK Aydınlatma Metni
               </CardTitle>
-              <CardDescription className="text-gray-500">
+              <CardDescription className="text-mancave-muted">
                 Lütfen aşağıdaki metni okuyun ve kabul edin
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
               {/* Scrollable KVKK text */}
-              <div className="bg-[#111] border border-gray-800 rounded-lg p-5 max-h-64 overflow-y-auto text-sm text-gray-300 leading-relaxed">
+              <div className="bg-mancave-surface border border-gray-800 rounded-lg p-5 max-h-64 overflow-y-auto text-sm text-gray-300 leading-relaxed">
                 <p>
                   6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK)
                   kapsamında, başvuru formunda paylaştığınız kişisel
@@ -381,7 +381,7 @@ export default function ApplyPage() {
                   type="checkbox"
                   checked={kvkkAccepted}
                   onChange={(e) => setKvkkAccepted(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-gray-700 bg-[#111] text-[#d4a853] focus:ring-[#d4a853]/50 focus:ring-offset-0 cursor-pointer"
+                  className="mt-0.5 w-4 h-4 rounded border-gray-700 bg-mancave-surface text-[#3b82f6] focus:ring-[#3b82f6]/50 focus:ring-offset-0 cursor-pointer"
                 />
                 <span className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors select-none">
                   KVKK Aydınlatma Metni&apos;ni okudum ve kabul ediyorum.
@@ -392,7 +392,7 @@ export default function ApplyPage() {
               <Button
                 onClick={handlePrelimNextKVKK}
                 disabled={!kvkkAccepted}
-                className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Devam
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -414,13 +414,13 @@ export default function ApplyPage() {
         <div className="max-w-2xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="mx-auto w-14 h-14 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-4">
-              <Heart className="w-7 h-7 text-[#d4a853]" />
+            <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
+              <Heart className="w-7 h-7 text-[#3b82f6]" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
               Üyelik Başvurusu
             </h1>
-            <p className="text-gray-500">
+            <p className="text-mancave-muted">
               Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
             </p>
           </div>
@@ -433,7 +433,7 @@ export default function ApplyPage() {
               <CardTitle className="text-white text-lg">
                 Referans Kodu
               </CardTitle>
-              <CardDescription className="text-gray-500">
+              <CardDescription className="text-mancave-muted">
                 Başvuru yapabilmek için bir üyemizin referans koduna ihtiyacınız var
               </CardDescription>
             </CardHeader>
@@ -457,12 +457,12 @@ export default function ApplyPage() {
                     }
                   }}
                   maxLength={8}
-                  className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 uppercase"
+                  className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 uppercase"
                 />
 
                 {/* Validation status */}
                 {refValidation.status === "loading" && (
-                  <p className="text-[#d4a853] text-xs flex items-center gap-1.5">
+                  <p className="text-[#3b82f6] text-xs flex items-center gap-1.5">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Kod kontrol ediliyor...
                   </p>
@@ -494,7 +494,7 @@ export default function ApplyPage() {
                 <Button
                   onClick={handlePrelimNextReferans}
                   disabled={refValidation.status !== "valid"}
-                  className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Devam
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -516,13 +516,13 @@ export default function ApplyPage() {
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="mx-auto w-14 h-14 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-4">
-            <Heart className="w-7 h-7 text-[#d4a853]" />
+          <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
+            <Heart className="w-7 h-7 text-[#3b82f6]" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">
             Üyelik Başvurusu
           </h1>
-          <p className="text-gray-500">
+          <p className="text-mancave-muted">
             Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
           </p>
         </div>
@@ -537,17 +537,17 @@ export default function ApplyPage() {
               <div
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   step === s.id
-                    ? "bg-[#d4a853]/10 border border-[#d4a853]/30 text-[#d4a853]"
+                    ? "bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6]"
                     : step > s.id
                     ? "bg-green-500/10 border border-green-500/30 text-green-500"
-                    : "bg-gray-900/50 border border-gray-800 text-gray-600"
+                    : "bg-gray-900/50 border border-gray-800 text-mancave-muted"
                 }`}
               >
                 <s.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{s.label}</span>
               </div>
               {idx < STEPS.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-gray-700" />
+                <ArrowRight className="w-4 h-4 text-mancave-muted" />
               )}
             </div>
           ))}
@@ -558,7 +558,7 @@ export default function ApplyPage() {
             <CardTitle className="text-white text-lg">
               {STEPS[step - 1].label}
             </CardTitle>
-            <CardDescription className="text-gray-500">
+            <CardDescription className="text-mancave-muted">
               {step === 1 && "Kişisel bilgilerinizi giriniz"}
               {step === 2 && "Aracınız hakkında bilgi veriniz"}
               {step === 3 && "Kendinizden bahsedin ve fotoğrafınızı yükleyin"}
@@ -578,7 +578,7 @@ export default function ApplyPage() {
                       <Input
                         id="firstName"
                         placeholder="Adınız"
-                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("firstName")}
                       />
                       {errors.firstName && (
@@ -592,7 +592,7 @@ export default function ApplyPage() {
                       <Input
                         id="lastName"
                         placeholder="Soyadınız"
-                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("lastName")}
                       />
                       {errors.lastName && (
@@ -607,12 +607,12 @@ export default function ApplyPage() {
                         E-posta <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="email"
                           type="email"
                           placeholder="ornek@email.com"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("email")}
                         />
                       </div>
@@ -625,11 +625,11 @@ export default function ApplyPage() {
                         Telefon <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="phone"
                           placeholder="0555 555 55 55"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("phone")}
                         />
                       </div>
@@ -645,11 +645,11 @@ export default function ApplyPage() {
                         Doğum Tarihi <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="birthDate"
                           type="date"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 [color-scheme:dark]"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 [color-scheme:dark]"
                           {...register("birthDate")}
                         />
                       </div>
@@ -662,11 +662,11 @@ export default function ApplyPage() {
                         Şehir <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="city"
                           placeholder="İstanbul"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("city")}
                         />
                       </div>
@@ -695,12 +695,12 @@ export default function ApplyPage() {
                         }}
                       >
                         <SelectTrigger
-                          className="w-full bg-[#111] border-gray-800 text-white data-placeholder:text-gray-600 focus:border-[#d4a853]/50 pl-10"
+                          className="w-full bg-mancave-surface border-gray-800 text-white data-placeholder:text-mancave-muted focus:border-[#3b82f6]/50 pl-10"
                         >
-                          <Car className="absolute left-3 w-4 h-4 text-gray-600" />
+                          <Car className="absolute left-3 w-4 h-4 text-mancave-muted" />
                           <SelectValue placeholder="Marka seçiniz" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#1a1a1a] border-gray-800 text-white max-h-60">
+                        <SelectContent className="bg-mancave-card border-gray-800 text-white max-h-60">
                           {Object.keys(CAR_BRANDS).map((brand) => (
                             <SelectItem key={brand} value={brand}>
                               {brand}
@@ -725,10 +725,10 @@ export default function ApplyPage() {
                             setValue("carModel", value || "", { shouldValidate: true });
                           }}
                         >
-                          <SelectTrigger className="w-full bg-[#111] border-gray-800 text-white data-placeholder:text-gray-600 focus:border-[#d4a853]/50">
+                          <SelectTrigger className="w-full bg-mancave-surface border-gray-800 text-white data-placeholder:text-mancave-muted focus:border-[#3b82f6]/50">
                             <SelectValue placeholder="Model seçiniz" />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#1a1a1a] border-gray-800 text-white max-h-60">
+                          <SelectContent className="bg-mancave-card border-gray-800 text-white max-h-60">
                             {(CAR_BRANDS[selectedCarBrand] || []).map((model) => (
                               <SelectItem key={model} value={model}>
                                 {model}
@@ -741,7 +741,7 @@ export default function ApplyPage() {
                           id="carModel"
                           placeholder={isCustomBrand ? "Model giriniz" : "Önce marka seçiniz"}
                           disabled={!isCustomBrand && !selectedCarBrand}
-                          className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 disabled:opacity-50"
+                          className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 disabled:opacity-50"
                           value={selectedCarModel || ""}
                           onChange={(e) =>
                             setValue("carModel", e.target.value, { shouldValidate: true })
@@ -764,7 +764,7 @@ export default function ApplyPage() {
                         id="carYear"
                         placeholder="2024"
                         maxLength={4}
-                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("carYear")}
                       />
                       {errors.carYear && (
@@ -780,20 +780,20 @@ export default function ApplyPage() {
                       <Input
                         id="plateNumber"
                         placeholder="34 ABC 123"
-                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 uppercase"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 uppercase"
                         {...register("plateNumber")}
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg bg-[#111] border border-gray-800">
+                  <div className="p-4 rounded-lg bg-mancave-surface border border-gray-800">
                     <div className="flex items-start gap-3">
-                      <Car className="w-5 h-5 text-[#d4a853] mt-0.5" />
+                      <Car className="w-5 h-5 text-[#3b82f6] mt-0.5" />
                       <div>
                         <p className="text-sm text-gray-300 font-medium">
                           Aracınız kulübümüzün bir parçası
                         </p>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-mancave-muted mt-1">
                           Bosphorus Fellas&apos;ta her marka ve model araca açığız.
                           Önemli olan otomobil tutkusu!
                         </p>
@@ -812,11 +812,11 @@ export default function ApplyPage() {
                         Instagram
                       </Label>
                       <div className="relative">
-                        <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="instagram"
                           placeholder="kullaniciadi"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("instagram")}
                         />
                       </div>
@@ -826,11 +826,11 @@ export default function ApplyPage() {
                         Meslek
                       </Label>
                       <div className="relative">
-                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="occupation"
                           placeholder="Yazılım Mühendisi"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("occupation")}
                         />
                       </div>
@@ -842,12 +842,12 @@ export default function ApplyPage() {
                       Kendinden Bahset <span className="text-red-400">*</span>
                     </Label>
                     <div className="relative">
-                      <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-600" />
+                      <FileText className="absolute left-3 top-3 w-4 h-4 text-mancave-muted" />
                       <Textarea
                         id="about"
                         placeholder="Bize kendinden, otomobil tutkundan ve neden aramıza katılmak istediğinden bahset..."
                         rows={4}
-                        className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 resize-none"
+                        className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 resize-none"
                         {...register("about")}
                       />
                     </div>
@@ -864,7 +864,7 @@ export default function ApplyPage() {
                       id="expectation"
                       placeholder="Bu kulüpte neler yapmak, nasıl katkıda bulunmak istersin?"
                       rows={3}
-                      className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 resize-none"
+                      className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 resize-none"
                       {...register("expectation")}
                     />
                   </div>
@@ -876,7 +876,7 @@ export default function ApplyPage() {
                       onChange={setPhotoFile}
                       label="Profil fotoğrafınızı yükleyin"
                     />
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-mancave-muted">
                       Yüzünüzün net göründüğü bir fotoğraf tercih ediniz
                     </p>
                   </div>
@@ -903,7 +903,7 @@ export default function ApplyPage() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+                    className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
                   >
                     İleri
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -912,7 +912,7 @@ export default function ApplyPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+                    className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">

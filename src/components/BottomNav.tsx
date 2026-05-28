@@ -35,8 +35,8 @@ export function BottomNav() {
               href={link.href}
               className={`flex flex-col items-center justify-center gap-1 px-2 py-2 min-w-0 flex-1 transition-colors ${
                 isActive
-                  ? "text-mancave-gold"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "text-mancave-blue"
+                  : "text-mancave-muted hover:text-gray-300"
               }`}
             >
               <link.icon className="w-5 h-5" />

@@ -17,7 +17,7 @@ const tierStyles: Record<string, { label: string; className: string }> = {
   },
   gold: {
     label: "Altın",
-    className: "bg-mancave-gold/20 text-mancave-gold border-mancave-gold/30",
+    className: "bg-mancave-blue/20 text-mancave-blue border-mancave-blue/30",
   },
   silver: {
     label: "Gümüş",
@@ -35,10 +35,10 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
   const tier = tierStyles[sponsor.tier] || tierStyles.bronze;
 
   const content = (
-    <Card className="bg-mancave-card border-mancave-border hover:border-mancave-gold/30 transition-all group">
+    <Card className="bg-mancave-card border-mancave-border hover:border-mancave-blue/30 transition-all group">
       <CardContent className="p-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-lg bg-mancave-surface border border-mancave-border flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-gold/30 transition-colors">
+          <div className="w-16 h-16 rounded-lg bg-mancave-surface border border-mancave-border flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-blue/30 transition-colors">
             {(sponsor.logoUrl || sponsor.logo) ? (
               <img
                 src={
@@ -50,7 +50,7 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
                 className="w-12 h-12 object-contain"
               />
             ) : (
-              <span className="text-mancave-gold font-bold text-lg">
+              <span className="text-mancave-blue font-bold text-lg">
                 {sponsor.name[0]}
               </span>
             )}
@@ -68,13 +68,13 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
               </Badge>
             </div>
             {sponsor.description && (
-              <p className="text-gray-500 text-xs line-clamp-2">
+              <p className="text-mancave-muted text-xs line-clamp-2">
                 {sponsor.description}
               </p>
             )}
           </div>
           {(sponsor.websiteUrl || sponsor.website) && (
-            <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-mancave-gold transition-colors shrink-0" />
+            <ExternalLink className="w-4 h-4 text-mancave-muted group-hover:text-mancave-blue transition-colors shrink-0" />
           )}
         </div>
       </CardContent>

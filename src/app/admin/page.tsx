@@ -138,7 +138,7 @@ const tierBadge: Record<string, { label: string; className: string }> = {
   },
   gold: {
     label: "Altın",
-    className: "bg-[#d4a853]/20 text-[#d4a853] border-[#d4a853]/30",
+    className: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30",
   },
   silver: {
     label: "Gümüş",
@@ -170,40 +170,40 @@ function AdminContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-lg bg-[#d4a853]/10 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-[#d4a853]" />
+          <div className="w-10 h-10 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Yönetim Paneli</h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-mancave-muted text-sm">
               Kulüp yönetimi ve üye işlemleri
             </p>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8 bg-[#111] border border-gray-800 p-1 w-full flex overflow-x-auto gap-1 h-auto rounded-xl">
-            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+          <TabsList className="mb-8 bg-mancave-surface border border-gray-800 p-1 w-full flex overflow-x-auto gap-1 h-auto rounded-xl">
+            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="applications" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="applications" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Başvurular</span>
             </TabsTrigger>
-            <TabsTrigger value="members" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="members" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Üyeler</span>
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="events" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">Etkinlikler</span>
             </TabsTrigger>
-            <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Star className="w-4 h-4" />
               <span className="hidden sm:inline">Sponsorlar</span>
             </TabsTrigger>
-            <TabsTrigger value="market" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="market" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">Market</span>
             </TabsTrigger>
@@ -359,17 +359,17 @@ function ApplicationsTab() {
       {/* Filter */}
       <div className="flex items-center gap-3 mb-4">
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-          <SelectTrigger className="w-36 bg-[#111] border-gray-800 text-gray-300">
+          <SelectTrigger className="w-36 bg-mancave-surface border-gray-800 text-gray-300">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a1a] border-gray-800">
+          <SelectContent className="bg-mancave-card border-gray-800">
             <SelectItem value="all" className="text-gray-300">Tümü</SelectItem>
             <SelectItem value="pending" className="text-gray-300">Bekleyen</SelectItem>
             <SelectItem value="approved" className="text-gray-300">Onaylanan</SelectItem>
             <SelectItem value="rejected" className="text-gray-300">Reddedilen</SelectItem>
           </SelectContent>
         </Select>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-mancave-muted">
           {data?.total ?? 0} başvuru
         </span>
       </div>
@@ -382,8 +382,8 @@ function ApplicationsTab() {
         </div>
       ) : applications.length === 0 ? (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <FileText className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Bu kategoride başvuru bulunmuyor</p>
+          <FileText className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+          <p className="text-mancave-muted">Bu kategoride başvuru bulunmuyor</p>
         </div>
       ) : (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
@@ -403,14 +403,14 @@ function ApplicationsTab() {
                 return (
                   <TableRow
                     key={app.id}
-                    className="border-gray-800 cursor-pointer hover:bg-[#111]"
+                    className="border-gray-800 cursor-pointer hover:bg-mancave-surface"
                     onClick={() => setSelectedApp(app)}
                   >
                     <TableCell className="text-white font-medium">
                       {app.firstName} {app.lastName}
                     </TableCell>
                     <TableCell className="text-gray-400">{app.email}</TableCell>
-                    <TableCell className="text-gray-500 text-sm">
+                    <TableCell className="text-mancave-muted text-sm">
                       {/* Safe date formatter */}
 {format(new Date(app.submittedAt || app.createdAt || Date.now()), "d MMM yyyy", { locale: tr })}
                     </TableCell>
@@ -424,7 +424,7 @@ function ApplicationsTab() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-gray-500 hover:text-white h-8 w-8 p-0"
+                          className="text-mancave-muted hover:text-white h-8 w-8 p-0"
                           onClick={() => setSelectedApp(app)}
                         >
                           <Eye className="w-4 h-4" />
@@ -478,12 +478,12 @@ function ApplicationsTab() {
 
       {/* Review Modal */}
       <Dialog open={reviewModal} onOpenChange={setReviewModal}>
-        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-md">
+        <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white">
               {reviewAction === "approve" ? "Başvuruyu Onayla" : "Başvuruyu Reddet"}
             </DialogTitle>
-            <DialogDescription className="text-gray-500">
+            <DialogDescription className="text-mancave-muted">
               {reviewAction === "approve"
                 ? "Bu başvuru onaylanacak ve üye hesabı oluşturulacak."
                 : "Bu başvuru reddedilecek. İsteğe bağlı olarak bir sebep belirtebilirsiniz."}
@@ -492,11 +492,11 @@ function ApplicationsTab() {
 
           {selectedApp && (
             <div className="space-y-4">
-              <div className="p-3 rounded-lg bg-[#111] border border-gray-800">
+              <div className="p-3 rounded-lg bg-mancave-surface border border-gray-800">
                 <p className="text-white font-medium">
                   {selectedApp.firstName} {selectedApp.lastName}
                 </p>
-                <p className="text-sm text-gray-500">{selectedApp.email}</p>
+                <p className="text-sm text-mancave-muted">{selectedApp.email}</p>
               </div>
 
               {reviewAction === "reject" && (
@@ -507,7 +507,7 @@ function ApplicationsTab() {
                     rows={3}
                     value={reviewReason}
                     onChange={(e) => setReviewReason(e.target.value)}
-                    className="bg-[#111] border-gray-800 text-white focus:border-[#d4a853]/50 resize-none"
+                    className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50 resize-none"
                   />
                 </div>
               )}
@@ -632,16 +632,16 @@ function MembersTab() {
     <div>
       <div className="flex items-center gap-3 mb-4">
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-          <SelectTrigger className="w-36 bg-[#111] border-gray-800 text-gray-300">
+          <SelectTrigger className="w-36 bg-mancave-surface border-gray-800 text-gray-300">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a1a] border-gray-800">
+          <SelectContent className="bg-mancave-card border-gray-800">
             <SelectItem value="all" className="text-gray-300">Tümü</SelectItem>
             <SelectItem value="active" className="text-gray-300">Aktif</SelectItem>
             <SelectItem value="inactive" className="text-gray-300">Pasif</SelectItem>
           </SelectContent>
         </Select>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-mancave-muted">
           {data?.total ?? 0} üye
         </span>
       </div>
@@ -654,8 +654,8 @@ function MembersTab() {
         </div>
       ) : members.length === 0 ? (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <Users className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Henüz üye bulunmuyor</p>
+          <Users className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+          <p className="text-mancave-muted">Henüz üye bulunmuyor</p>
         </div>
       ) : (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
@@ -672,7 +672,7 @@ function MembersTab() {
             </TableHeader>
             <TableBody>
               {members.map((member: UserType) => (
-                <TableRow key={member.id} className="border-gray-800 hover:bg-[#111]">
+                <TableRow key={member.id} className="border-gray-800 hover:bg-mancave-surface">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="w-8 h-8">
@@ -683,7 +683,7 @@ function MembersTab() {
                               : undefined
                           }
                         />
-                        <AvatarFallback className="bg-[#d4a853]/10 text-[#d4a853] text-xs">
+                        <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-xs">
                           {member.firstName?.[0]}
                           {member.lastName?.[0]}
                         </AvatarFallback>
@@ -696,7 +696,7 @@ function MembersTab() {
                   <TableCell className="text-gray-400 text-sm">
                     {member.email}
                   </TableCell>
-                  <TableCell className="text-gray-500 text-sm">
+                  <TableCell className="text-mancave-muted text-sm">
                     {member.city || "-"}
                   </TableCell>
                   <TableCell>
@@ -704,7 +704,7 @@ function MembersTab() {
                       variant="outline"
                       className={`text-xs ${
                         member.role === "admin"
-                          ? "bg-[#d4a853]/20 text-[#d4a853] border-[#d4a853]/30"
+                          ? "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30"
                           : "bg-gray-700/20 text-gray-400 border-gray-700/30"
                       }`}
                     >
@@ -746,7 +746,7 @@ function MembersTab() {
                               }
                             }}
                             disabled={resetPasswordMutation.isPending}
-                            className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
+                            className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-[#3b82f6]/10 text-xs"
                           >
                             <KeyRound className="w-3.5 h-3.5" />
                           </Button>
@@ -896,10 +896,10 @@ function EventsTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-gray-600">{events.length} etkinlik</span>
+        <span className="text-sm text-mancave-muted">{events.length} etkinlik</span>
         <Button
           onClick={handleCreate}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium text-sm"
+          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Yeni Etkinlik
@@ -914,8 +914,8 @@ function EventsTab() {
         </div>
       ) : events.length === 0 ? (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <Calendar className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Henüz etkinlik yok</p>
+          <Calendar className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+          <p className="text-mancave-muted">Henüz etkinlik yok</p>
         </div>
       ) : (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
@@ -932,7 +932,7 @@ function EventsTab() {
             </TableHeader>
             <TableBody>
               {events.map((event: Event) => (
-                <TableRow key={event.id} className="border-gray-800 hover:bg-[#111]">
+                <TableRow key={event.id} className="border-gray-800 hover:bg-mancave-surface">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       {event.imageUrl && (
@@ -954,7 +954,7 @@ function EventsTab() {
                   <TableCell className="text-gray-400 text-sm">
                     {format(new Date(event.date || Date.now()), "d MMM yyyy", { locale: tr })}
                   </TableCell>
-                  <TableCell className="text-gray-500 text-sm max-w-[150px] truncate">
+                  <TableCell className="text-mancave-muted text-sm max-w-[150px] truncate">
                     {event.location}
                   </TableCell>
                   <TableCell className="text-gray-400 text-sm">
@@ -966,7 +966,7 @@ function EventsTab() {
                       variant="outline"
                       className={`text-xs ${
                         event.status === "upcoming"
-                          ? "bg-[#d4a853]/20 text-[#d4a853] border-[#d4a853]/30"
+                          ? "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30"
                           : event.status === "ongoing"
                           ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
                           : event.status === "completed"
@@ -988,7 +988,7 @@ function EventsTab() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-500 hover:text-white h-8 w-8 p-0"
+                        className="text-mancave-muted hover:text-white h-8 w-8 p-0"
                         onClick={() => handleEdit(event)}
                       >
                         <Pencil className="w-4 h-4" />
@@ -1111,7 +1111,7 @@ function SponsorsTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-mancave-muted">
           {sponsors.length} sponsor
         </span>
         <Button
@@ -1120,7 +1120,7 @@ function SponsorsTab() {
             setSponsorLogo(null);
             setModalOpen(true);
           }}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium text-sm"
+          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Yeni Sponsor
@@ -1135,8 +1135,8 @@ function SponsorsTab() {
         </div>
       ) : sponsors.length === 0 ? (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <Star className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Henüz sponsor yok</p>
+          <Star className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+          <p className="text-mancave-muted">Henüz sponsor yok</p>
         </div>
       ) : (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
@@ -1154,7 +1154,7 @@ function SponsorsTab() {
               {sponsors.map((sp: Sponsor) => {
                 const tier = tierBadge[sp.tier] ?? tierBadge.bronze;
                 return (
-                  <TableRow key={sp.id} className="border-gray-800 hover:bg-[#111]">
+                  <TableRow key={sp.id} className="border-gray-800 hover:bg-mancave-surface">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {sp.logoUrl && (
@@ -1181,7 +1181,7 @@ function SponsorsTab() {
                         {tier.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-500 text-sm max-w-[120px] truncate">
+                    <TableCell className="text-mancave-muted text-sm max-w-[120px] truncate">
                       {sp.websiteUrl || "-"}
                     </TableCell>
                     <TableCell>
@@ -1198,7 +1198,7 @@ function SponsorsTab() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-gray-500 hover:text-white h-8 w-8 p-0"
+                          className="text-mancave-muted hover:text-white h-8 w-8 p-0"
                           onClick={() => {
                             setEditingSponsor(sp);
                             setSponsorLogo(null);
@@ -1232,12 +1232,12 @@ function SponsorsTab() {
 
       {/* Sponsor Form Dialog */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-lg">
+        <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-white">
               {editingSponsor ? "Sponsoru Düzenle" : "Yeni Sponsor"}
             </DialogTitle>
-            <DialogDescription className="text-gray-500">
+            <DialogDescription className="text-mancave-muted">
               {editingSponsor
                 ? "Sponsor bilgilerini güncelleyin"
                 : "Yeni bir sponsor ekleyin"}
@@ -1324,12 +1324,12 @@ function EventFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-lg">
+      <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-white">
             {editingEvent ? "Etkinliği Düzenle" : "Yeni Etkinlik"}
           </DialogTitle>
-          <DialogDescription className="text-gray-500">
+          <DialogDescription className="text-mancave-muted">
             {editingEvent
               ? "Etkinlik bilgilerini güncelleyin"
               : "Yeni bir etkinlik oluşturun"}
@@ -1345,7 +1345,7 @@ function EventFormDialog({
             <Input
               {...register("title")}
               placeholder="Etkinlik başlığı"
-              className="bg-[#111] border-gray-800 text-white"
+              className="bg-mancave-surface border-gray-800 text-white"
             />
             {errors.title && (
               <p className="text-red-400 text-xs">{errors.title.message}</p>
@@ -1358,7 +1358,7 @@ function EventFormDialog({
               {...register("description")}
               placeholder="Etkinlik açıklaması"
               rows={3}
-              className="bg-[#111] border-gray-800 text-white resize-none"
+              className="bg-mancave-surface border-gray-800 text-white resize-none"
             />
             {errors.description && (
               <p className="text-red-400 text-xs">{errors.description.message}</p>
@@ -1371,7 +1371,7 @@ function EventFormDialog({
               <Input
                 {...register("date")}
                 type="date"
-                className="bg-[#111] border-gray-800 text-white [color-scheme:dark]"
+                className="bg-mancave-surface border-gray-800 text-white [color-scheme:dark]"
               />
               {errors.date && (
                 <p className="text-red-400 text-xs">{errors.date.message}</p>
@@ -1382,7 +1382,7 @@ function EventFormDialog({
               <Input
                 {...register("time")}
                 type="time"
-                className="bg-[#111] border-gray-800 text-white [color-scheme:dark]"
+                className="bg-mancave-surface border-gray-800 text-white [color-scheme:dark]"
               />
               {errors.time && (
                 <p className="text-red-400 text-xs">{errors.time.message}</p>
@@ -1395,7 +1395,7 @@ function EventFormDialog({
             <Input
               {...register("location")}
               placeholder="Mekan adı / adresi"
-              className="bg-[#111] border-gray-800 text-white"
+              className="bg-mancave-surface border-gray-800 text-white"
             />
             {errors.location && (
               <p className="text-red-400 text-xs">{errors.location.message}</p>
@@ -1408,7 +1408,7 @@ function EventFormDialog({
               <Input
                 {...register("locationUrl")}
                 placeholder="Google Maps linki"
-                className="bg-[#111] border-gray-800 text-white"
+                className="bg-mancave-surface border-gray-800 text-white"
               />
             </div>
             <div className="space-y-2">
@@ -1417,7 +1417,7 @@ function EventFormDialog({
                 {...register("maxParticipants")}
                 type="number"
                 placeholder="Sınırsız"
-                className="bg-[#111] border-gray-800 text-white"
+                className="bg-mancave-surface border-gray-800 text-white"
               />
             </div>
           </div>
@@ -1446,7 +1446,7 @@ function EventFormDialog({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+              className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1523,7 +1523,7 @@ function SponsorForm({
         <Input
           {...register("name")}
           placeholder="Sponsor adı"
-          className="bg-[#111] border-gray-800 text-white"
+          className="bg-mancave-surface border-gray-800 text-white"
         />
         {errors.name && (
           <p className="text-red-400 text-xs">
@@ -1536,7 +1536,7 @@ function SponsorForm({
         <Input
           {...register("websiteUrl")}
           placeholder="https://..."
-          className="bg-[#111] border-gray-800 text-white"
+          className="bg-mancave-surface border-gray-800 text-white"
         />
       </div>
       <div className="space-y-2">
@@ -1545,7 +1545,7 @@ function SponsorForm({
           {...register("description")}
           placeholder="Sponsor hakkında..."
           rows={2}
-          className="bg-[#111] border-gray-800 text-white resize-none"
+          className="bg-mancave-surface border-gray-800 text-white resize-none"
         />
       </div>
       <div className="space-y-2">
@@ -1556,10 +1556,10 @@ function SponsorForm({
             setValue("tier", v as SponsorFormValues["tier"])
           }
         >
-          <SelectTrigger className="bg-[#111] border-gray-800 text-gray-300 w-full">
+          <SelectTrigger className="bg-mancave-surface border-gray-800 text-gray-300 w-full">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a1a] border-gray-800">
+          <SelectContent className="bg-mancave-card border-gray-800">
             <SelectItem value="platinum" className="text-gray-300">
               Platin
             </SelectItem>
@@ -1605,7 +1605,7 @@ function SponsorForm({
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1684,7 +1684,7 @@ function MarketTab() {
         </div>
         <Button
           onClick={() => setShowForm(true)}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium text-sm"
+          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-1.5" />
           Ürün Ekle
@@ -1699,8 +1699,8 @@ function MarketTab() {
         </div>
       ) : products.length === 0 ? (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <ShoppingBag className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Henüz ürün eklenmemiş</p>
+          <ShoppingBag className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+          <p className="text-mancave-muted">Henüz ürün eklenmemiş</p>
         </div>
       ) : (
         <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
@@ -1717,7 +1717,7 @@ function MarketTab() {
             </TableHeader>
             <TableBody>
               {products.map((product: Product) => (
-                <TableRow key={product.id} className="border-gray-800 hover:bg-[#111]">
+                <TableRow key={product.id} className="border-gray-800 hover:bg-mancave-surface">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/30 shrink-0">
@@ -1733,7 +1733,7 @@ function MarketTab() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <ShoppingBag className="w-4 h-4 text-gray-600" />
+                            <ShoppingBag className="w-4 h-4 text-mancave-muted" />
                           </div>
                         )}
                       </div>
@@ -1753,7 +1753,7 @@ function MarketTab() {
                       href={product.shopifyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#d4a853] text-xs hover:underline"
+                      className="text-[#3b82f6] text-xs hover:underline"
                     >
                       Link
                     </a>
@@ -1789,7 +1789,7 @@ function MarketTab() {
                           setEditingProduct(product);
                           setShowForm(true);
                         }}
-                        className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
+                        className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-[#3b82f6]/10 text-xs"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
@@ -1821,12 +1821,12 @@ function MarketTab() {
 
       {/* Product Form Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) resetForm(); setShowForm(open); }}>
-        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-md">
+        <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white">
               {editingProduct ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
             </DialogTitle>
-            <DialogDescription className="text-gray-500">
+            <DialogDescription className="text-mancave-muted">
               MANCAVE Market ürün bilgilerini giriniz
             </DialogDescription>
           </DialogHeader>
@@ -1911,7 +1911,7 @@ function ProductForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Örn: MANCAVE Sweatshirt"
-          className="bg-[#111] border-gray-800 text-white"
+          className="bg-mancave-surface border-gray-800 text-white"
           required
         />
       </div>
@@ -1923,7 +1923,7 @@ function ProductForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Kısa açıklama..."
           rows={2}
-          className="bg-[#111] border-gray-800 text-white resize-none"
+          className="bg-mancave-surface border-gray-800 text-white resize-none"
         />
       </div>
 
@@ -1934,16 +1934,16 @@ function ProductForm({
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="₺499,99"
-            className="bg-[#111] border-gray-800 text-white"
+            className="bg-mancave-surface border-gray-800 text-white"
           />
         </div>
         <div className="space-y-2">
           <Label className="text-gray-300">Kategori</Label>
           <Select value={category} onValueChange={(v) => setCategory(v || "tshirt")}>
-            <SelectTrigger className="bg-[#111] border-gray-800 text-gray-300">
+            <SelectTrigger className="bg-mancave-surface border-gray-800 text-gray-300">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#1a1a1a] border-gray-800">
+            <SelectContent className="bg-mancave-card border-gray-800">
               {CATEGORY_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value} className="text-gray-300">
                   {opt.label}
@@ -1960,7 +1960,7 @@ function ProductForm({
           value={shopifyUrl}
           onChange={(e) => setShopifyUrl(e.target.value)}
           placeholder="https://mancave.myshopify.com/..."
-          className="bg-[#111] border-gray-800 text-white"
+          className="bg-mancave-surface border-gray-800 text-white"
           required
         />
       </div>
@@ -1986,7 +1986,7 @@ function ProductForm({
         <Button
           type="submit"
           disabled={isSubmitting || !name.trim() || !shopifyUrl.trim()}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />

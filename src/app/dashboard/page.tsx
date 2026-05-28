@@ -83,7 +83,7 @@ function DashboardContent() {
           <h2 className="text-xl text-white font-semibold mb-2">
             Veri yüklenemedi
           </h2>
-          <p className="text-gray-500">
+          <p className="text-mancave-muted">
             {error instanceof Error ? error.message : "Bir hata oluştu"}
           </p>
         </div>
@@ -95,8 +95,8 @@ function DashboardContent() {
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Welcome Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-10 p-6 rounded-xl bg-gradient-to-br from-[#d4a853]/10 via-transparent to-transparent border border-[#d4a853]/10">
-          <Avatar className="w-16 h-16 border-2 border-[#d4a853]/30">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-10 p-6 rounded-xl bg-gradient-to-br from-[#3b82f6]/10 via-transparent to-transparent border border-[#3b82f6]/10">
+          <Avatar className="w-16 h-16 border-2 border-[#3b82f6]/30">
             <AvatarImage
               src={
                 user?.avatar
@@ -105,7 +105,7 @@ function DashboardContent() {
               }
               alt={user?.firstName}
             />
-            <AvatarFallback className="bg-[#d4a853]/10 text-[#d4a853] text-lg">
+            <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-lg">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -114,9 +114,9 @@ function DashboardContent() {
               <h1 className="text-2xl font-bold text-white">
                 Hoş geldin, {user?.firstName}!
               </h1>
-              <Sparkles className="w-5 h-5 text-[#d4a853]" />
+              <Sparkles className="w-5 h-5 text-[#3b82f6]" />
             </div>
-            <p className="text-gray-500">
+            <p className="text-mancave-muted">
               Bosphorus Fellas topluluğunda neler oluyor, bir göz at.
             </p>
           </div>
@@ -125,7 +125,7 @@ function DashboardContent() {
         {/* Stats */}
         <div className="mb-12">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-[#d4a853]" />
+            <TrendingUp className="w-5 h-5 text-[#3b82f6]" />
             Özet
           </h2>
           {isLoading ? (
@@ -166,7 +166,7 @@ function DashboardContent() {
             {/* Upcoming Events */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-[#d4a853]" />
+                <Calendar className="w-5 h-5 text-[#3b82f6]" />
                 Yaklaşan Etkinlikler
               </h2>
               {isLoading ? (
@@ -203,7 +203,7 @@ function DashboardContent() {
             {/* Sponsors */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-[#d4a853]" />
+                <Star className="w-5 h-5 text-[#3b82f6]" />
                 Sponsorlar
               </h2>
               {isLoading ? (
@@ -231,7 +231,7 @@ function DashboardContent() {
             {/* MANCAVE Market */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-[#d4a853]" />
+                <ShoppingBag className="w-5 h-5 text-[#3b82f6]" />
                 MANCAVE Market
               </h2>
               {isLoading ? (
@@ -279,11 +279,11 @@ function EmptyState({
         compact ? "p-6 gap-2" : "p-10 gap-3"
       }`}
     >
-      <div className="w-12 h-12 rounded-full bg-[#d4a853]/10 flex items-center justify-center">
-        <Icon className="w-6 h-6 text-[#d4a853]/60" />
+      <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
+        <Icon className="w-6 h-6 text-[#3b82f6]/60" />
       </div>
       <h3 className="text-gray-400 font-medium text-sm">{title}</h3>
-      <p className="text-gray-600 text-xs max-w-xs">{description}</p>
+      <p className="text-mancave-muted text-xs max-w-xs">{description}</p>
     </div>
   );
 }

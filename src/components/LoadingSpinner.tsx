@@ -18,10 +18,10 @@ export function LoadingSpinner({
       className={`flex flex-col items-center justify-center gap-3 ${className}`}
     >
       <Loader2
-        className="animate-spin text-mancave-gold"
+        className="animate-spin text-mancave-blue"
         style={{ width: size, height: size }}
       />
-      {text && <p className="text-sm text-gray-500">{text}</p>}
+      {text && <p className="text-sm text-mancave-muted">{text}</p>}
     </div>
   );
 
@@ -40,8 +40,8 @@ export function PageLoading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-mancave-bg">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full border-2 border-mancave-gold/30 border-t-mancave-gold animate-spin" />
-        <p className="text-gray-500 text-sm tracking-wider">YÜKLENİYOR</p>
+        <div className="w-12 h-12 rounded-full border-2 border-mancave-blue/30 border-t-mancave-blue animate-spin" />
+        <p className="text-mancave-muted text-sm tracking-wider">YÜKLENİYOR</p>
       </div>
     </div>
   );

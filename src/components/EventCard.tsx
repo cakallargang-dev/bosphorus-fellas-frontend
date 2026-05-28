@@ -45,7 +45,7 @@ export function EventCard({
   const isInvalidDate = eventDate && isNaN(eventDate.getTime());
 
   return (
-    <Card className="bg-mancave-card border-mancave-border overflow-hidden hover:border-mancave-gold/30 transition-all duration-300 group">
+    <Card className="bg-mancave-card border-mancave-border overflow-hidden hover:border-mancave-blue/30 transition-all duration-300 group">
       {event.imageUrl && (
         <div className="relative h-40 overflow-hidden">
           <img
@@ -62,7 +62,7 @@ export function EventCard({
               variant={status.variant}
               className={`text-xs ${
                 status.variant === "default"
-                  ? "bg-mancave-gold/20 text-mancave-gold border-mancave-gold/30"
+                  ? "bg-mancave-blue/20 text-mancave-blue border-mancave-blue/30"
                   : ""
               }`}
             >
@@ -82,7 +82,7 @@ export function EventCard({
               variant={status.variant}
               className={`text-xs shrink-0 ${
                 status.variant === "default"
-                  ? "bg-mancave-gold/20 text-mancave-gold border-mancave-gold/30"
+                  ? "bg-mancave-blue/20 text-mancave-blue border-mancave-blue/30"
                   : ""
               }`}
             >
@@ -92,39 +92,39 @@ export function EventCard({
         </div>
 
         {event.description && (
-          <p className="text-gray-500 text-sm mt-2 line-clamp-2">
+          <p className="text-mancave-muted text-sm mt-2 line-clamp-2">
             {event.description}
           </p>
         )}
 
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Calendar className="w-4 h-4 text-mancave-gold/60 shrink-0" />
+            <Calendar className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <span>
               {eventDate && !isInvalidDate ? format(eventDate, "d MMMM yyyy", { locale: tr }) : "-"}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Clock className="w-4 h-4 text-mancave-gold/60 shrink-0" />
+            <Clock className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <span>{event.time}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <MapPin className="w-4 h-4 text-mancave-gold/60 shrink-0" />
+            <MapPin className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <a
               href={event.locationUrl || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="truncate text-mancave-gold hover:underline"
+              className="truncate text-mancave-blue hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               {event.location}
             </a>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Users className="w-4 h-4 text-mancave-gold/60 shrink-0" />
+            <Users className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <button
               onClick={() => setShowParticipants(!showParticipants)}
-              className="flex items-center gap-1 hover:text-mancave-gold transition-colors"
+              className="flex items-center gap-1 hover:text-mancave-blue transition-colors"
             >
               <span>
                 {event.currentParticipants}
@@ -154,7 +154,7 @@ export function EventCard({
                       <AvatarImage
                         src={p.userAvatar ? `${apiBase}${p.userAvatar}` : undefined}
                       />
-                      <AvatarFallback className="text-[10px] bg-mancave-gold/20 text-mancave-gold">
+                      <AvatarFallback className="text-[10px] bg-mancave-blue/20 text-mancave-blue">
                         {p.userName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -162,7 +162,7 @@ export function EventCard({
                   </div>
                 ))}
                 {event.currentParticipants > participants.length && (
-                  <span className="text-xs text-gray-600 self-center">
+                  <span className="text-xs text-mancave-muted self-center">
                     +{event.currentParticipants - participants.length} kişi daha
                   </span>
                 )}
@@ -187,7 +187,7 @@ export function EventCard({
           ) : (
             <Button
               size="sm"
-              className="w-full bg-mancave-gold/10 text-mancave-gold border border-mancave-gold/30 hover:bg-mancave-gold/20 hover:border-mancave-gold/50"
+              className="w-full bg-mancave-blue/10 text-mancave-blue border border-mancave-blue/30 hover:bg-mancave-blue/20 hover:border-mancave-blue/50"
               onClick={() => onJoin?.(event.id)}
               disabled={
                 isJoining ||

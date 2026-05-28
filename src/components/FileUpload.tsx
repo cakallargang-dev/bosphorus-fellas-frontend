@@ -94,26 +94,26 @@ export function FileUpload({
       className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
         ${
           isDragActive
-            ? "border-mancave-gold bg-mancave-gold/5"
-            : "border-mancave-border hover:border-mancave-gold/50 hover:bg-mancave-gold/5"
+            ? "border-mancave-blue bg-mancave-blue/5"
+            : "border-mancave-border hover:border-mancave-blue/50 hover:bg-mancave-blue/5"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <input {...getInputProps()} />
       {uploading ? (
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="w-8 h-8 text-mancave-gold animate-spin" />
+          <Loader2 className="w-8 h-8 text-mancave-blue animate-spin" />
           <p className="text-sm text-gray-400">Yükleniyor...</p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
           {isDragActive ? (
-            <Upload className="w-8 h-8 text-mancave-gold" />
+            <Upload className="w-8 h-8 text-mancave-blue" />
           ) : (
-            <FileImage className="w-8 h-8 text-gray-600" />
+            <FileImage className="w-8 h-8 text-mancave-muted" />
           )}
           <p className="text-sm text-gray-400">{label}</p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-mancave-muted">
             PNG, JPG veya WebP (max {Math.round(maxSize / 1024 / 1024)}MB)
           </p>
         </div>
