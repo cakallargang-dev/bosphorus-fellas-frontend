@@ -311,7 +311,7 @@ function ChannelChatView({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-24rem)] min-h-[400px]">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
         <Button
@@ -595,38 +595,36 @@ export default function ChatPage() {
   return (
     <AuthGuard>
       <Layout>
-        <div className="max-w-2xl mx-auto px-4 py-6">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-[#3b82f6]" />
+        <div className="flex flex-col h-[calc(100vh-5rem)]">
+          {/* Compact header */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
+            <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
+              <MessageCircle className="w-4 h-4 text-[#3b82f6]" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Sohbet</h2>
-              <p className="text-sm text-mancave-muted">Kulüp içi iletişim</p>
+              <h2 className="text-base font-bold text-white">Sohbet</h2>
             </div>
           </div>
 
-          {/* Main Content */}
-          {selectedChannel ? (
-            <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
-              <ChannelChatView
-                channel={selectedChannel}
-                onBack={() => setSelectedChannel(null)}
-              />
-            </div>
-          ) : (
-            <div className="rounded-xl border border-white/10 bg-mancave-bg/80 p-4 sm:p-6">
-              <ChannelList onSelectChannel={setSelectedChannel} />
-            </div>
-          )}
-
-          {/* Support Section — only on channel list */}
-          {!selectedChannel && (
-            <div className="mt-6">
-              <SupportSection />
-            </div>
-          )}
+          {/* Main Content — fills remaining space */}
+          <div className="flex-1 overflow-hidden">
+            {selectedChannel ? (
+              <div className="h-full flex flex-col p-4">
+                <ChannelChatView
+                  channel={selectedChannel}
+                  onBack={() => setSelectedChannel(null)}
+                />
+              </div>
+            ) : (
+              <div className="h-full overflow-y-auto p-4">
+                <ChannelList onSelectChannel={setSelectedChannel} />
+                {/* Support Section */}
+                <div className="mt-4">
+                  <SupportSection />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </Layout>
     </AuthGuard>
