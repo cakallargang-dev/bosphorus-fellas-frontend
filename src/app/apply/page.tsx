@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { applicationsApi } from "@/lib/api";
+import { applicationsApi, referansApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
 import { Layout } from "@/components/Layout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   User,
   Mail,
@@ -29,7 +36,37 @@ import {
   ArrowLeft,
   CheckCircle2,
   Clock,
+  ShieldCheck,
+  Ticket,
+  Loader2,
+  TicketX,
 } from "lucide-react";
+
+// ─── Car Data ───────────────────────────────────────────────────────────────
+
+const CAR_BRANDS: Record<string, string[]> = {
+  "Alfa Romeo": ["Giulia", "Stelvio", "Tonale"],
+  "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "RS3", "RS4", "RS5", "RS6", "RS7", "R8", "TT", "e-tron GT"],
+  "BMW": ["1 Serisi", "2 Serisi", "3 Serisi", "4 Serisi", "5 Serisi", "6 Serisi", "7 Serisi", "X1", "X3", "X4", "X5", "X6", "X7", "M2", "M3", "M4", "M5", "M8", "Z4"],
+  "Mercedes": ["A Serisi", "C Serisi", "E Serisi", "S Serisi", "CLA", "CLS", "GLA", "GLB", "GLC", "GLE", "GLS", "AMG GT", "EQS"],
+  "Porsche": ["718 Cayman", "911 Carrera", "911 Turbo", "911 GT3", "Panamera", "Cayenne", "Macan", "Taycan"],
+  "Volkswagen": ["Golf", "Polo", "Passat", "Arteon", "Tiguan", "T-Roc", "Touareg", "Scirocco"],
+  "Toyota": ["Corolla", "Camry", "Yaris", "C-HR", "RAV4", "Land Cruiser", "Supra", "GR86", "GT86"],
+  "Honda": ["Civic", "Accord", "CR-V", "HR-V", "Jazz", "NSX", "S2000", "Type R"],
+  "Ford": ["Focus", "Fiesta", "Mondeo", "Kuga", "Puma", "Mustang", "Ranger"],
+  "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "370Z", "GT-R"],
+  "Mazda": ["Mazda3", "Mazda6", "CX-3", "CX-5", "CX-30", "MX-5"],
+  "Tesla": ["Model 3", "Model Y", "Model S", "Model X"],
+  "Ferrari": ["Roma", "F8 Tributo", "SF90 Stradale", "296 GTB", "812 Superfast"],
+  "Lamborghini": ["Huracan", "Aventador", "Urus", "Revuelto"],
+  "Subaru": ["Impreza", "WRX", "BRZ", "Forester", "Outback"],
+  "Volvo": ["S60", "S90", "V60", "V90", "XC40", "XC60", "XC90"],
+  "Hyundai": ["i10", "i20", "i30", "Bayon", "Kona", "Tucson", "IONIQ 5", "IONIQ 6"],
+  "Renault": ["Clio", "Megane", "Talisman", "Kadjar", "Captur", "Arkana"],
+  "Diğer": [],
+};
+
+// ─── Schema ──────────────────────────────────────────────────────────────────
 
 const applySchema = z.object({
   firstName: z.string().min(2, "Ad en az 2 karakter olmalıdır"),
@@ -47,14 +84,18 @@ const applySchema = z.object({
     .string()
     .min(4, "Geçerli bir yıl giriniz")
     .regex(/^\d{4}$/, "Geçerli bir yıl giriniz (örn: 2020)"),
+  plateNumber: z.string().optional(),
   instagram: z.string().optional(),
   occupation: z.string().optional(),
   about: z.string().min(20, "Kendinizden en az 20 karakter bahsediniz"),
   expectation: z.string().optional(),
+  referansKodu: z.string().min(1, "Referans kodu zorunludur"),
   photo: z.any().optional(),
 });
 
 type ApplyFormData = z.infer<typeof applySchema>;
+
+// ─── Step Definitions ───────────────────────────────────────────────────────
 
 const STEPS = [
   { id: 1, label: "Kişisel Bilgiler", icon: User },
@@ -62,7 +103,32 @@ const STEPS = [
   { id: 3, label: "Detaylar", icon: FileText },
 ];
 
+const PRELIMINARY_STEPS = [
+  { id: 1, label: "KVKK", icon: ShieldCheck },
+  { id: 2, label: "Referans", icon: Ticket },
+  { id: 3, label: "Başvuru Formu", icon: FileText },
+];
+
+const PRELIMINARY_MAIN_MAP: Record<number, number> = {
+  1: 1, // KVKK → prelim step 1
+  2: 2, // Referans → prelim step 2
+  3: 3, // Başvuru → prelim step 3 (maps to main form)
+};
+
+// ─── Component ──────────────────────────────────────────────────────────────
+
 export default function ApplyPage() {
+  // Preliminary flow
+  const [preliminaryStep, setPreliminaryStep] = useState(1);
+  const [kvkkAccepted, setKvkkAccepted] = useState(false);
+  const [referenceCode, setReferenceCode] = useState("");
+  const [refValidation, setRefValidation] = useState<{
+    status: "idle" | "loading" | "valid" | "invalid";
+    ownerName?: string;
+    error?: string;
+  }>({ status: "idle" });
+
+  // Main form
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -72,17 +138,63 @@ export default function ApplyPage() {
     register,
     handleSubmit,
     trigger,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<ApplyFormData>({
     resolver: zodResolver(applySchema),
     mode: "onTouched",
   });
 
+  const selectedCarBrand = watch("carBrand");
+  const selectedCarModel = watch("carModel");
+  const isCustomBrand = selectedCarBrand === "Diğer";
+
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
     1: ["firstName", "lastName", "email", "phone", "birthDate", "city"],
     2: ["carBrand", "carModel", "carYear"],
     3: ["instagram", "occupation", "about", "expectation"],
   };
+
+  // ── Preliminary navigation ──────────────────────────────────────────────
+
+  const handlePrelimNextKVKK = () => {
+    setPreliminaryStep(2);
+  };
+
+  const handlePrelimNextReferans = () => {
+    if (referenceCode.trim() && refValidation.status === "valid") {
+      setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
+      setPreliminaryStep(3);
+    }
+  };
+
+  // Verify reference code via API
+  const handleVerifyCode = async (code: string) => {
+    const trimmed = code.trim().toUpperCase();
+    setReferenceCode(trimmed);
+
+    if (trimmed.length < 8) {
+      setRefValidation({ status: "idle" });
+      return;
+    }
+
+    setRefValidation({ status: "loading" });
+
+    try {
+      const result = await referansApi.verifyCode(trimmed);
+      setRefValidation({
+        status: "valid",
+        ownerName: result.data.ownerName,
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Geçersiz referans kodu";
+      setRefValidation({ status: "invalid", error: message });
+    }
+  };
+
+  // ── Main form navigation ────────────────────────────────────────────────
 
   const handleNext = async () => {
     const fields = fieldsPerStep[step];
@@ -109,12 +221,14 @@ export default function ApplyPage() {
         carBrand: data.carBrand,
         carModel: data.carModel,
         carYear: parseInt(data.carYear, 10),
+        plateNumber: data.plateNumber || undefined,
         instagram: data.instagram || undefined,
         occupation: data.occupation || undefined,
         about: data.about,
         expectation: data.expectation || undefined,
+        referansKodu: data.referansKodu || undefined,
         photo: photoFile || undefined,
-      });
+      } as Parameters<typeof applicationsApi.submit>[0]);
       setIsSuccess(true);
       toast.success("Başvurunuz başarıyla gönderildi!");
     } catch (err) {
@@ -125,6 +239,8 @@ export default function ApplyPage() {
       setIsSubmitting(false);
     }
   };
+
+  // ── Success View ────────────────────────────────────────────────────────
 
   if (isSuccess) {
     return (
@@ -175,6 +291,226 @@ export default function ApplyPage() {
     );
   }
 
+  // ── Preliminary Step Indicator ──────────────────────────────────────────
+
+  const renderPreliminarySteps = () => {
+    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3 };
+    const currentActive = activeMap[preliminaryStep] || 3;
+
+    return (
+      <div className="flex items-center justify-center gap-2 mb-10">
+        {PRELIMINARY_STEPS.map((ps, idx) => {
+          const isActive = ps.id === currentActive;
+          const isDone = currentActive > ps.id;
+          return (
+            <div key={ps.id} className="flex items-center gap-2">
+              <div
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-[#d4a853]/10 border border-[#d4a853]/30 text-[#d4a853]"
+                    : isDone
+                    ? "bg-green-500/10 border border-green-500/30 text-green-500"
+                    : "bg-gray-900/50 border border-gray-800 text-gray-600"
+                }`}
+              >
+                <ps.icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{ps.label}</span>
+              </div>
+              {idx < PRELIMINARY_STEPS.length - 1 && (
+                <ArrowRight className="w-4 h-4 text-gray-700" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PRELIMINARY STEP 1: KVKK Consent
+  // ═══════════════════════════════════════════════════════════════════════
+
+  if (preliminaryStep === 1) {
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-4">
+              <Heart className="w-7 h-7 text-[#d4a853]" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Üyelik Başvurusu
+            </h1>
+            <p className="text-gray-500">
+              Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
+            </p>
+          </div>
+
+          {/* Preliminary Step Indicators */}
+          {renderPreliminarySteps()}
+
+          <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">
+                KVKK Aydınlatma Metni
+              </CardTitle>
+              <CardDescription className="text-gray-500">
+                Lütfen aşağıdaki metni okuyun ve kabul edin
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Scrollable KVKK text */}
+              <div className="bg-[#111] border border-gray-800 rounded-lg p-5 max-h-64 overflow-y-auto text-sm text-gray-300 leading-relaxed">
+                <p>
+                  6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK)
+                  kapsamında, başvuru formunda paylaştığınız kişisel
+                  verileriniz (ad, soyad, e-posta, telefon, doğum tarihi,
+                  şehir, araç bilgileri, Instagram, meslek ve fotoğraf)
+                  Bosphorus Fellas üyelik değerlendirme süreci kapsamında
+                  işlenecektir. Verileriniz üçüncü kişilerle
+                  paylaşılmayacak olup, üyelik başvurunuzun
+                  değerlendirilmesi amacıyla saklanacaktır.
+                </p>
+              </div>
+
+              {/* Checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={kvkkAccepted}
+                  onChange={(e) => setKvkkAccepted(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-gray-700 bg-[#111] text-[#d4a853] focus:ring-[#d4a853]/50 focus:ring-offset-0 cursor-pointer"
+                />
+                <span className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors select-none">
+                  KVKK Aydınlatma Metni&apos;ni okudum ve kabul ediyorum.
+                </span>
+              </label>
+
+              {/* Devam button */}
+              <Button
+                onClick={handlePrelimNextKVKK}
+                disabled={!kvkkAccepted}
+                className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Devam
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PRELIMINARY STEP 2: Reference Code
+  // ═══════════════════════════════════════════════════════════════════════
+
+  if (preliminaryStep === 2) {
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="mx-auto w-14 h-14 rounded-full bg-[#d4a853]/10 flex items-center justify-center mb-4">
+              <Heart className="w-7 h-7 text-[#d4a853]" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Üyelik Başvurusu
+            </h1>
+            <p className="text-gray-500">
+              Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
+            </p>
+          </div>
+
+          {/* Preliminary Step Indicators */}
+          {renderPreliminarySteps()}
+
+          <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">
+                Referans Kodu
+              </CardTitle>
+              <CardDescription className="text-gray-500">
+                Başvuru yapabilmek için bir üyemizin referans koduna ihtiyacınız var
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="prelimRefCode" className="text-gray-300">
+                  Referans Kodu <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="prelimRefCode"
+                  placeholder="8 haneli referans kodunu giriniz"
+                  value={referenceCode}
+                  onChange={(e) => {
+                    const val = e.target.value.toUpperCase();
+                    setReferenceCode(val);
+                    if (val.length >= 8) {
+                      handleVerifyCode(val);
+                    } else {
+                      setRefValidation({ status: "idle" });
+                    }
+                  }}
+                  maxLength={8}
+                  className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 uppercase"
+                />
+
+                {/* Validation status */}
+                {refValidation.status === "loading" && (
+                  <p className="text-[#d4a853] text-xs flex items-center gap-1.5">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Kod kontrol ediliyor...
+                  </p>
+                )}
+                {refValidation.status === "valid" && (
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <p className="text-green-400 text-sm flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Geçerli referans kodu
+                    </p>
+                    {refValidation.ownerName && (
+                      <p className="text-green-400/70 text-xs mt-1">
+                        Davet eden: {refValidation.ownerName}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {refValidation.status === "invalid" && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    <p className="text-red-400 text-sm flex items-center gap-1.5">
+                      <TicketX className="w-4 h-4" />
+                      {refValidation.error || "Geçersiz referans kodu"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  onClick={handlePrelimNextReferans}
+                  disabled={refValidation.status !== "valid"}
+                  className="w-full bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Devam
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MAIN FORM (preliminaryStep === 3)
+  // ═══════════════════════════════════════════════════════════════════════
+
   return (
     <Layout>
       <div className="max-w-2xl mx-auto px-4 py-12">
@@ -191,7 +527,10 @@ export default function ApplyPage() {
           </p>
         </div>
 
-        {/* Step indicators */}
+        {/* Preliminary Step Indicators */}
+        {renderPreliminarySteps()}
+
+        {/* Main form step indicators */}
         <div className="flex items-center justify-center gap-2 mb-10">
           {STEPS.map((s, idx) => (
             <div key={s.id} className="flex items-center gap-2">
@@ -342,38 +681,81 @@ export default function ApplyPage() {
               {/* STEP 2: Car Info */}
               {step === 2 && (
                 <div className="space-y-4 animate-in fade-in-50 slide-in-from-right-2 duration-300">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Car Brand */}
                     <div className="space-y-2">
                       <Label htmlFor="carBrand" className="text-gray-300">
                         Marka <span className="text-red-400">*</span>
                       </Label>
-                      <div className="relative">
-                        <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
-                        <Input
-                          id="carBrand"
-                          placeholder="BMW"
-                          className="pl-10 bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
-                          {...register("carBrand")}
-                        />
-                      </div>
+                      <Select
+                        value={selectedCarBrand || ""}
+                        onValueChange={(value) => {
+                          setValue("carBrand", value || "", { shouldValidate: true });
+                          setValue("carModel", "", { shouldValidate: false });
+                        }}
+                      >
+                        <SelectTrigger
+                          className="w-full bg-[#111] border-gray-800 text-white data-placeholder:text-gray-600 focus:border-[#d4a853]/50 pl-10"
+                        >
+                          <Car className="absolute left-3 w-4 h-4 text-gray-600" />
+                          <SelectValue placeholder="Marka seçiniz" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1a1a1a] border-gray-800 text-white max-h-60">
+                          {Object.keys(CAR_BRANDS).map((brand) => (
+                            <SelectItem key={brand} value={brand}>
+                              {brand}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.carBrand && (
                         <p className="text-red-400 text-xs">{errors.carBrand.message}</p>
                       )}
                     </div>
+
+                    {/* Car Model */}
                     <div className="space-y-2">
                       <Label htmlFor="carModel" className="text-gray-300">
                         Model <span className="text-red-400">*</span>
                       </Label>
-                      <Input
-                        id="carModel"
-                        placeholder="M4 Competition"
-                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50"
-                        {...register("carModel")}
-                      />
+                      {selectedCarBrand && !isCustomBrand ? (
+                        <Select
+                          value={selectedCarModel || ""}
+                          onValueChange={(value) => {
+                            setValue("carModel", value || "", { shouldValidate: true });
+                          }}
+                        >
+                          <SelectTrigger className="w-full bg-[#111] border-gray-800 text-white data-placeholder:text-gray-600 focus:border-[#d4a853]/50">
+                            <SelectValue placeholder="Model seçiniz" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#1a1a1a] border-gray-800 text-white max-h-60">
+                            {(CAR_BRANDS[selectedCarBrand] || []).map((model) => (
+                              <SelectItem key={model} value={model}>
+                                {model}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          id="carModel"
+                          placeholder={isCustomBrand ? "Model giriniz" : "Önce marka seçiniz"}
+                          disabled={!isCustomBrand && !selectedCarBrand}
+                          className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 disabled:opacity-50"
+                          value={selectedCarModel || ""}
+                          onChange={(e) =>
+                            setValue("carModel", e.target.value, { shouldValidate: true })
+                          }
+                        />
+                      )}
                       {errors.carModel && (
                         <p className="text-red-400 text-xs">{errors.carModel.message}</p>
                       )}
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Car Year */}
                     <div className="space-y-2">
                       <Label htmlFor="carYear" className="text-gray-300">
                         Yıl <span className="text-red-400">*</span>
@@ -388,6 +770,19 @@ export default function ApplyPage() {
                       {errors.carYear && (
                         <p className="text-red-400 text-xs">{errors.carYear.message}</p>
                       )}
+                    </div>
+
+                    {/* Plate Number */}
+                    <div className="space-y-2">
+                      <Label htmlFor="plateNumber" className="text-gray-300">
+                        Araç Plakası
+                      </Label>
+                      <Input
+                        id="plateNumber"
+                        placeholder="34 ABC 123"
+                        className="bg-[#111] border-gray-800 text-white placeholder:text-gray-600 focus:border-[#d4a853]/50 uppercase"
+                        {...register("plateNumber")}
+                      />
                     </div>
                   </div>
 
