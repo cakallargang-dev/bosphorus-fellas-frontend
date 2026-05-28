@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { authApi } from "@/lib/api";
+import { authApi, referansApi } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
@@ -26,6 +26,10 @@ import {
   Lock,
   Camera,
   LogOut,
+  Copy,
+  Check,
+  Share2,
+  Clock,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -37,6 +41,136 @@ const profileSchema = z.object({
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
+
+function ReferenceCodeCard() {
+  const [code, setCode] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const fetchCode = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await referansApi.getCode();
+      setCode(res.data.code);
+      setExpiresAt(res.data.expiresAt);
+    } catch {
+      // silently fail
+    } finally {
+      setIsLoading(false);
+      setHasFetched(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCode();
+  }, [fetchCode]);
+
+  const handleCopy = async () => {
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      toast.success("Referans kodu kopyalandı!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Kopyalanamadı");
+    }
+  };
+
+  const formatExpiry = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const isExpired = expiresAt ? new Date(expiresAt) < new Date() : false;
+
+  return (
+    <Card className="bg-gray-900/50 backdrop-blur border-gray-800 mb-6">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <Share2 className="w-5 h-5 text-[#d4a853]" />
+          Referans Kodun
+        </CardTitle>
+        <CardDescription className="text-gray-500">
+          Arkadaşlarını davet etmek için referans kodunu paylaş
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-3 py-4">
+            <div className="w-5 h-5 border-2 border-[#d4a853]/30 border-t-[#d4a853] rounded-full animate-spin" />
+            <p className="text-gray-400 text-sm">Kod oluşturuluyor...</p>
+          </div>
+        ) : code && !isExpired ? (
+          <div className="space-y-4">
+            {/* Code display */}
+            <div className="bg-[#111] border border-gray-800 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <code className="text-3xl font-mono font-bold text-[#d4a853] tracking-[0.2em]">
+                  {code}
+                </code>
+                <Button
+                  onClick={handleCopy}
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-400" />
+                      Kopyalandı
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Kopyala
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Expiry info */}
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Clock className="w-4 h-4" />
+              <span>
+                Son kullanma:{" "}
+                <span className="text-gray-300">
+                  {expiresAt ? formatExpiry(expiresAt) : "—"}
+                </span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="py-4">
+            <p className="text-gray-400 text-sm mb-3">
+              {isExpired
+                ? "Referans kodunun süresi dolmuş."
+                : "Henüz bir referans kodun yok."}
+            </p>
+            <Button
+              onClick={fetchCode}
+              variant="outline"
+              className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Yeni Kod Oluştur
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 const passwordSchema = z
   .object({
@@ -332,6 +466,9 @@ function ProfileContent() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Reference Code Card */}
+        <ReferenceCodeCard />
 
         {/* Password Card */}
         <Card className="bg-gray-900/50 backdrop-blur border-gray-800">

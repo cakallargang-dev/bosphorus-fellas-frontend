@@ -74,6 +74,7 @@ export interface ApplicationFormData {
   occupation?: string;
   about: string;
   expectation?: string;
+  referansKodu?: string;
   photo?: File;
 }
 
@@ -228,4 +229,23 @@ export interface ProfileUpdateData {
 export interface PasswordChangeData {
   currentPassword: string;
   newPassword: string;
+}
+
+// --- Chat ---
+export interface ChatMessage {
+  id: string;
+  channel: string;
+  content: string;
+  senderId: string;
+  senderName: string;
+  createdAt: string;
+}
+
+export interface SupportMessage {
+  id: string;
+  content: string;
+  senderId: string;
+  senderName: string;
+  replied: boolean;
+  createdAt: string;
 }

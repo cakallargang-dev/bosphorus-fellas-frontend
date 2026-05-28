@@ -382,6 +382,10 @@ export const chatApi = {
       method: "POST",
       body: JSON.stringify({ content }),
     }),
+  getActivity: () =>
+    request<ApiResponse<Record<string, { count: number; lastMessage: { content: string; senderName: string; createdAt: string } | null }>>>(
+      "/api/chat/activity"
+    ),
   getSupport: () => request<ApiResponse<any[]>>("/api/chat/support"),
   sendSupport: (content: string) =>
     request<ApiResponse<any>>("/api/chat/support", {
