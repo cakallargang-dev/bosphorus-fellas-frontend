@@ -78,7 +78,7 @@ export function ScreenshotProtection() {
             document.body.style.filter = "";
             document.body.style.pointerEvents = "";
             devToolsWarned = false;
-          }, 3000);
+          }, 500);
         }
       }
     };
