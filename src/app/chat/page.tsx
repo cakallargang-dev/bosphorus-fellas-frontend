@@ -722,7 +722,7 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <Layout>
+      <Layout hideFooter>
         <div className="flex flex-col h-[calc(100vh-4rem)]">
           {/* Compact header with support toggle */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
