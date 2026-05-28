@@ -228,6 +228,7 @@ function ChannelChatView({
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
+  const msgCountRef = useRef(0);
 
   const Icon = channel.icon;
 
@@ -249,6 +250,7 @@ function ChannelChatView({
       scrollToBottom();
     }
     prevLengthRef.current = messages.length;
+    msgCountRef.current = messages.length;
     // Mark channel as read whenever message list updates
     if (messages.length > 0) {
       setReadCount(channel.id, messages.length);
@@ -259,6 +261,12 @@ function ChannelChatView({
   useEffect(() => {
     scrollToBottom();
     queryClient.invalidateQueries({ queryKey: ["chat-activity"] });
+    // On unmount (leaving channel), ensure read count is up to date
+    return () => {
+      if (msgCountRef.current > 0) {
+        setReadCount(channel.id, msgCountRef.current);
+      }
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = async () => {
@@ -268,6 +276,8 @@ function ChannelChatView({
     try {
       await chatApi.sendMessage(channel.id, trimmed);
       setInput("");
+      // Optimistically mark own message as read
+      setReadCount(channel.id, messages.length + 1);
       queryClient.invalidateQueries({ queryKey: ["chat-messages", channel.id] });
       queryClient.invalidateQueries({ queryKey: ["chat-activity"] });
     } catch {
@@ -397,6 +407,26 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
     string,
     { count: number; lastMessage: { content: string; senderName: string; createdAt: string } | null }
   > = (data as any)?.data ?? {};
+
+  const [initialized, setInitialized] = useState(false);
+
+  // On first load, initialize read counts to current totals
+  useEffect(() => {
+    if (!initialized && data && Object.keys(activity).length > 0) {
+      const reads = getReadCounts();
+      let updated = false;
+      Object.entries(activity).forEach(([channelId, info]) => {
+        if (reads[channelId] === undefined) {
+          reads[channelId] = info.count;
+          updated = true;
+        }
+      });
+      if (updated) {
+        localStorage.setItem(READ_COUNTS_KEY, JSON.stringify(reads));
+      }
+      setInitialized(true);
+    }
+  }, [data, activity, initialized]);
 
   const getUnread = (channelId: string): number => {
     const info = activity[channelId];
