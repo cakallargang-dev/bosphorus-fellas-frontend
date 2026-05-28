@@ -15,6 +15,7 @@ import {
   eventsApi,
   newsApi,
   sponsorsApi,
+  productsApi,
 } from "@/lib/api";
 import { AdminGuard } from "@/components/AdminGuard";
 import { Layout } from "@/components/Layout";
@@ -75,6 +76,7 @@ import {
   Clock,
   AlertTriangle,
   KeyRound,
+  ShoppingBag,
 } from "lucide-react";
 import type {
   MembershipApplication,
@@ -82,6 +84,7 @@ import type {
   Event,
   News,
   Sponsor,
+  Product,
 } from "@/types";
 
 // ============================================================
@@ -208,6 +211,10 @@ function AdminContent() {
               <Newspaper className="w-4 h-4" />
               <span className="hidden sm:inline">İçerik</span>
             </TabsTrigger>
+            <TabsTrigger value="market" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+              <ShoppingBag className="w-4 h-4" />
+              <span className="hidden sm:inline">Market</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -228,6 +235,10 @@ function AdminContent() {
 
           <TabsContent value="content">
             <ContentTab />
+          </TabsContent>
+
+          <TabsContent value="market">
+            <MarketTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -1896,6 +1907,387 @@ function NewsSponsorForm({
             <Plus className="w-4 h-4 mr-2" />
           )}
           {isEditing ? "Güncelle" : "Oluştur"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// ============================================================
+// Market Tab — MANCAVE Market Products
+// ============================================================
+
+const CATEGORY_OPTIONS = [
+  { value: "monthly", label: "Aylık Paket" },
+  { value: "yearly", label: "Yıllık Paket" },
+  { value: "card", label: "Kart" },
+  { value: "sweatshirt", label: "Sweatshirt" },
+  { value: "tshirt", label: "Tshirt" },
+];
+
+function MarketTab() {
+  const queryClient = useQueryClient();
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["admin", "products"],
+    queryFn: () => productsApi.listAdmin({}),
+    staleTime: 10_000,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => productsApi.delete(id),
+    onSuccess: () => {
+      toast.success("Ürün silindi");
+      queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: (id: string) => productsApi.toggle(id),
+    onSuccess: () => {
+      toast.success("Ürün durumu güncellendi");
+      queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Hata"),
+  });
+
+  const products = data?.data ?? [];
+
+  const resetForm = () => {
+    setEditingProduct(null);
+    setShowForm(false);
+    setImageFile(null);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <h3 className="text-white font-medium">
+            {products.length} ürün
+          </h3>
+        </div>
+        <Button
+          onClick={() => setShowForm(true)}
+          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium text-sm"
+        >
+          <Plus className="w-4 h-4 mr-1.5" />
+          Ürün Ekle
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <SkeletonTable rows={4} />
+      ) : isError ? (
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+          <p className="text-gray-400">Ürünler yüklenemedi</p>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+          <ShoppingBag className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+          <p className="text-gray-500">Henüz ürün eklenmemiş</p>
+        </div>
+      ) : (
+        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-gray-800 hover:bg-transparent">
+                <TableHead className="text-gray-400">Ürün</TableHead>
+                <TableHead className="text-gray-400">Kategori</TableHead>
+                <TableHead className="text-gray-400">Fiyat</TableHead>
+                <TableHead className="text-gray-400">Shopify</TableHead>
+                <TableHead className="text-gray-400">Durum</TableHead>
+                <TableHead className="text-gray-400 text-right">İşlem</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product: Product) => (
+                <TableRow key={product.id} className="border-gray-800 hover:bg-[#111]">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/30 shrink-0">
+                        {product.imageUrl ? (
+                          <img
+                            src={
+                              product.imageUrl.startsWith("http")
+                                ? product.imageUrl
+                                : `${apiBase}${product.imageUrl}`
+                            }
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingBag className="w-4 h-4 text-gray-600" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-white text-sm">{product.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs border-gray-700 text-gray-400">
+                      {CATEGORY_OPTIONS.find((c) => c.value === product.category)?.label || product.category}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-gray-400 text-sm">
+                    {product.price || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={product.shopifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#d4a853] text-xs hover:underline"
+                    >
+                      Link
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`text-xs ${
+                        product.isActive ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
+                      {product.isActive ? "Aktif" : "Pasif"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleMutation.mutate(product.id)}
+                        disabled={toggleMutation.isPending}
+                        className={
+                          product.isActive
+                            ? "border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 text-xs"
+                            : "border-green-500/30 text-green-400 hover:bg-green-500/10 text-xs"
+                        }
+                      >
+                        {product.isActive ? "Pasif" : "Aktif"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setShowForm(true);
+                        }}
+                        className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `"${product.name}" ürününü silmek istediğinize emin misiniz?`
+                            )
+                          ) {
+                            deleteMutation.mutate(product.id);
+                          }
+                        }}
+                        disabled={deleteMutation.isPending}
+                        className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Product Form Dialog */}
+      <Dialog open={showForm} onOpenChange={(open) => { if (!open) resetForm(); setShowForm(open); }}>
+        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingProduct ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500">
+              MANCAVE Market ürün bilgilerini giriniz
+            </DialogDescription>
+          </DialogHeader>
+          <ProductForm
+            product={editingProduct}
+            imageFile={imageFile}
+            setImageFile={setImageFile}
+            onSuccess={() => {
+              resetForm();
+              queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+              queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+            }}
+            onCancel={resetForm}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function ProductForm({
+  product,
+  imageFile,
+  setImageFile,
+  onSuccess,
+  onCancel,
+}: {
+  product: Product | null;
+  imageFile: File | null;
+  setImageFile: (f: File | null) => void;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const isEditing = !!product;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState(product?.name || "");
+  const [description, setDescription] = useState(product?.description || "");
+  const [price, setPrice] = useState(product?.price || "");
+  const [category, setCategory] = useState(product?.category || "tshirt");
+  const [shopifyUrl, setShopifyUrl] = useState(product?.shopifyUrl || "");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !shopifyUrl.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      if (isEditing && product) {
+        await productsApi.update(product.id, {
+          name: name.trim(),
+          description: description || undefined,
+          price: price || undefined,
+          category,
+          shopifyUrl: shopifyUrl.trim(),
+          image: imageFile || undefined,
+        });
+        toast.success("Ürün güncellendi");
+      } else {
+        await productsApi.create({
+          name: name.trim(),
+          description: description || undefined,
+          price: price || undefined,
+          category,
+          shopifyUrl: shopifyUrl.trim(),
+          image: imageFile || undefined,
+        });
+        toast.success("Ürün eklendi");
+      }
+      onSuccess();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "İşlem başarısız");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label className="text-gray-300">Ürün Adı</Label>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Örn: MANCAVE Sweatshirt"
+          className="bg-[#111] border-gray-800 text-white"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-gray-300">Açıklama (opsiyonel)</Label>
+        <Textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Kısa açıklama..."
+          rows={2}
+          className="bg-[#111] border-gray-800 text-white resize-none"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label className="text-gray-300">Fiyat (opsiyonel)</Label>
+          <Input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="₺499,99"
+            className="bg-[#111] border-gray-800 text-white"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-gray-300">Kategori</Label>
+          <Select value={category} onValueChange={(v) => setCategory(v || "tshirt")}>
+            <SelectTrigger className="bg-[#111] border-gray-800 text-gray-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1a1a1a] border-gray-800">
+              {CATEGORY_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value} className="text-gray-300">
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-gray-300">Shopify Linki</Label>
+        <Input
+          value={shopifyUrl}
+          onChange={(e) => setShopifyUrl(e.target.value)}
+          placeholder="https://mancave.myshopify.com/..."
+          className="bg-[#111] border-gray-800 text-white"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-gray-300">Ürün Görseli</Label>
+        <FileUpload
+          value={imageFile || product?.imageUrl || null}
+          onChange={setImageFile}
+          label="Görsel yüklemek için tıklayın"
+        />
+      </div>
+
+      <div className="flex gap-3 justify-end pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        >
+          İptal
+        </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting || !name.trim() || !shopifyUrl.trim()}
+          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium"
+        >
+          {isSubmitting ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : isEditing ? (
+            <Pencil className="w-4 h-4 mr-2" />
+          ) : (
+            <Plus className="w-4 h-4 mr-2" />
+          )}
+          {isEditing ? "Güncelle" : "Ekle"}
         </Button>
       </div>
     </form>

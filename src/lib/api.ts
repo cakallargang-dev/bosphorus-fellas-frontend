@@ -17,6 +17,8 @@ import type {
   NewsFormData,
   Sponsor,
   SponsorFormData,
+  Product,
+  ProductFormData,
   LandingPageStats,
   DashboardData,
   AdminDashboardStats,
@@ -373,6 +375,54 @@ export const dashboardApi = {
   getData: () => request<ApiResponse<DashboardData>>("/api/dashboard"),
   getAdminStats: () =>
     request<ApiResponse<AdminDashboardStats>>("/api/dashboard/admin"),
+};
+
+// ============================================================
+// Products (MANCAVE Market)
+// ============================================================
+
+export const productsApi = {
+  list: () => request<ApiResponse<Product[]>>("/api/products"),
+  listAdmin: (params?: { category?: string; page?: number; limit?: number }) =>
+    request<PaginatedResponse<Product>>(
+      `/api/products/admin${buildQuery(params || {})}`
+    ),
+  create: (data: ProductFormData) => {
+    const fd = new FormData();
+    if (data.image) fd.append("image", data.image);
+    fd.append("name", data.name);
+    if (data.description) fd.append("description", data.description);
+    if (data.price) fd.append("price", data.price);
+    fd.append("category", data.category);
+    fd.append("shopifyUrl", data.shopifyUrl);
+    if (data.sortOrder !== undefined) fd.append("sortOrder", String(data.sortOrder));
+    return request<ApiResponse<Product>>("/api/products", {
+      method: "POST",
+      body: fd,
+    });
+  },
+  update: (id: string, data: Partial<ProductFormData>) => {
+    const fd = new FormData();
+    if (data.image) fd.append("image", data.image);
+    if (data.name) fd.append("name", data.name);
+    if (data.description !== undefined) fd.append("description", data.description || "");
+    if (data.price !== undefined) fd.append("price", data.price || "");
+    if (data.category) fd.append("category", data.category);
+    if (data.shopifyUrl) fd.append("shopifyUrl", data.shopifyUrl);
+    if (data.sortOrder !== undefined) fd.append("sortOrder", String(data.sortOrder));
+    return request<ApiResponse<Product>>(`/api/products/${id}`, {
+      method: "PUT",
+      body: fd,
+    });
+  },
+  delete: (id: string) =>
+    request<ApiResponse<{ message: string }>>(`/api/products/${id}`, {
+      method: "DELETE",
+    }),
+  toggle: (id: string) =>
+    request<ApiResponse<Product>>(`/api/products/${id}/toggle`, {
+      method: "PUT",
+    }),
 };
 
 // ============================================================

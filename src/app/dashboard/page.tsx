@@ -8,7 +8,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { StatsCard, iconMap } from "@/components/StatsCard";
 import { EventCard } from "@/components/EventCard";
-import { NewsCard } from "@/components/NewsCard";
+import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard, SkeletonTable } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,10 +16,10 @@ import {
   Calendar,
   Users,
   TrendingUp,
-  Newspaper,
   Star,
   Sparkles,
   Car,
+  ShoppingBag,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -70,7 +70,7 @@ function DashboardContent() {
 
   const stats = dashboardData?.data.stats;
   const upcomingEvents = dashboardData?.data.upcomingEvents ?? [];
-  const recentNews = dashboardData?.data.recentNews ?? [];
+  const products = dashboardData?.data.products ?? [];
   const sponsors = dashboardData?.data.sponsors ?? [];
 
   if (isError) {
@@ -196,37 +196,11 @@ function DashboardContent() {
                 </div>
               )}
             </section>
-
-            {/* Recent News */}
-            <section>
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Newspaper className="w-5 h-5 text-[#d4a853]" />
-                Haberler ve Duyurular
-              </h2>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <SkeletonCard key={i} className="h-24" />
-                  ))}
-                </div>
-              ) : recentNews.length === 0 ? (
-                <EmptyState
-                  icon={Newspaper}
-                  title="Henüz haber yok"
-                  description="Kulüp haberleri ve duyurular burada görünecek."
-                />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {recentNews.map((news) => (
-                    <NewsCard key={news.id} news={news} />
-                  ))}
-                </div>
-              )}
-            </section>
           </div>
 
-          {/* Sidebar: Sponsors */}
-          <div className="lg:col-span-1">
+          {/* Sidebar: Sponsors + MANCAVE Market */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Sponsors */}
             <section>
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Star className="w-5 h-5 text-[#d4a853]" />
@@ -249,6 +223,34 @@ function DashboardContent() {
                 <div className="space-y-3">
                   {sponsors.map((sponsor) => (
                     <SponsorCard key={sponsor.id} sponsor={sponsor} />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* MANCAVE Market */}
+            <section>
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-[#d4a853]" />
+                MANCAVE Market
+              </h2>
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonCard key={i} className="aspect-square" />
+                  ))}
+                </div>
+              ) : products.length === 0 ? (
+                <EmptyState
+                  icon={ShoppingBag}
+                  title="Henüz ürün yok"
+                  description="MANCAVE Market ürünleri yakında burada olacak."
+                  compact
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               )}

@@ -162,6 +162,30 @@ export interface SponsorFormData {
   tier: "platinum" | "gold" | "silver" | "bronze";
 }
 
+// --- Products (MANCAVE Market) ---
+export interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price?: string;
+  imageUrl?: string;
+  category: "monthly" | "yearly" | "card" | "sweatshirt" | "tshirt";
+  shopifyUrl: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface ProductFormData {
+  name: string;
+  description?: string;
+  price?: string;
+  category: string;
+  shopifyUrl: string;
+  sortOrder?: number;
+  image?: File;
+}
+
 // --- Landing Page ---
 export interface LandingPageStats {
   totalMembers: number;
@@ -199,7 +223,7 @@ export interface DashboardData {
   user: User;
   stats: LandingPageStats;
   upcomingEvents: Event[];
-  recentNews: News[];
+  products: Product[];
   sponsors: Sponsor[];
 }
 
