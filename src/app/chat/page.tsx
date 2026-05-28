@@ -243,18 +243,21 @@ function ChannelChatView({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Auto-scroll on new messages
+  // Auto-scroll on new messages & update read count
   useEffect(() => {
     if (messages.length > prevLengthRef.current) {
       scrollToBottom();
     }
     prevLengthRef.current = messages.length;
-  }, [messages.length, scrollToBottom]);
+    // Mark channel as read whenever message list updates
+    if (messages.length > 0) {
+      setReadCount(channel.id, messages.length);
+    }
+  }, [messages.length, scrollToBottom, channel.id]);
 
   // Scroll to bottom on mount & mark as read
   useEffect(() => {
     scrollToBottom();
-    setReadCount(channel.id, messages.length);
     queryClient.invalidateQueries({ queryKey: ["chat-activity"] });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
