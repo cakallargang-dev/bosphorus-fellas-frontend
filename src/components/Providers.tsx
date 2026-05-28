@@ -5,7 +5,6 @@ import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { ThemeProvider } from "next-themes";
-import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -25,22 +24,11 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <ProvidersInner>{children}</ProvidersInner>
+          <div className="pb-16">{children}</div>
+          <BottomNav />
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
-  );
-}
-
-function ProvidersInner({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const hideNav = pathname === "/chat";
-
-  return (
-    <>
-      <div className={hideNav ? "" : "pb-16"}>{children}</div>
-      {!hideNav && <BottomNav />}
-      <Toaster richColors position="top-right" />
-    </>
   );
 }
