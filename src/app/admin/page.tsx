@@ -608,6 +608,20 @@ function MembersTab() {
     },
   });
 
+  const deleteMemberMutation = useMutation({
+    mutationFn: (id: string) => membersApi.delete(id),
+    onSuccess: (data: any) => {
+      toast.success(data?.message || "Üye başarıyla silindi");
+      queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Üye silinemedi"
+      );
+    },
+  });
+
   const members = data?.data ?? [];
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -715,23 +729,43 @@ function MembersTab() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       {member.role !== "admin" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (
-                              confirm(
-                                `${member.firstName} ${member.lastName} için şifreyi sıfırlamak istediğinize emin misiniz?`
-                              )
-                            ) {
-                              resetPasswordMutation.mutate(member.id);
-                            }
-                          }}
-                          disabled={resetPasswordMutation.isPending}
-                          className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
-                        >
-                          <KeyRound className="w-3.5 h-3.5" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  `${member.firstName} ${member.lastName} için şifreyi sıfırlamak istediğinize emin misiniz?`
+                                )
+                              ) {
+                                resetPasswordMutation.mutate(member.id);
+                              }
+                            }}
+                            disabled={resetPasswordMutation.isPending}
+                            className="border-[#d4a853]/30 text-[#d4a853] hover:bg-[#d4a853]/10 text-xs"
+                          >
+                            <KeyRound className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  `${member.firstName} ${member.lastName} isimli üyeyi SİLMEK istediğinize emin misiniz?\n\nBu işlem geri alınamaz!`
+                                ) &&
+                                confirm("SON UYARI: Bu üye ve tüm verileri kalıcı olarak silinecek. Devam edilsin mi?")
+                              ) {
+                                deleteMemberMutation.mutate(member.id);
+                              }
+                            }}
+                            disabled={deleteMemberMutation.isPending}
+                            className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </>
                       )}
                       <Button
                         variant="outline"

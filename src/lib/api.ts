@@ -237,6 +237,11 @@ export const membersApi = {
       `/api/members/${id}/reset-password`,
       { method: "POST" }
     ),
+
+  delete: (id: string) =>
+    request<ApiResponse<{ message: string }>>(`/api/members/${id}`, {
+      method: "DELETE",
+    }),
 };
 
 // ============================================================
