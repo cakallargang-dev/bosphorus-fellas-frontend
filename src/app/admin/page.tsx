@@ -13,7 +13,6 @@ import {
   applicationsApi,
   membersApi,
   eventsApi,
-  newsApi,
   sponsorsApi,
   productsApi,
 } from "@/lib/api";
@@ -82,7 +81,6 @@ import type {
   MembershipApplication,
   User as UserType,
   Event,
-  News,
   Sponsor,
   Product,
 } from "@/types";
@@ -101,11 +99,6 @@ const eventSchema = z.object({
   maxParticipants: z.string().optional(),
 });
 
-const newsSchema = z.object({
-  title: z.string().min(3, "Başlık en az 3 karakter olmalıdır"),
-  content: z.string().min(10, "İçerik en az 10 karakter olmalıdır"),
-});
-
 const sponsorSchema = z.object({
   name: z.string().min(2, "İsim en az 2 karakter olmalıdır"),
   websiteUrl: z.string().optional(),
@@ -114,7 +107,6 @@ const sponsorSchema = z.object({
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
-type NewsFormValues = z.infer<typeof newsSchema>;
 type SponsorFormValues = z.infer<typeof sponsorSchema>;
 
 // ============================================================
@@ -208,8 +200,8 @@ function AdminContent() {
               <span className="hidden sm:inline">Etkinlikler</span>
             </TabsTrigger>
             <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
-              <Newspaper className="w-4 h-4" />
-              <span className="hidden sm:inline">İçerik</span>
+              <Star className="w-4 h-4" />
+              <span className="hidden sm:inline">Sponsorlar</span>
             </TabsTrigger>
             <TabsTrigger value="market" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <ShoppingBag className="w-4 h-4" />
@@ -1055,241 +1047,14 @@ function EventsTab() {
 }
 
 // ============================================================
-// Content Tab (News + Sponsors)
+// Sponsors Tab
 // ============================================================
 
 function ContentTab() {
-  const [subTab, setSubTab] = useState("news");
-
-  return (
-    <div>
-      <Tabs value={subTab} onValueChange={setSubTab}>
-        <TabsList className="mb-6 bg-[#111] border border-gray-800 p-1">
-          <TabsTrigger value="news" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
-            <Newspaper className="w-4 h-4" />
-            Haberler
-          </TabsTrigger>
-          <TabsTrigger value="sponsors" className="text-gray-400 data-active:bg-[#d4a853] data-active:text-black gap-2">
-            <Star className="w-4 h-4" />
-            Sponsorlar
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="news">
-          <NewsSubTab />
-        </TabsContent>
-
-        <TabsContent value="sponsors">
-          <SponsorsSubTab />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+  return <SponsorsTab />;
 }
 
-function NewsSubTab() {
-  const queryClient = useQueryClient();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingNews, setEditingNews] = useState<News | null>(null);
-  const [newsImage, setNewsImage] = useState<File | null>(null);
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["admin", "news"],
-    queryFn: () => newsApi.list(),
-    staleTime: 10_000,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (data: NewsFormValues & { image?: File }) =>
-      newsApi.create(data),
-    onSuccess: () => {
-      toast.success("Haber oluşturuldu!");
-      queryClient.invalidateQueries({ queryKey: ["admin", "news"] });
-      setModalOpen(false);
-      setEditingNews(null);
-      setNewsImage(null);
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Hata"),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      ...data
-    }: NewsFormValues & { id: string; image?: File }) =>
-      newsApi.update(id, data),
-    onSuccess: () => {
-      toast.success("Haber güncellendi!");
-      queryClient.invalidateQueries({ queryKey: ["admin", "news"] });
-      setModalOpen(false);
-      setEditingNews(null);
-      setNewsImage(null);
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Hata"),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => newsApi.delete(id),
-    onSuccess: () => {
-      toast.success("Haber silindi!");
-      queryClient.invalidateQueries({ queryKey: ["admin", "news"] });
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Hata"),
-  });
-
-  const newsItems = data?.data ?? [];
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-gray-600">{newsItems.length} haber</span>
-        <Button
-          onClick={() => {
-            setEditingNews(null);
-            setNewsImage(null);
-            setModalOpen(true);
-          }}
-          className="bg-[#d4a853] text-black hover:bg-[#e2c278] font-medium text-sm"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Yeni Haber
-        </Button>
-      </div>
-
-      {isLoading ? (
-        <SkeletonTable rows={4} />
-      ) : isError ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <p className="text-gray-400">Haberler yüklenemedi</p>
-        </div>
-      ) : newsItems.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
-          <Newspaper className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-          <p className="text-gray-500">Henüz haber yok</p>
-        </div>
-      ) : (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-gray-800 hover:bg-transparent">
-                <TableHead className="text-gray-400">Haber</TableHead>
-                <TableHead className="text-gray-400">Yazar</TableHead>
-                <TableHead className="text-gray-400">Tarih</TableHead>
-                <TableHead className="text-gray-400 text-right">İşlem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {newsItems.map((item: News) => (
-                <TableRow key={item.id} className="border-gray-800 hover:bg-[#111]">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {item.imageUrl && (
-                        <img
-                          src={
-                            item.imageUrl.startsWith("http")
-                              ? item.imageUrl
-                              : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050"}${item.imageUrl}`
-                          }
-                          alt=""
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                      )}
-                      <span className="text-white font-medium text-sm max-w-[300px] truncate">
-                        {item.title}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-400 text-sm">
-                    {item.authorName}
-                  </TableCell>
-                  <TableCell className="text-gray-500 text-sm">
-                    {format(new Date(item.createdAt || Date.now()), "d MMM yyyy", {
-                      locale: tr,
-                    })}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-500 hover:text-white h-8 w-8 p-0"
-                        onClick={() => {
-                          setEditingNews(item);
-                          setNewsImage(null);
-                          setModalOpen(true);
-                        }}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-400 h-8 w-8 p-0"
-                        onClick={() => {
-                          if (confirm("Bu haberi silmek istediğinize emin misiniz?")) {
-                            deleteMutation.mutate(item.id);
-                          }
-                        }}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-
-      {/* News Form Dialog */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {editingNews ? "Haberi Düzenle" : "Yeni Haber"}
-            </DialogTitle>
-            <DialogDescription className="text-gray-500">
-              {editingNews
-                ? "Haber içeriğini güncelleyin"
-                : "Yeni bir haber veya duyuru oluşturun"}
-            </DialogDescription>
-          </DialogHeader>
-
-          <NewsSponsorForm
-            type="news"
-            editingItem={editingNews}
-            imageFile={newsImage}
-            onImageChange={setNewsImage}
-            onSubmit={(data) => {
-              if (editingNews) {
-                updateMutation.mutate({
-                  id: editingNews.id,
-                  ...data,
-                  image: newsImage || undefined,
-                });
-              } else {
-                createMutation.mutate({
-                  ...data,
-                  image: newsImage || undefined,
-                });
-              }
-            }}
-            isSubmitting={createMutation.isPending || updateMutation.isPending}
-            onClose={() => {
-              setModalOpen(false);
-              setEditingNews(null);
-              setNewsImage(null);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-function SponsorsSubTab() {
+function SponsorsTab() {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
@@ -1479,8 +1244,7 @@ function SponsorsSubTab() {
             </DialogDescription>
           </DialogHeader>
 
-          <NewsSponsorForm
-            type="sponsor"
+          <SponsorForm
             editingItem={editingSponsor}
             imageFile={sponsorLogo}
             onImageChange={setSponsorLogo}
@@ -1700,8 +1464,7 @@ function EventFormDialog({
   );
 }
 
-function NewsSponsorForm({
-  type,
+function SponsorForm({
   editingItem,
   imageFile,
   onImageChange,
@@ -1709,8 +1472,7 @@ function NewsSponsorForm({
   isSubmitting,
   onClose,
 }: {
-  type: "news" | "sponsor";
-  editingItem: News | Sponsor | null;
+  editingItem: Sponsor | null;
   imageFile: File | null;
   onImageChange: (file: File | null) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1719,21 +1481,14 @@ function NewsSponsorForm({
   onClose: () => void;
 }) {
   const isEditing = !!editingItem;
-  const schema = type === "news" ? newsSchema : sponsorSchema;
+  const schema = sponsorSchema;
   const defaultValues: Record<string, string> = {};
 
   if (editingItem) {
-    if (type === "news") {
-      const n = editingItem as News;
-      defaultValues.title = n.title;
-      defaultValues.content = n.content;
-    } else {
-      const s = editingItem as Sponsor;
-      defaultValues.name = s.name;
-      defaultValues.websiteUrl = s.websiteUrl || "";
-      defaultValues.description = s.description || "";
-      defaultValues.tier = s.tier;
-    }
+    defaultValues.name = editingItem.name;
+    defaultValues.websiteUrl = editingItem.websiteUrl || "";
+    defaultValues.description = editingItem.description || "";
+    defaultValues.tier = editingItem.tier;
   }
 
   const {
@@ -1756,132 +1511,85 @@ function NewsSponsorForm({
     }
   }, [editingItem, reset]);
 
-  const tierValue = type === "sponsor" ? watch("tier") : undefined;
+  const tierValue = watch("tier");
 
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit(data as any))}
       className="space-y-4 max-h-[60vh] overflow-y-auto pr-1"
     >
-      {type === "news" ? (
-        <>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Başlık</Label>
-            <Input
-              {...register("title")}
-              placeholder="Haber başlığı"
-              className="bg-[#111] border-gray-800 text-white"
-            />
-            {errors.title && (
-              <p className="text-red-400 text-xs">
-                {(errors.title as any)?.message as string}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">İçerik</Label>
-            <Textarea
-              {...register("content")}
-              placeholder="Haber içeriği..."
-              rows={5}
-              className="bg-[#111] border-gray-800 text-white resize-none"
-            />
-            {errors.content && (
-              <p className="text-red-400 text-xs">
-                {(errors.content as any)?.message as string}
-              </p>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Sponsor Adı</Label>
-            <Input
-              {...register("name")}
-              placeholder="Sponsor adı"
-              className="bg-[#111] border-gray-800 text-white"
-            />
-            {errors.name && (
-              <p className="text-red-400 text-xs">
-                {(errors.name as any)?.message as string}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Website URL (opsiyonel)</Label>
-            <Input
-              {...register("websiteUrl")}
-              placeholder="https://..."
-              className="bg-[#111] border-gray-800 text-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Açıklama (opsiyonel)</Label>
-            <Textarea
-              {...register("description")}
-              placeholder="Sponsor hakkında..."
-              rows={2}
-              className="bg-[#111] border-gray-800 text-white resize-none"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Seviye</Label>
-            <Select
-              value={tierValue || "bronze"}
-              onValueChange={(v) =>
-                setValue("tier", v as SponsorFormValues["tier"])
-              }
-            >
-              <SelectTrigger className="bg-[#111] border-gray-800 text-gray-300 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-[#1a1a1a] border-gray-800">
-                <SelectItem value="platinum" className="text-gray-300">
-                  Platin
-                </SelectItem>
-                <SelectItem value="gold" className="text-gray-300">
-                  Altın
-                </SelectItem>
-                <SelectItem value="silver" className="text-gray-300">
-                  Gümüş
-                </SelectItem>
-                <SelectItem value="bronze" className="text-gray-300">
-                  Bronz
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.tier && (
-              <p className="text-red-400 text-xs">
-                {(errors.tier as any)?.message as string}
-              </p>
-            )}
-          </div>
-        </>
-      )}
+      <div className="space-y-2">
+        <Label className="text-gray-300">Sponsor Adı</Label>
+        <Input
+          {...register("name")}
+          placeholder="Sponsor adı"
+          className="bg-[#111] border-gray-800 text-white"
+        />
+        {errors.name && (
+          <p className="text-red-400 text-xs">
+            {(errors.name as any)?.message as string}
+          </p>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Label className="text-gray-300">Website URL (opsiyonel)</Label>
+        <Input
+          {...register("websiteUrl")}
+          placeholder="https://..."
+          className="bg-[#111] border-gray-800 text-white"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-gray-300">Açıklama (opsiyonel)</Label>
+        <Textarea
+          {...register("description")}
+          placeholder="Sponsor hakkında..."
+          rows={2}
+          className="bg-[#111] border-gray-800 text-white resize-none"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-gray-300">Seviye</Label>
+        <Select
+          value={tierValue || "bronze"}
+          onValueChange={(v) =>
+            setValue("tier", v as SponsorFormValues["tier"])
+          }
+        >
+          <SelectTrigger className="bg-[#111] border-gray-800 text-gray-300 w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-[#1a1a1a] border-gray-800">
+            <SelectItem value="platinum" className="text-gray-300">
+              Platin
+            </SelectItem>
+            <SelectItem value="gold" className="text-gray-300">
+              Altın
+            </SelectItem>
+            <SelectItem value="silver" className="text-gray-300">
+              Gümüş
+            </SelectItem>
+            <SelectItem value="bronze" className="text-gray-300">
+              Bronz
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.tier && (
+          <p className="text-red-400 text-xs">
+            {(errors.tier as any)?.message as string}
+          </p>
+        )}
+      </div>
 
       <div className="space-y-2">
-        <Label className="text-gray-300">
-          {type === "news" ? "Haber Görseli" : "Sponsor Logosu"}
-        </Label>
+        <Label className="text-gray-300">Sponsor Logosu</Label>
         <FileUpload
           value={
             imageFile ||
-            (editingItem &&
-            (type === "news"
-              ? (editingItem as News).imageUrl
-              : (editingItem as Sponsor).logoUrl)
-              ? type === "news"
-                ? (editingItem as News).imageUrl!
-                : (editingItem as Sponsor).logoUrl!
-              : null)
+            (editingItem?.logoUrl ? editingItem.logoUrl : null)
           }
           onChange={onImageChange}
-          label={
-            type === "news"
-              ? "Görsel yüklemek için tıklayın"
-              : "Logo yüklemek için tıklayın"
-          }
+          label="Logo yüklemek için tıklayın"
         />
       </div>
 
