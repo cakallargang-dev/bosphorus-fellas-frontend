@@ -26,7 +26,13 @@ function ensureApp(): FirebaseApp {
 
 /** Sadece event handler içinde çağır (SSR'de çalıştırma). */
 export function getFirebaseAuth(): Auth {
-  if (!cachedAuth) cachedAuth = getAuth(ensureApp());
+  if (!cachedAuth) {
+    cachedAuth = getAuth(ensureApp());
+    // Firebase doğrulama SMS'i bu dile göre gönderilir (TR).
+    try {
+      cachedAuth.languageCode = "tr";
+    } catch {}
+  }
   return cachedAuth;
 }
 
