@@ -90,7 +90,7 @@ const applySchema = z.object({
   occupation: z.string().optional(),
   about: z.string().min(20, "Kendinizden en az 20 karakter bahsediniz"),
   expectation: z.string().optional(),
-  referansKodu: z.string().min(1, "Referans kodu zorunludur"),
+  referansKodu: z.string().optional(),
   photo: z.any().optional(),
 }).refine((d) => d.password === d.confirmPassword, {
   message: "Şifreler eşleşmiyor",
@@ -167,7 +167,12 @@ export default function ApplyPage() {
   };
 
   const handlePrelimNextReferans = () => {
-    if (referenceCode.trim() && refValidation.status === "valid") {
+    // Referans kodu opsiyonel: boş bırakılırsa doğrudan devam edilir
+    if (!referenceCode.trim()) {
+      setPreliminaryStep(3);
+      return;
+    }
+    if (refValidation.status === "valid") {
       setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
       setPreliminaryStep(3);
     }
@@ -438,14 +443,14 @@ export default function ApplyPage() {
                 Referans Kodu
               </CardTitle>
               <CardDescription className="text-mancave-muted">
-                Başvuru yapabilmek için bir üyemizin referans koduna ihtiyacınız var
+                Üye referans kodun varsa gir (opsiyonel). Kodun yoksa boş bırakıp devam edebilirsin.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="prelimRefCode" className="text-gray-300">
-                  Referans Kodu <span className="text-red-400">*</span>
+                  Referans Kodu <span className="text-mancave-muted">(opsiyonel)</span>
                 </Label>
                 <Input
                   id="prelimRefCode"
