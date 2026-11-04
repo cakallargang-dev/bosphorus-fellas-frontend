@@ -8,7 +8,7 @@ import {
   signInWithPhoneNumber,
   type ConfirmationResult,
 } from "firebase/auth";
-import { firebaseAuth, toE164 } from "@/lib/firebase";
+import { getFirebaseAuth, toE164 } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,12 +41,12 @@ export default function KayitPage() {
     setLoading(true);
     try {
       if (!(window as any).recaptchaVerifier_kayit) {
-        (window as any).recaptchaVerifier_kayit = new RecaptchaVerifier(firebaseAuth, "recaptcha-container-kayit", {
+        (window as any).recaptchaVerifier_kayit = new RecaptchaVerifier(getFirebaseAuth(), "recaptcha-container-kayit", {
           size: "invisible",
         });
       }
       confirmationRef.current = await signInWithPhoneNumber(
-        firebaseAuth,
+        getFirebaseAuth(),
         toE164(phone),
         (window as any).recaptchaVerifier_kayit
       );
