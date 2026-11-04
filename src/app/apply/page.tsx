@@ -531,21 +531,34 @@ export default function ApplyPage() {
       return;
     }
     setOtpLoading(true);
-    try {
-      const { holder, cleanup } = mountRecaptchaHolder(true);
+
+    // 1) Normal (görünmez) deneme — /kayit ile aynı, kanıtlanmış yol
+    // 2) Captcha hatası olursa görünür kutulu modal ile tekrar
+    const attempt = async (forceVisible: boolean) => {
+      const { holder, cleanup } = mountRecaptchaHolder(forceVisible);
       try {
         verifierRef.current?.clear();
       } catch {}
       const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
-        size: "normal",
+        size: forceVisible ? "normal" : "invisible",
       });
       verifierRef.current = verifier;
-      confirmationRef.current = await signInWithPhoneNumber(
-        getFirebaseAuth(),
-        toE164(otpPhone),
-        verifier
-      );
+      const conf = await signInWithPhoneNumber(getFirebaseAuth(), toE164(otpPhone), verifier);
       setTimeout(cleanup, 120000);
+      return conf;
+    };
+
+    try {
+      try {
+        confirmationRef.current = await attempt(isInAppBrowser());
+      } catch (firstErr) {
+        const msg = firstErr instanceof Error ? firstErr.message : "";
+        if (/captcha|error-code:\s*-?\d+/i.test(msg)) {
+          confirmationRef.current = await attempt(true);
+        } else {
+          throw firstErr;
+        }
+      }
       setOtpSent(true);
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
