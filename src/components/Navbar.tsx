@@ -107,7 +107,7 @@ export function Navbar() {
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs text-mancave-muted truncate">
-                      {user?.email}
+                      {user?.phone}
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-mancave-border" />
@@ -203,7 +203,7 @@ export function Navbar() {
                       <p className="text-sm text-white font-medium">
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className="text-xs text-mancave-muted">{user?.email}</p>
+                      <p className="text-xs text-mancave-muted">{user?.phone}</p>
                     </div>
                   </div>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>

@@ -13,7 +13,6 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import {
   User,
-  Mail,
   Phone,
   Calendar,
   MapPin,
@@ -67,7 +66,6 @@ export function ApplicationDetail({
   const status = statusBadge[application.status] || statusBadge.pending;
 
   const fields = [
-    { icon: Mail, label: "E-posta", value: application.email },
     { icon: Phone, label: "Telefon", value: application.phone },
     {
       icon: Calendar,

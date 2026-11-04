@@ -13,13 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LogIn, Mail, Lock, Car, ScanFace } from "lucide-react";
+import { LogIn, Phone, Lock, Car, ScanFace } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z
+  phone: z
     .string()
-    .min(1, "E-posta adresi zorunludur")
-    .email("Geçerli bir e-posta adresi giriniz"),
+    .min(10, "Telefon numarası zorunludur")
+    .regex(/^[0-9+\s()-]{10,}$/, "Geçerli bir telefon numarası giriniz"),
   password: z
     .string()
     .min(1, "Şifre zorunludur")
@@ -56,7 +56,7 @@ export default function LoginPage() {
       await login(data);
       toast.success("Başarıyla giriş yaptınız!");
       // Save credentials for biometric auth
-      localStorage.setItem("mancave_biometric_email", data.email);
+      localStorage.setItem("mancave_biometric_phone", data.phone);
       localStorage.setItem("mancave_biometric_pass", data.password);
     } catch (err) {
       const message =
@@ -78,10 +78,10 @@ export default function LoginPage() {
       const ok = await authenticateWithBiometric();
       if (ok) {
         // Get stored credentials from keychain
-        const email = localStorage.getItem("mancave_biometric_email");
+        const phone = localStorage.getItem("mancave_biometric_phone");
         const pass = localStorage.getItem("mancave_biometric_pass");
-        if (email && pass) {
-          await login({ email, password: pass });
+        if (phone && pass) {
+          await login({ phone, password: pass });
           toast.success("Face ID ile giriş yapıldı!");
         } else {
           toast.error("Face ID verisi bulunamadı. Lütfen önce manuel giriş yapın.");
@@ -129,23 +129,24 @@ export default function LoginPage() {
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Email */}
+            {/* Telefon */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">
-                E-posta
+              <Label htmlFor="phone" className="text-gray-300">
+                Telefon
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="ornek@email.com"
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="05XX XXX XX XX"
                   className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
-                  {...register("email")}
+                  {...register("phone")}
                 />
               </div>
-              {errors.email && (
-                <p className="text-red-400 text-xs">{errors.email.message}</p>
+              {errors.phone && (
+                <p className="text-red-400 text-xs">{errors.phone.message}</p>
               )}
             </div>
 

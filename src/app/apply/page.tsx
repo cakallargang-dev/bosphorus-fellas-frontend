@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import {
   User,
-  Mail,
   Phone,
   Calendar,
   MapPin,
@@ -71,10 +70,9 @@ const CAR_BRANDS: Record<string, string[]> = {
 const applySchema = z.object({
   firstName: z.string().min(2, "Ad en az 2 karakter olmalıdır"),
   lastName: z.string().min(2, "Soyad en az 2 karakter olmalıdır"),
-  email: z.string().min(1, "E-posta zorunludur").email("Geçerli bir e-posta giriniz"),
   phone: z
     .string()
-    .min(10, "Geçerli bir telefon numarası giriniz")
+    .min(10, "Telefon numarası zorunludur")
     .regex(/^[0-9+\s()-]{10,}$/, "Geçerli bir telefon numarası giriniz"),
   birthDate: z.string().min(1, "Doğum tarihi zorunludur"),
   city: z.string().min(2, "Şehir zorunludur"),
@@ -151,7 +149,7 @@ export default function ApplyPage() {
   const isCustomBrand = selectedCarBrand === "Diğer";
 
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
-    1: ["firstName", "lastName", "email", "phone", "birthDate", "city"],
+    1: ["firstName", "lastName", "phone", "birthDate", "city"],
     2: ["carBrand", "carModel", "carYear"],
     3: ["instagram", "occupation", "about", "expectation"],
   };
@@ -214,7 +212,6 @@ export default function ApplyPage() {
       await applicationsApi.submit({
         firstName: data.firstName,
         lastName: data.lastName,
-        email: data.email,
         phone: data.phone,
         birthDate: data.birthDate,
         city: data.city,
@@ -602,24 +599,6 @@ export default function ApplyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-300">
-                        E-posta <span className="text-red-400">*</span>
-                      </Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="ornek@email.com"
-                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
-                          {...register("email")}
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="text-red-400 text-xs">{errors.email.message}</p>
-                      )}
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-gray-300">
                         Telefon <span className="text-red-400">*</span>

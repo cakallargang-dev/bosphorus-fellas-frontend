@@ -409,7 +409,7 @@ function ApplicationsTab() {
                     <TableCell className="text-white font-medium">
                       {app.firstName} {app.lastName}
                     </TableCell>
-                    <TableCell className="text-gray-400">{app.email}</TableCell>
+                    <TableCell className="text-gray-400">{app.phone}</TableCell>
                     <TableCell className="text-mancave-muted text-sm">
                       {/* Safe date formatter */}
 {format(new Date(app.submittedAt || app.createdAt || Date.now()), "d MMM yyyy", { locale: tr })}
@@ -496,7 +496,7 @@ function ApplicationsTab() {
                 <p className="text-white font-medium">
                   {selectedApp.firstName} {selectedApp.lastName}
                 </p>
-                <p className="text-sm text-mancave-muted">{selectedApp.email}</p>
+                <p className="text-sm text-mancave-muted">{selectedApp.phone}</p>
               </div>
 
               {reviewAction === "reject" && (
@@ -694,7 +694,7 @@ function MembersTab() {
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-400 text-sm">
-                    {member.email}
+                    {member.phone}
                   </TableCell>
                   <TableCell className="text-mancave-muted text-sm">
                     {member.city || "-"}

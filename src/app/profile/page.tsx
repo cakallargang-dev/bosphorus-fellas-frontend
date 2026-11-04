@@ -331,7 +331,7 @@ function ProfileContent() {
                   {user?.firstName} {user?.lastName}
                 </CardTitle>
                 <CardDescription className="text-mancave-muted">
-                  {user?.email}
+                  {user?.phone}
                 </CardDescription>
               </div>
             </div>
@@ -393,14 +393,14 @@ function ProfileContent() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300">
-                  E-posta
+                <Label htmlFor="phone" className="text-gray-300">
+                  Telefon
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
-                    id="email"
-                    value={user?.email ?? ""}
+                    id="phone"
+                    value={user?.phone ?? ""}
                     disabled
                     className="pl-10 bg-mancave-surface/50 border-gray-800 text-mancave-muted cursor-not-allowed"
                   />

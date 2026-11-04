@@ -7,8 +7,7 @@ export interface User {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
-  phone?: string;
+  phone: string;
   birthDate?: string;
   city?: string;
   role: "user" | "admin";
@@ -32,7 +31,7 @@ export interface UserPublicProfile {
 }
 
 export interface LoginRequest {
-  email: string;
+  phone: string;
   password: string;
 }
 
@@ -54,7 +53,6 @@ export interface MembershipApplication {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
   phone: string;
   birthDate: string;
   city: string;
@@ -77,7 +75,6 @@ export interface MembershipApplication {
 export interface ApplicationFormData {
   firstName: string;
   lastName: string;
-  email: string;
   phone: string;
   birthDate: string;
   city: string;
