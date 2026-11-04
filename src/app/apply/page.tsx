@@ -532,12 +532,12 @@ export default function ApplyPage() {
     }
     setOtpLoading(true);
     try {
-      const { holder, cleanup } = mountRecaptchaHolder();
+      const { holder, cleanup } = mountRecaptchaHolder(true);
       try {
         verifierRef.current?.clear();
       } catch {}
       const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
-        size: isInAppBrowser() ? "normal" : "invisible",
+        size: "normal",
       });
       verifierRef.current = verifier;
       confirmationRef.current = await signInWithPhoneNumber(

@@ -63,11 +63,11 @@ export function humanizeAuthError(err: unknown): string {
  * Uygulama içi tarayıcıda görünür captcha sağ alta sıkıştığı için
  * ekranın ortasında modal olarak açılır.
  */
-export function mountRecaptchaHolder(): { holder: HTMLDivElement; cleanup: () => void } {
+export function mountRecaptchaHolder(force = false): { holder: HTMLDivElement; cleanup: () => void } {
   const holder = document.createElement("div");
   holder.id = "recaptcha-holder-" + Date.now();
 
-  if (typeof document === "undefined" || !isInAppBrowser()) {
+  if (typeof document === "undefined" || (!force && !isInAppBrowser())) {
     document.body.appendChild(holder);
     return { holder, cleanup: () => holder.remove() };
   }
