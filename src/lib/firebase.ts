@@ -38,3 +38,22 @@ export function toE164(raw: string): string {
   if (digits.length === 10) return "+90" + digits;
   return "+" + digits;
 }
+
+/** Firebase hata kodlarını kullanıcı diline çevirir. */
+export function humanizeAuthError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err || "");
+  const code = (err as { code?: string })?.code || raw;
+  if (/too-many-requests/i.test(code)) return "Çok fazla deneme yapıldı. 10-15 dk sonra tekrar deneyin.";
+  if (/invalid-phone-number/i.test(code)) return "Telefon numarası geçersiz görünüyor (05XX XXX XX XX).";
+  if (/quota-exceeded/i.test(code)) return "SMS kotası doldu, daha sonra tekrar deneyin.";
+  if (/billing|operation-not-allowed/i.test(code)) return "SMS servisi şu an kapalı, yönetime bildirin.";
+  if (/captcha|error-code:\s*-?\d+/i.test(code))
+    return "Tarayıcı doğrulaması başarısız. Sayfayı Safari veya Chrome'da açıp tekrar deneyin (uygulama içi tarayıcılar SMS gönderemiyor).";
+  return raw || "İşlem tamamlanamadı";
+}
+
+/** Uygulama içi (Instagram/Telegram/Facebook) tarayıcı tespiti. */
+export function isInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /FBAN|FBAV|FB_IAB|Instagram|Telegram|MicroMessenger|TikTok/i.test(navigator.userAgent);
+}

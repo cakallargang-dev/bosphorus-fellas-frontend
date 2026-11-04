@@ -8,7 +8,7 @@ import {
   signInWithPhoneNumber,
   type ConfirmationResult,
 } from "firebase/auth";
-import { getFirebaseAuth, toE164 } from "@/lib/firebase";
+import { getFirebaseAuth, toE164, humanizeAuthError, isInAppBrowser } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +57,7 @@ export default function SifremiUnuttumPage() {
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "SMS gönderilemedi");
+      toast.error(humanizeAuthError(err));
     } finally {
       setLoading(false);
     }
