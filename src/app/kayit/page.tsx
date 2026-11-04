@@ -30,6 +30,7 @@ export default function KayitPage() {
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
+  const verifierRef = useRef<RecaptchaVerifier | null>(null);
   const idTokenRef = useRef<string>("");
 
   const sendCode = async () => {
@@ -44,9 +45,13 @@ export default function KayitPage() {
       // React render'ı mevcut elementi silerse "client element has been removed" hatası çıkar.
       // Uygulama içi tarayıcıda görünür captcha ekranın ortasında açılır
       const { holder, cleanup } = mountRecaptchaHolder();
+      try {
+        verifierRef.current?.clear();
+      } catch {}
       const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
         size: isInAppBrowser() ? "normal" : "invisible",
       });
+      verifierRef.current = verifier;
       confirmationRef.current = await signInWithPhoneNumber(
         getFirebaseAuth(),
         toE164(phone),
