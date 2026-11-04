@@ -172,6 +172,15 @@ export default function LoginPage() {
               )}
             </div>
 
+            <div className="flex items-center justify-between text-xs -mt-1">
+              <Link href="/sifremi-unuttum" className="text-mancave-muted hover:text-white">
+                Şifremi unuttum
+              </Link>
+              <Link href="/kayit" className="text-[#3b82f6] hover:underline">
+                Kayıt ol
+              </Link>
+            </div>
+
             <Button
               type="submit"
               disabled={isSubmitting}

@@ -54,6 +54,7 @@ export interface MembershipApplication {
   firstName: string;
   lastName: string;
   phone: string;
+  password: string;
   birthDate: string;
   city: string;
   carBrand: string;
@@ -76,6 +77,7 @@ export interface ApplicationFormData {
   firstName: string;
   lastName: string;
   phone: string;
+  password: string;
   birthDate: string;
   city: string;
   carBrand: string;

@@ -23,6 +23,7 @@ import {
 import {
   User,
   Phone,
+  Lock,
   Calendar,
   MapPin,
   Car,
@@ -74,6 +75,8 @@ const applySchema = z.object({
     .string()
     .min(10, "Telefon numarası zorunludur")
     .regex(/^[0-9+\s()-]{10,}$/, "Geçerli bir telefon numarası giriniz"),
+  password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
+  confirmPassword: z.string().min(6, "Şifre tekrarı zorunludur"),
   birthDate: z.string().min(1, "Doğum tarihi zorunludur"),
   city: z.string().min(2, "Şehir zorunludur"),
   carBrand: z.string().min(2, "Araç markası zorunludur"),
@@ -89,6 +92,9 @@ const applySchema = z.object({
   expectation: z.string().optional(),
   referansKodu: z.string().min(1, "Referans kodu zorunludur"),
   photo: z.any().optional(),
+}).refine((d) => d.password === d.confirmPassword, {
+  message: "Şifreler eşleşmiyor",
+  path: ["confirmPassword"],
 });
 
 type ApplyFormData = z.infer<typeof applySchema>;
@@ -149,7 +155,7 @@ export default function ApplyPage() {
   const isCustomBrand = selectedCarBrand === "Diğer";
 
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
-    1: ["firstName", "lastName", "phone", "birthDate", "city"],
+    1: ["firstName", "lastName", "phone", "password", "confirmPassword", "birthDate", "city"],
     2: ["carBrand", "carModel", "carYear"],
     3: ["instagram", "occupation", "about", "expectation"],
   };
@@ -212,6 +218,7 @@ export default function ApplyPage() {
       await applicationsApi.submit({
         firstName: data.firstName,
         lastName: data.lastName,
+        password: data.password,
         phone: data.phone,
         birthDate: data.birthDate,
         city: data.city,
@@ -614,6 +621,42 @@ export default function ApplyPage() {
                       </div>
                       {errors.phone && (
                         <p className="text-red-400 text-xs">{errors.phone.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-gray-300">
+                        Şifre <span className="text-red-400">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="En az 6 karakter"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
+                          {...register("password")}
+                        />
+                      </div>
+                      {errors.password && (
+                        <p className="text-red-400 text-xs">{errors.password.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-gray-300">
+                        Şifre Tekrar <span className="text-red-400">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          placeholder="Şifreyi tekrar giriniz"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
+                          {...register("confirmPassword")}
+                        />
+                      </div>
+                      {errors.confirmPassword && (
+                        <p className="text-red-400 text-xs">{errors.confirmPassword.message}</p>
                       )}
                     </div>
                   </div>

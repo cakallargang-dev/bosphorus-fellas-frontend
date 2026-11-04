@@ -148,6 +148,30 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
 
+  checkPhone: (phone: string) =>
+    request<ApiResponse<{ exists: boolean; status: string | null }>>("/api/auth/check-phone", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
+
+  register: (data: {
+    phone: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    idToken: string;
+  }) =>
+    request<ApiResponse<LoginResponse>>("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  resetPassword: (data: { idToken: string; newPassword: string }) =>
+    request<ApiResponse<{ message: string }>>("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
   getPublicProfile: (userId: string) =>
     request<ApiResponse<UserPublicProfile>>(`/api/users/${userId}/profile`),
 };
