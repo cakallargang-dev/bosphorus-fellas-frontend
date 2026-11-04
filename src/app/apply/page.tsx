@@ -183,15 +183,17 @@ export default function ApplyPage() {
   };
 
   const handlePrelimNextReferans = () => {
-    // Referans kodu opsiyonel: boş bırakılırsa doğrudan devam edilir
+    // Referans kodu zorunlu
     if (!referenceCode.trim()) {
-      setPreliminaryStep(3);
+      toast.error("Referans kodu zorunludur");
       return;
     }
-    if (refValidation.status === "valid") {
-      setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
-      setPreliminaryStep(3);
+    if (refValidation.status !== "valid") {
+      toast.error(refValidation.error || "Geçerli bir referans kodu giriniz");
+      return;
     }
+    setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
+    setPreliminaryStep(3);
   };
 
   // Verify reference code via API
@@ -446,14 +448,14 @@ export default function ApplyPage() {
                 Referans Kodu
               </CardTitle>
               <CardDescription className="text-mancave-muted">
-                Üye referans kodun varsa gir (opsiyonel). Kodun yoksa boş bırakıp devam edebilirsin.
+                Üyelik için geçerli bir referans kodu zorunludur. Kod yoksa bir üyeden davet kodu isteyin.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="prelimRefCode" className="text-gray-300">
-                  Referans Kodu <span className="text-mancave-muted">(opsiyonel)</span>
+                  Referans Kodu <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="prelimRefCode"
