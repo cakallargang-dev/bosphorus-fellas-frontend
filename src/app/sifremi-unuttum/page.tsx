@@ -44,16 +44,16 @@ export default function SifremiUnuttumPage() {
         setLoading(false);
         return;
       }
-      if (!(window as any).recaptchaVerifier_reset) {
-        (window as any).recaptchaVerifier_reset = new RecaptchaVerifier(getFirebaseAuth(), "recaptcha-container-reset", {
-          size: "invisible",
-        });
-      }
+      const holder = document.createElement("div");
+      holder.id = "recaptcha-holder-reset-" + Date.now();
+      document.body.appendChild(holder);
+      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, { size: "invisible" });
       confirmationRef.current = await signInWithPhoneNumber(
         getFirebaseAuth(),
         toE164(phone),
-        (window as any).recaptchaVerifier_reset
+        verifier
       );
+      setTimeout(() => holder.remove(), 120000);
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
@@ -205,7 +205,6 @@ export default function SifremiUnuttumPage() {
           <div className="pt-2 border-t border-gray-800 text-center text-sm text-mancave-muted">
             <Link href="/login" className="text-[#3b82f6] hover:underline">Girişe dön</Link>
           </div>
-          <div id="recaptcha-container-reset" />
         </CardContent>
       </Card>
     </div>

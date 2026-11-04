@@ -40,16 +40,18 @@ export default function KayitPage() {
     }
     setLoading(true);
     try {
-      if (!(window as any).recaptchaVerifier_kayit) {
-        (window as any).recaptchaVerifier_kayit = new RecaptchaVerifier(getFirebaseAuth(), "recaptcha-container-kayit", {
-          size: "invisible",
-        });
-      }
+      // reCAPTCHA container'ı her denemede yeniden oluşturulur;
+      // React render'ı mevcut elementi silerse "client element has been removed" hatası çıkar.
+      const holder = document.createElement("div");
+      holder.id = "recaptcha-holder-kayit-" + Date.now();
+      document.body.appendChild(holder);
+      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, { size: "invisible" });
       confirmationRef.current = await signInWithPhoneNumber(
         getFirebaseAuth(),
         toE164(phone),
-        (window as any).recaptchaVerifier_kayit
+        verifier
       );
+      setTimeout(() => holder.remove(), 120000);
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
@@ -238,7 +240,6 @@ export default function KayitPage() {
             Hesabın var mı?{" "}
             <Link href="/login" className="text-[#3b82f6] hover:underline">Giriş yap</Link>
           </div>
-          <div id="recaptcha-container-kayit" />
         </CardContent>
       </Card>
     </div>
