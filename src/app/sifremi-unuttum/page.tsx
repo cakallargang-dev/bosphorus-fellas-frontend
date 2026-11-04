@@ -28,6 +28,7 @@ export default function SifremiUnuttumPage() {
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
+  const captchaBoxRef = useRef<HTMLDivElement | null>(null);
   const idTokenRef = useRef<string>("");
 
   const sendCode = async () => {
@@ -44,10 +45,15 @@ export default function SifremiUnuttumPage() {
         setLoading(false);
         return;
       }
+      // Uygulama içi tarayıcıda görünmez reCAPTCHA çalışmıyor → görünür kutu kullan
+      const box = captchaBoxRef.current;
+      if (box) box.innerHTML = "";
       const holder = document.createElement("div");
       holder.id = "recaptcha-holder-reset-" + Date.now();
-      document.body.appendChild(holder);
-      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, { size: "invisible" });
+      (box || document.body).appendChild(holder);
+      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
+        size: isInAppBrowser() ? "normal" : "invisible",
+      });
       confirmationRef.current = await signInWithPhoneNumber(
         getFirebaseAuth(),
         toE164(phone),
@@ -134,6 +140,7 @@ export default function SifremiUnuttumPage() {
               <Button onClick={sendCode} disabled={loading} className="w-full">
                 {loading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
               </Button>
+              <div ref={captchaBoxRef} className="flex justify-center empty:hidden" />
             </>
           )}
 
