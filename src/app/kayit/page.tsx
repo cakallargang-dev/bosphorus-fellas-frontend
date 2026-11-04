@@ -8,7 +8,7 @@ import {
   signInWithPhoneNumber,
   type ConfirmationResult,
 } from "firebase/auth";
-import { getFirebaseAuth, toE164, humanizeAuthError, isInAppBrowser } from "@/lib/firebase";
+import { getFirebaseAuth, toE164, humanizeAuthError, isInAppBrowser, mountRecaptchaHolder } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,6 @@ export default function KayitPage() {
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
-  const captchaBoxRef = useRef<HTMLDivElement | null>(null);
   const idTokenRef = useRef<string>("");
 
   const sendCode = async () => {
@@ -43,12 +42,8 @@ export default function KayitPage() {
     try {
       // reCAPTCHA container'ı her denemede yeniden oluşturulur;
       // React render'ı mevcut elementi silerse "client element has been removed" hatası çıkar.
-      // Uygulama içi tarayıcıda görünmez reCAPTCHA çalışmıyor → görünür kutu kullan
-      const box = captchaBoxRef.current;
-      if (box) box.innerHTML = "";
-      const holder = document.createElement("div");
-      holder.id = "recaptcha-holder-kayit-" + Date.now();
-      (box || document.body).appendChild(holder);
+      // Uygulama içi tarayıcıda görünür captcha ekranın ortasında açılır
+      const { holder, cleanup } = mountRecaptchaHolder();
       const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
         size: isInAppBrowser() ? "normal" : "invisible",
       });
@@ -57,7 +52,7 @@ export default function KayitPage() {
         toE164(phone),
         verifier
       );
-      setTimeout(() => holder.remove(), 120000);
+      setTimeout(cleanup, 120000);
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
@@ -153,7 +148,6 @@ export default function KayitPage() {
               <Button onClick={sendCode} disabled={loading} className="w-full">
                 {loading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
               </Button>
-              <div ref={captchaBoxRef} className="flex justify-center empty:hidden" />
             </>
           )}
 

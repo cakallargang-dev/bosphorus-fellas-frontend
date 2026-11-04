@@ -52,6 +52,48 @@ export function humanizeAuthError(err: unknown): string {
   return raw || "İşlem tamamlanamadı";
 }
 
+/**
+ * reCAPTCHA container'ını hazırlar.
+ * Uygulama içi tarayıcıda görünür captcha sağ alta sıkıştığı için
+ * ekranın ortasında modal olarak açılır.
+ */
+export function mountRecaptchaHolder(): { holder: HTMLDivElement; cleanup: () => void } {
+  const holder = document.createElement("div");
+  holder.id = "recaptcha-holder-" + Date.now();
+
+  if (typeof document === "undefined" || !isInAppBrowser()) {
+    document.body.appendChild(holder);
+    return { holder, cleanup: () => holder.remove() };
+  }
+
+  const overlay = document.createElement("div");
+  overlay.id = "recaptcha-overlay-" + Date.now();
+  overlay.setAttribute(
+    "style",
+    "position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);padding:16px"
+  );
+  const card = document.createElement("div");
+  card.setAttribute(
+    "style",
+    "background:#fff;color:#111;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:14px system-ui,sans-serif"
+  );
+  const title = document.createElement("p");
+  title.textContent = "Devam etmek için aşağıdaki kutuyu işaretleyin";
+  title.setAttribute("style", "margin:0 0 12px;font-weight:600");
+  const center = document.createElement("div");
+  center.setAttribute("style", "display:flex;justify-content:center;min-height:78px");
+  center.appendChild(holder);
+  const cancel = document.createElement("button");
+  cancel.textContent = "İptal";
+  cancel.setAttribute("style", "margin-top:14px;background:#eee;border:0;border-radius:8px;padding:10px 18px;font-size:14px");
+  cancel.onclick = () => overlay.remove();
+  card.append(title, center, cancel);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  return { holder, cleanup: () => overlay.remove() };
+}
+
 /** Uygulama içi (Instagram/Telegram/Facebook) tarayıcı tespiti. */
 export function isInAppBrowser(): boolean {
   if (typeof navigator === "undefined") return false;
