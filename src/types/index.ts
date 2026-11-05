@@ -107,6 +107,8 @@ export interface Event {
   location: string;
   locationUrl?: string;
   imageUrl?: string;
+  kind?: "Yarış" | "Deneme" | "Buluşma" | string;
+  featured?: boolean;
   maxParticipants?: number;
   currentParticipants: number;
   status: "upcoming" | "ongoing" | "completed" | "cancelled";

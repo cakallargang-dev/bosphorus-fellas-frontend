@@ -293,6 +293,52 @@ export const membersApi = {
 };
 
 // ============================================================
+// Roll requests (deneme talepleri)
+// ============================================================
+
+export interface RollUserCard {
+  id: string;
+  name: string;
+  car: string;
+  spec: string;
+  photo: string | null;
+  bio: string;
+  rolls: number;
+  wins: number;
+  since: string;
+}
+
+export interface RollRequest {
+  id: string;
+  title: string;
+  date: string;
+  place: string;
+  status: "open" | "matched" | "closed";
+  creatorId: string;
+  opponentId: string | null;
+  creator: RollUserCard;
+  opponent: RollUserCard | null;
+  isMine: boolean;
+  isJoined: boolean;
+}
+
+export const rollApi = {
+  list: () => request<ApiResponse<RollRequest[]>>("/api/roll-requests"),
+  me: () => request<ApiResponse<RollUserCard>>("/api/roll-requests/me"),
+  create: (data: { title?: string; date?: string; place?: string }) =>
+    request<ApiResponse<RollRequest>>("/api/roll-requests", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  join: (id: string) =>
+    request<ApiResponse<RollRequest>>(`/api/roll-requests/${id}/join`, { method: "POST" }),
+  leave: (id: string) =>
+    request<ApiResponse<RollRequest>>(`/api/roll-requests/${id}/leave`, { method: "POST" }),
+  close: (id: string) =>
+    request<ApiResponse<{ id: string }>>(`/api/roll-requests/${id}/close`, { method: "POST" }),
+};
+
+// ============================================================
 // Events
 // ============================================================
 
