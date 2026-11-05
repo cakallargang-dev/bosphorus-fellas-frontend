@@ -1,7 +1,7 @@
 "use client";
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
+import { getAuth, signInWithCredential, PhoneAuthProvider, type Auth } from "firebase/auth";
 
 // Not: Firebase yalnızca tarayıcıda, ihtiyaç anında başlatılır.
 // Build sırasında (SSR/prerender) getAuth() çağrılmadığı için
@@ -104,4 +104,56 @@ export function mountRecaptchaHolder(force = false): { holder: HTMLDivElement; c
 export function isInAppBrowser(): boolean {
   if (typeof navigator === "undefined") return false;
   return /FBAN|FBAV|FB_IAB|Instagram|Telegram|MicroMessenger|TikTok/i.test(navigator.userAgent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   OTP oturumu
+   ConfirmationResult nesnesi sayfa yenilenince/render olunca
+   kayboluyordu; verificationId'yi saklayıp kodu onunla
+   doğruluyoruz. Böylece ikinci SMS gönderilmesi gerekmiyor.
+   ───────────────────────────────────────────────────────────── */
+const VID_KEY = "mancave_otp_vid";
+const VID_TTL = 10 * 60 * 1000;
+
+export function saveVerificationId(phone: string, verificationId: string) {
+  try {
+    localStorage.setItem(
+      VID_KEY,
+      JSON.stringify({ phone: toE164(phone), verificationId, ts: Date.now() })
+    );
+  } catch {}
+}
+
+export function loadVerificationId(phone?: string): string {
+  try {
+    const raw = localStorage.getItem(VID_KEY);
+    if (!raw) return "";
+    const o = JSON.parse(raw) as { phone: string; verificationId: string; ts: number };
+    if (!o?.verificationId || Date.now() - o.ts > VID_TTL) return "";
+    if (phone && o.phone !== toE164(phone)) return "";
+    return o.verificationId;
+  } catch {
+    return "";
+  }
+}
+
+export function clearVerificationId() {
+  try {
+    localStorage.removeItem(VID_KEY);
+  } catch {}
+}
+
+/** verificationId + SMS kodu ile giriş (yeni SMS göndermez). */
+export async function verifyPhoneCode(verificationId: string, code: string) {
+  const cred = PhoneAuthProvider.credential(verificationId, code.replace(/\D/g, ""));
+  return signInWithCredential(getFirebaseAuth(), cred);
+}
+
+/** Teşhis için kısa hata kodu. */
+export function authErrorCode(err: unknown): string {
+  const code = (err as { code?: string })?.code;
+  if (code) return code.replace("auth/", "");
+  const raw = err instanceof Error ? err.message : String(err || "");
+  const m = raw.match(/error-code:\s*(-?\d+)/i);
+  return m ? `captcha:${m[1]}` : raw.slice(0, 60);
 }

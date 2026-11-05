@@ -6,13 +6,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { applicationsApi, referansApi } from "@/lib/api";
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import {
   getFirebaseAuth,
   toE164,
   humanizeAuthError,
+  authErrorCode,
   mountRecaptchaHolder,
   isInAppBrowser,
+  saveVerificationId,
+  loadVerificationId,
+  verifyPhoneCode,
 } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -146,7 +150,6 @@ export default function ApplyPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [idToken, setIdToken] = useState("");
-  const confirmationRef = useRef<ConfirmationResult | null>(null);
   const verifierRef = useRef<RecaptchaVerifier | null>(null);
 
   // Main form
@@ -532,9 +535,10 @@ export default function ApplyPage() {
     }
     setOtpLoading(true);
 
-    // 1) Normal (görünmez) deneme — /kayit ile aynı, kanıtlanmış yol
-    // 2) Captcha hatası olursa görünür kutulu modal ile tekrar
-    const attempt = async (forceVisible: boolean) => {
+    // TEK deneme: uygulama içi tarayıcıda görünür captcha, normalde görünmez.
+    // (Eski kod captcha hatasında ikinci kez deniyordu → her denemede yeni SMS gidiyordu.)
+    try {
+      const forceVisible = isInAppBrowser();
       const { holder, cleanup } = mountRecaptchaHolder(forceVisible);
       try {
         verifierRef.current?.clear();
@@ -544,21 +548,8 @@ export default function ApplyPage() {
       });
       verifierRef.current = verifier;
       const conf = await signInWithPhoneNumber(getFirebaseAuth(), toE164(otpPhone), verifier);
+      saveVerificationId(otpPhone, conf.verificationId);
       setTimeout(cleanup, 120000);
-      return conf;
-    };
-
-    try {
-      try {
-        confirmationRef.current = await attempt(isInAppBrowser());
-      } catch (firstErr) {
-        const msg = firstErr instanceof Error ? firstErr.message : "";
-        if (/captcha|error-code:\s*-?\d+/i.test(msg)) {
-          confirmationRef.current = await attempt(true);
-        } else {
-          throw firstErr;
-        }
-      }
       setOtpSent(true);
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
@@ -569,14 +560,19 @@ export default function ApplyPage() {
   };
 
   const verifyOtp = async () => {
-    if (!confirmationRef.current) return;
     if (otpCode.replace(/\D/g, "").length < 6) {
       toast.error("6 haneli kodu giriniz");
       return;
     }
+    const vid = loadVerificationId(otpPhone);
+    if (!vid) {
+      toast.error("Doğrulama oturumu bulunamadı. Kodu tekrar gönderin.");
+      setOtpSent(false);
+      return;
+    }
     setOtpLoading(true);
     try {
-      const cred = await confirmationRef.current.confirm(otpCode.trim());
+      const cred = await verifyPhoneCode(vid, otpCode);
       const token = await cred.user.getIdToken();
       setIdToken(token);
       const digits = otpPhone.replace(/\D/g, "");
@@ -588,8 +584,8 @@ export default function ApplyPage() {
       setValue("phone", normalized, { shouldValidate: true });
       setPreliminaryStep(4);
       toast.success("Telefon doğrulandı");
-    } catch {
-      toast.error("Kod hatalı veya süresi dolmuş");
+    } catch (err) {
+      toast.error(`Kod hatalı veya süresi dolmuş (${authErrorCode(err)})`);
     } finally {
       setOtpLoading(false);
     }

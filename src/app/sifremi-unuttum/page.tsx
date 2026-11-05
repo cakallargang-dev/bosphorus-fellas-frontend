@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  type ConfirmationResult,
-} from "firebase/auth";
-import { getFirebaseAuth, toE164, humanizeAuthError, isInAppBrowser, mountRecaptchaHolder } from "@/lib/firebase";
+  getFirebaseAuth,
+  toE164,
+  humanizeAuthError,
+  authErrorCode,
+  isInAppBrowser,
+  mountRecaptchaHolder,
+  saveVerificationId,
+  loadVerificationId,
+  verifyPhoneCode,
+} from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,9 +33,15 @@ export default function SifremiUnuttumPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
-  const confirmationRef = useRef<ConfirmationResult | null>(null);
   const verifierRef = useRef<RecaptchaVerifier | null>(null);
   const idTokenRef = useRef<string>("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const sendCode = async () => {
     const digits = phone.replace(/\D/g, "");
@@ -54,12 +66,10 @@ export default function SifremiUnuttumPage() {
         size: isInAppBrowser() ? "normal" : "invisible",
       });
       verifierRef.current = verifier;
-      confirmationRef.current = await signInWithPhoneNumber(
-        getFirebaseAuth(),
-        toE164(phone),
-        verifier
-      );
+      const conf = await signInWithPhoneNumber(getFirebaseAuth(), toE164(phone), verifier);
+      saveVerificationId(phone, conf.verificationId);
       setTimeout(cleanup, 120000);
+      setCooldown(60);
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
@@ -70,14 +80,19 @@ export default function SifremiUnuttumPage() {
   };
 
   const verifyCode = async () => {
-    if (!confirmationRef.current) return;
+    const vid = loadVerificationId(phone);
+    if (!vid) {
+      toast.error("Doğrulama oturumu bulunamadı. Kodu tekrar gönderin.");
+      setStep("phone");
+      return;
+    }
     setLoading(true);
     try {
-      const cred = await confirmationRef.current.confirm(code.trim());
+      const cred = await verifyPhoneCode(vid, code);
       idTokenRef.current = await cred.user.getIdToken();
       setStep("password");
-    } catch {
-      toast.error("Kod hatalı veya süresi dolmuş");
+    } catch (err) {
+      toast.error(`Kod hatalı veya süresi dolmuş (${authErrorCode(err)})`);
     } finally {
       setLoading(false);
     }
@@ -163,6 +178,13 @@ export default function SifremiUnuttumPage() {
               <Button onClick={verifyCode} disabled={loading} className="w-full">
                 {loading ? "Doğrulanıyor..." : "Kodu Doğrula"}
               </Button>
+              <button
+                onClick={sendCode}
+                disabled={loading || cooldown > 0}
+                className="text-xs text-mancave-muted hover:text-white disabled:opacity-50"
+              >
+                {cooldown > 0 ? `Kodu tekrar gönder (${cooldown}s)` : "Kodu tekrar gönder"}
+              </button>
               <button
                 onClick={() => setStep("phone")}
                 className="text-xs text-mancave-muted hover:text-white flex items-center gap-1"
