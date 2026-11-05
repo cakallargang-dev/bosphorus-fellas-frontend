@@ -11,9 +11,9 @@ interface LayoutProps {
 
 export function Layout({ children, hideFooter }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-mancave-bg">
+    <div className="min-h-screen bg-[#f5f7fb]">
       <ScreenshotProtection />
-      <main className="flex-1">{children}</main>
+      <main className="max-w-[430px] mx-auto px-4 pt-4 pb-28">{children}</main>
       {!hideFooter && <Footer />}
     </div>
   );

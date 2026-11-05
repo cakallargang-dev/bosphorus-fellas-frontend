@@ -39,22 +39,22 @@ export function InAppBrowserNotice({ onClose }: Props) {
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-sm rounded-2xl border border-gray-800 bg-mancave-surface p-5 text-left">
+      <div className="w-full max-w-sm rounded-2xl border border-[#e6eaf3] bg-white p-5 text-left">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-white font-semibold text-lg leading-tight">
+          <h2 className="text-[#0f1420] font-semibold text-lg leading-tight">
             SMS için tarayıcı gerekiyor
           </h2>
-          <button onClick={onClose} aria-label="Kapat" className="text-mancave-muted hover:text-white">
+          <button onClick={onClose} aria-label="Kapat" className="text-[#6b7688] hover:text-[#0f1420]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-mancave-muted leading-relaxed">
+        <p className="mt-3 text-sm text-[#6b7688] leading-relaxed">
           Şu an Instagram / Telegram gibi bir uygulamanın iç tarayıcısındasınız. Bu tarayıcılar
           güvenlik doğrulamasını (reCAPTCHA) engellediği için SMS kodu gönderilemiyor.
         </p>
 
-        <ol className="mt-3 space-y-1 text-sm text-mancave-muted list-decimal list-inside">
+        <ol className="mt-3 space-y-1 text-sm text-[#6b7688] list-decimal list-inside">
           <li>Aşağıdaki butona bas → sayfa Safari/Chrome&apos;da açılır</li>
           <li>Aynı numarayı gir, kodu gönder</li>
           <li>Gelen 6 haneli kodu yaz</li>
@@ -88,7 +88,7 @@ export function InAppBrowserNotice({ onClose }: Props) {
 
         <button
           onClick={onClose}
-          className="mt-3 w-full text-center text-xs text-mancave-muted hover:text-white"
+          className="mt-3 w-full text-center text-xs text-[#6b7688] hover:text-[#0f1420]"
         >
           Yine de dene
         </button>

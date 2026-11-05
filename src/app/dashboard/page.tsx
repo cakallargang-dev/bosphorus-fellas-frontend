@@ -126,25 +126,67 @@ function DashboardContent() {
 
   return (
     <Layout>
-      <div className="max-w-[430px] mx-auto px-4 pb-10">
+      <div className="pb-4">
         {/* Hoş geldin */}
-        <div className="flex items-center gap-3 mt-2 mb-6 p-4 rounded-xl bg-gradient-to-br from-[#3b82f6]/10 via-transparent to-transparent border border-[#3b82f6]/10">
+        <div className="flex items-center gap-3 mt-2 mb-5 p-4 rounded-2xl bg-white border border-[#e6eaf3] shadow-[0_2px_12px_rgba(15,20,32,0.04)]">
           <Avatar className="w-12 h-12 border-2 border-[#3b82f6]/30">
             <AvatarImage src={user?.avatar ? `${API_BASE}${user.avatar}` : undefined} alt={user?.firstName} />
             <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-sm">{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-lg font-bold text-white truncate">Hoş geldin, {user?.firstName}</h1>
+              <h1 className="text-lg font-bold text-[#0f1420] truncate">Hoş geldin, {user?.firstName}</h1>
               <Sparkles className="w-4 h-4 text-[#3b82f6] shrink-0" />
             </div>
-            <p className="text-xs text-mancave-muted">Toplulukta neler oluyor, bir göz at.</p>
+            <p className="text-xs text-[#6b7688]">Toplulukta neler oluyor, bir göz at.</p>
           </div>
         </div>
 
+        {/* Keşfet */}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[19px] font-bold text-[#0f1420]">Keşfet</h2>
+          <a href="#etkinlikler" className="text-[13px] text-[#6b7688] flex items-center gap-0.5">
+            Tümü <span className="text-[#3b82f6]">›</span>
+          </a>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-7">
+          <a href="#etkinlikler" className="rounded-2xl bg-white border border-[#e6eaf3] p-3.5 shadow-[0_2px_12px_rgba(15,20,32,0.04)]">
+            <div className="h-[86px] rounded-xl bg-[#eef4ff] flex items-center justify-center mb-2.5">
+              <Calendar className="w-8 h-8 text-[#3b82f6]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#0f1420]">Etkinlikler</p>
+            <p className="text-[12px] text-[#6b7688]">{events.length} yaklaşan</p>
+          </a>
+
+          <a href="#talepler" className="rounded-2xl bg-white border border-[#e6eaf3] p-3.5 shadow-[0_2px_12px_rgba(15,20,32,0.04)]">
+            <div className="h-[86px] rounded-xl bg-[#eef4ff] flex items-center justify-center mb-2.5">
+              <Car className="w-8 h-8 text-[#3b82f6]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#0f1420]">Deneme talepleri</p>
+            <p className="text-[12px] text-[#6b7688]">{rollRequests.length} açık talep</p>
+          </a>
+
+          <a href="#sponsorlar" className="rounded-2xl bg-white border border-[#e6eaf3] p-3.5 shadow-[0_2px_12px_rgba(15,20,32,0.04)]">
+            <div className="h-[86px] rounded-xl bg-[#eef4ff] flex items-center justify-center mb-2.5">
+              <Star className="w-8 h-8 text-[#3b82f6]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#0f1420]">Sponsorlar</p>
+            <p className="text-[12px] text-[#6b7688]">{sponsors.length} marka</p>
+          </a>
+
+          <a href="#market" className="rounded-2xl bg-white border border-[#e6eaf3] p-3.5 shadow-[0_2px_12px_rgba(15,20,32,0.04)]">
+            <div className="h-[86px] rounded-xl bg-[#eef4ff] flex items-center justify-center mb-2.5">
+              <ShoppingBag className="w-8 h-8 text-[#3b82f6]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#0f1420]">MANCAVE Market</p>
+            <p className="text-[12px] text-[#6b7688]">{products.length} ürün</p>
+          </a>
+        </div>
+
         {/* Yaklaşan etkinlikler */}
-        <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+        <section id="etkinlikler" className="mb-8 scroll-mt-4">
+          <h2 className="text-[15px] font-semibold text-[#0f1420] mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#3b82f6]" />
             Yaklaşan etkinlikler
           </h2>
@@ -166,19 +208,19 @@ function DashboardContent() {
                 return (
                   <article
                     key={e.id}
-                    className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
-                      e.featured ? "border-[#3b82f6]" : "border-gray-800"
+                    className={`bg-white border rounded-xl overflow-hidden ${
+                      e.featured ? "border-[#3b82f6]" : "border-[#e6eaf3]"
                     }`}
                   >
                     <div
-                      className="relative h-[110px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
+                      className="relative h-[110px] bg-[#eef2f9] flex items-center justify-center bg-cover bg-center"
                       style={image ? { backgroundImage: `url('${image}')` } : undefined}
                     >
                       {!image &&
                         (kind === "Yarış" ? (
-                          <Trophy className="w-11 h-11 text-gray-500" />
+                          <Trophy className="w-11 h-11 text-[#6b7688]" />
                         ) : (
-                          <Car className="w-11 h-11 text-gray-500" />
+                          <Car className="w-11 h-11 text-[#6b7688]" />
                         ))}
                       <span
                         className={`absolute top-2.5 left-2.5 text-[12px] px-2.5 py-0.5 rounded-lg ${
@@ -192,17 +234,17 @@ function DashboardContent() {
                         {e.featured ? "Öne çıkan · " : ""}
                         {kind}
                       </span>
-                      <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-gray-900 border border-gray-800 px-2.5 py-0.5 rounded-lg text-gray-200">
+                      <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-white border border-[#e6eaf3] px-2.5 py-0.5 rounded-lg text-[#1c2433]">
                         {countdown(e.date, e.time)}
                       </span>
                     </div>
 
                     <div className="p-3.5">
-                      <p className="text-[17px] font-semibold text-white">{e.title}</p>
+                      <p className="text-[17px] font-semibold text-[#0f1420]">{e.title}</p>
                       {e.description && (
-                        <p className="text-[13px] text-mancave-muted mt-0.5">{e.description}</p>
+                        <p className="text-[13px] text-[#6b7688] mt-0.5">{e.description}</p>
                       )}
-                      <div className="flex flex-col gap-1 text-[13px] text-mancave-muted mt-2.5">
+                      <div className="flex flex-col gap-1 text-[13px] text-[#6b7688] mt-2.5">
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
                           {new Date(e.date).toLocaleDateString("tr-TR", {
@@ -229,10 +271,10 @@ function DashboardContent() {
                         </span>
                       </div>
 
-                      <div className="h-1.5 rounded bg-gray-800 mt-3 overflow-hidden">
+                      <div className="h-1.5 rounded bg-[#eef2f9] mt-3 overflow-hidden">
                         <div className="h-full bg-[#3b82f6] transition-all" style={{ width: `${pct}%` }} />
                       </div>
-                      <div className="flex justify-between text-[13px] text-mancave-muted mt-1.5">
+                      <div className="flex justify-between text-[13px] text-[#6b7688] mt-1.5">
                         <span>
                           {current} / {max || "∞"} katılımcı
                         </span>
@@ -258,13 +300,13 @@ function DashboardContent() {
         </section>
 
         {/* Deneme talepleri */}
-        <section className="mb-8">
+        <section id="talepler" className="mb-8 scroll-mt-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[15px] font-semibold text-white">Deneme talepleri</h2>
+            <h2 className="text-[15px] font-semibold text-[#0f1420]">Deneme talepleri</h2>
             <button
               onClick={() => setNewRoll(true)}
               disabled={createRoll.isPending}
-              className="flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60 disabled:opacity-50"
+              className="flex items-center gap-1 text-[13px] border border-[#e6eaf3] rounded-lg px-3 py-1.5 text-[#1c2433] hover:bg-[#f1f4fa] disabled:opacity-50"
             >
               <Plus className="w-3.5 h-3.5" />
               Talep aç
@@ -282,9 +324,9 @@ function DashboardContent() {
               {rollRequests.map((r) => {
                 const matched = Boolean(r.opponent);
                 return (
-                  <article key={r.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3.5">
-                    <p className="text-[17px] font-semibold text-white">{r.title}</p>
-                    <div className="flex gap-3.5 flex-wrap text-[13px] text-mancave-muted mt-1">
+                  <article key={r.id} className="bg-white border border-[#e6eaf3] rounded-xl p-3.5">
+                    <p className="text-[17px] font-semibold text-[#0f1420]">{r.title}</p>
+                    <div className="flex gap-3.5 flex-wrap text-[13px] text-[#6b7688] mt-1">
                       <span>{r.date}</span>
                       {r.mapUrl ? (
                         <a
@@ -306,8 +348,8 @@ function DashboardContent() {
                       {r.opponent ? (
                         <CarBox user={r.opponent} isMe={r.isJoined} onOpen={setSheet} />
                       ) : (
-                        <div className="rounded-[10px] border border-dashed border-gray-700 min-h-[150px] flex items-center justify-center p-2">
-                          <p className="text-[12px] text-mancave-muted text-center">Rakip bekleniyor</p>
+                        <div className="rounded-[10px] border border-dashed border-[#e6eaf3] min-h-[150px] flex items-center justify-center p-2">
+                          <p className="text-[12px] text-[#6b7688] text-center">Rakip bekleniyor</p>
                         </div>
                       )}
                     </div>
@@ -315,7 +357,7 @@ function DashboardContent() {
                     {r.canDelete ? (
                       <button
                         onClick={() => deleteRoll.mutate(r.id)}
-                        className="w-full mt-3 rounded-lg border border-gray-600 py-2 text-sm text-gray-200 hover:bg-gray-800/60"
+                        className="w-full mt-3 rounded-lg border border-gray-600 py-2 text-sm text-[#1c2433] hover:bg-[#f1f4fa]"
                       >
                         {r.isMine ? "Talebi sil" : "Sil (admin)"}
                       </button>
@@ -327,7 +369,7 @@ function DashboardContent() {
                         Ayrıl
                       </button>
                     ) : matched ? (
-                      <p className="text-center text-[12px] text-mancave-muted mt-3">Eşleşme tamamlandı</p>
+                      <p className="text-center text-[12px] text-[#6b7688] mt-3">Eşleşme tamamlandı</p>
                     ) : (
                       <button
                         onClick={() => joinRoll.mutate(r.id)}
@@ -344,8 +386,8 @@ function DashboardContent() {
         </section>
 
         {/* Sponsorlar */}
-        <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+        <section id="sponsorlar" className="mb-8 scroll-mt-4">
+          <h2 className="text-[15px] font-semibold text-[#0f1420] mb-3 flex items-center gap-2">
             <Star className="w-4 h-4 text-[#3b82f6]" />
             Sponsorlar
           </h2>
@@ -363,8 +405,8 @@ function DashboardContent() {
         </section>
 
         {/* MANCAVE Market */}
-        <section>
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+        <section id="market" className="scroll-mt-4">
+          <h2 className="text-[15px] font-semibold text-[#0f1420] mb-3 flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 text-[#3b82f6]" />
             MANCAVE Market
           </h2>
@@ -415,7 +457,7 @@ function CarBox({
           onOpen(user);
         }
       }}
-      className="bg-gray-800/70 rounded-[10px] p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
+      className="bg-[#f1f4fa] rounded-[10px] p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
     >
       <div className="h-16 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center mb-1.5 overflow-hidden">
         {user.photo ? (
@@ -425,8 +467,8 @@ function CarBox({
           <Car className="w-7 h-7 text-[#3b82f6]" />
         )}
       </div>
-      <p className="text-[13px] font-semibold text-white truncate">{user.car}</p>
-      {user.spec && <p className="text-[12px] text-mancave-muted truncate">{user.spec}</p>}
+      <p className="text-[13px] font-semibold text-[#0f1420] truncate">{user.car}</p>
+      {user.spec && <p className="text-[12px] text-[#6b7688] truncate">{user.spec}</p>}
       <p className="text-[12px] text-[#3b82f6] truncate">
         {user.name}
         {isMe ? " (sen)" : ""} · Profil
@@ -453,7 +495,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         if (e.key === "Escape") onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
+      <div className="bg-white border border-[#e6eaf3] rounded-xl w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
             {user.photo ? (
@@ -464,30 +506,30 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[17px] font-semibold text-white truncate">{user.name}</p>
-            <p className="text-[13px] text-mancave-muted">Üyelik: {user.since}</p>
+            <p className="text-[17px] font-semibold text-[#0f1420] truncate">{user.name}</p>
+            <p className="text-[13px] text-[#6b7688]">Üyelik: {user.since}</p>
           </div>
           <button
             onClick={onClose}
-            className="ml-auto flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+            className="ml-auto flex items-center gap-1 text-[13px] border border-[#e6eaf3] rounded-lg px-3 py-1.5 text-[#1c2433] hover:bg-[#f1f4fa]"
           >
             <X className="w-3.5 h-3.5" />
             Kapat
           </button>
         </div>
 
-        <div className="h-[150px] rounded-xl bg-gray-800 flex items-center justify-center my-4 overflow-hidden">
+        <div className="h-[150px] rounded-xl bg-[#eef2f9] flex items-center justify-center my-4 overflow-hidden">
           {user.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={`${API_BASE}${user.photo}`} alt={user.car} className="w-full h-full object-cover" />
           ) : (
-            <Car className="w-12 h-12 text-gray-500" />
+            <Car className="w-12 h-12 text-[#6b7688]" />
           )}
         </div>
 
-        <p className="text-base font-semibold text-white">{user.car}</p>
-        {user.spec && <p className="text-[12px] text-mancave-muted">{user.spec}</p>}
-        {user.bio && <p className="text-[13px] text-mancave-muted mt-2.5">{user.bio}</p>}
+        <p className="text-base font-semibold text-[#0f1420]">{user.car}</p>
+        {user.spec && <p className="text-[12px] text-[#6b7688]">{user.spec}</p>}
+        {user.bio && <p className="text-[13px] text-[#6b7688] mt-2.5">{user.bio}</p>}
 
         <div className="grid grid-cols-3 gap-2 mt-3.5">
           {[
@@ -495,9 +537,9 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
             { v: user.wins, l: "Galibiyet" },
             { v: losses, l: "Mağlubiyet" },
           ].map((s) => (
-            <div key={s.l} className="bg-gray-800/70 rounded-[10px] p-2.5 text-center">
-              <b className="block text-lg text-white">{s.v}</b>
-              <span className="text-[12px] text-mancave-muted">{s.l}</span>
+            <div key={s.l} className="bg-[#f1f4fa] rounded-[10px] p-2.5 text-center">
+              <b className="block text-lg text-[#0f1420]">{s.v}</b>
+              <span className="text-[12px] text-[#6b7688]">{s.l}</span>
             </div>
           ))}
         </div>
@@ -519,15 +561,15 @@ function EmptyState({
 }) {
   return (
     <div
-      className={`bg-gray-900/50 border border-gray-800 rounded-xl flex flex-col items-center justify-center text-center ${
+      className={`bg-white border border-[#e6eaf3] rounded-xl flex flex-col items-center justify-center text-center ${
         compact ? "p-6 gap-2" : "p-10 gap-3"
       }`}
     >
       <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
         <Icon className="w-6 h-6 text-[#3b82f6]/60" />
       </div>
-      <h3 className="text-gray-400 font-medium text-sm">{title}</h3>
-      <p className="text-mancave-muted text-xs max-w-xs">{description}</p>
+      <h3 className="text-[#4a5568] font-medium text-sm">{title}</h3>
+      <p className="text-[#6b7688] text-xs max-w-xs">{description}</p>
     </div>
   );
 }
@@ -562,7 +604,7 @@ function NewRollSheet({
   };
 
   const inputCls =
-    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
+    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-[#f1f4fa] border border-[#e6eaf3] px-3 py-2 text-sm text-[#0f1420] placeholder:text-[#6b7688] focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
 
   return (
     <div
@@ -571,32 +613,32 @@ function NewRollSheet({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] p-4">
+      <div className="bg-white border border-[#e6eaf3] rounded-xl w-full max-w-[400px] p-4">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[17px] font-semibold text-white">Talep aç</p>
+          <p className="text-[17px] font-semibold text-[#0f1420]">Talep aç</p>
           <button
             onClick={onClose}
-            className="text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+            className="text-[13px] border border-[#e6eaf3] rounded-lg px-3 py-1.5 text-[#1c2433] hover:bg-[#f1f4fa]"
           >
             Kapat
           </button>
         </div>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Deneme türü</label>
+        <label className="block text-[13px] text-[#6b7688] mb-1">Deneme türü</label>
         <select
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className={`${inputCls} mb-3`}
         >
           {OPTIONS.map((o) => (
-            <option key={o} value={o} className="bg-gray-900">
+            <option key={o} value={o} className="bg-white">
               {o}
             </option>
           ))}
         </select>
 
         <div className="mb-3">
-          <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
+          <label className="block text-[13px] text-[#6b7688] mb-1">Tarih</label>
           <input
             type="date"
             value={date}
@@ -606,7 +648,7 @@ function NewRollSheet({
         </div>
 
         <div className="mb-3">
-          <label className="block text-[13px] text-mancave-muted mb-1">Saat</label>
+          <label className="block text-[13px] text-[#6b7688] mb-1">Saat</label>
           <input
             type="time"
             value={time}
@@ -615,7 +657,7 @@ function NewRollSheet({
           />
         </div>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Konum</label>
+        <label className="block text-[13px] text-[#6b7688] mb-1">Konum</label>
         <input
           value={place}
           onChange={(e) => setPlace(e.target.value)}
@@ -623,7 +665,7 @@ function NewRollSheet({
           className={`${inputCls} mb-3`}
         />
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Google Maps linki</label>
+        <label className="block text-[13px] text-[#6b7688] mb-1">Google Maps linki</label>
         <input
           value={mapUrl}
           onChange={(e) => setMapUrl(e.target.value)}

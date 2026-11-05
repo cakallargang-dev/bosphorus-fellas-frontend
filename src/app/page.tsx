@@ -58,7 +58,7 @@ export default function Home() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-mancave-bg">
+    <div className="min-h-screen flex flex-col bg-[#f5f7fb]">
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">
@@ -68,20 +68,20 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="w-16 h-16 rounded-xl border-2 border-mancave-blue flex items-center justify-center bg-mancave-blue/10">
-              <Shield className="w-8 h-8 text-mancave-blue" />
+              <Shield className="w-8 h-8 text-[#3b82f6]" />
             </div>
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">
-            <span className="text-white">BOSPHORUS</span>{" "}
-            <span className="text-mancave-blue">FELLAS</span>
+            <span className="text-[#0f1420]">BOSPHORUS</span>{" "}
+            <span className="text-[#3b82f6]">FELLAS</span>
           </h1>
 
-          <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto font-light">
+          <p className="text-xl sm:text-2xl text-[#4a5568] max-w-2xl mx-auto font-light">
             Ham Güç. Arınmış Ruh.
           </p>
 
-          <p className="text-base text-mancave-muted max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-[#6b7688] max-w-xl mx-auto leading-relaxed">
             Premium otomotiv tutkunları için özel bir topluluk. Bosphorus
             Fellas; gücü, estetiği ve kardeşliği bir araya getirir.
           </p>
@@ -100,7 +100,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-mancave-border text-gray-300 hover:bg-mancave-surface hover:text-white px-8 py-6 text-base"
+                className="border-[#e6eaf3] text-[#2c3648] hover:bg-white hover:text-[#0f1420] px-8 py-6 text-base"
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 Dashboard
@@ -111,7 +111,7 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-mancave-border flex items-start justify-center p-1.5">
+          <div className="w-6 h-10 rounded-full border-2 border-[#e6eaf3] flex items-start justify-center p-1.5">
             <div className="w-1 h-2 rounded-full bg-mancave-blue" />
           </div>
         </div>
@@ -119,11 +119,11 @@ export default function Home() {
 
       {/* Stats — only for authenticated users */}
       {isAuthenticated && stats && !error && (
-        <section className="py-20 px-4 border-t border-mancave-border">
+        <section className="py-20 px-4 border-t border-[#e6eaf3]">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-12">
+            <h2 className="text-2xl font-bold text-[#0f1420] text-center mb-12">
               Rakamlarla{" "}
-              <span className="text-mancave-blue">Bosphorus Fellas</span>
+              <span className="text-[#3b82f6]">Bosphorus Fellas</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StatsCard
@@ -153,16 +153,16 @@ export default function Home() {
 
       {/* Events — only for authenticated users */}
       {isAuthenticated && events.length > 0 && (
-        <section className="py-20 px-4 border-t border-mancave-border">
+        <section className="py-20 px-4 border-t border-[#e6eaf3]">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-10">
-              <h2 className="text-2xl font-bold text-white">
-                Yaklaşan <span className="text-mancave-blue">Etkinlikler</span>
+              <h2 className="text-2xl font-bold text-[#0f1420]">
+                Yaklaşan <span className="text-[#3b82f6]">Etkinlikler</span>
               </h2>
               <Link href="/dashboard">
                 <Button
                   variant="ghost"
-                  className="text-gray-400 hover:text-white"
+                  className="text-[#4a5568] hover:text-[#0f1420]"
                 >
                   Tümü <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -179,10 +179,10 @@ export default function Home() {
 
       {/* Sponsors — only for authenticated users */}
       {isAuthenticated && sponsors.length > 0 && (
-        <section className="py-20 px-4 border-t border-mancave-border">
+        <section className="py-20 px-4 border-t border-[#e6eaf3]">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-12">
-              <span className="text-mancave-blue">Sponsorlarımız</span>
+            <h2 className="text-2xl font-bold text-[#0f1420] text-center mb-12">
+              <span className="text-[#3b82f6]">Sponsorlarımız</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {sponsors.map((sponsor) => (
@@ -194,13 +194,13 @@ export default function Home() {
       )}
 
       {/* CTA Section */}
-      <section className="py-24 px-4 border-t border-mancave-border">
+      <section className="py-24 px-4 border-t border-[#e6eaf3]">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold text-white">
+          <h2 className="text-3xl font-bold text-[#0f1420]">
             Sen de Aramıza{" "}
-            <span className="text-mancave-blue">Katıl</span>
+            <span className="text-[#3b82f6]">Katıl</span>
           </h2>
-          <p className="text-gray-400 max-w-lg mx-auto">
+          <p className="text-[#4a5568] max-w-lg mx-auto">
             Premium otomotiv topluluğumuzda yerini al. Etkinliklere katıl, özel
             içeriklere eriş, kardeşliğin bir parçası ol.
           </p>

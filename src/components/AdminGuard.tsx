@@ -35,15 +35,15 @@ export function AdminGuard({ children, fallback }: AdminGuardProps) {
       fallback ?? (
         <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
           <ShieldAlert className="w-16 h-16 text-red-500/50" />
-          <h2 className="text-xl text-white font-semibold">
+          <h2 className="text-xl text-[#0f1420] font-semibold">
             Erişim Reddedildi
           </h2>
-          <p className="text-mancave-muted">
+          <p className="text-[#6b7688]">
             Bu sayfaya erişmek için yönetici yetkisine sahip olmalısınız.
           </p>
           <button
             onClick={() => router.push("/dashboard")}
-            className="text-mancave-blue hover:underline text-sm mt-2"
+            className="text-[#3b82f6] hover:underline text-sm mt-2"
           >
             Panele Dön
           </button>

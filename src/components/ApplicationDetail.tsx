@@ -84,10 +84,10 @@ export function ApplicationDetail({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-mancave-card border-mancave-border text-white max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="bg-white border-[#e6eaf3] text-[#0f1420] max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <DialogTitle className="text-white text-lg">
+            <DialogTitle className="text-[#0f1420] text-lg">
               {application.firstName} {application.lastName}
             </DialogTitle>
             <Badge
@@ -97,7 +97,7 @@ export function ApplicationDetail({
               {status.label}
             </Badge>
           </div>
-          <DialogDescription className="text-mancave-muted">
+          <DialogDescription className="text-[#6b7688]">
             Başvuru detayları
           </DialogDescription>
         </DialogHeader>
@@ -109,7 +109,7 @@ export function ApplicationDetail({
               <img
                 src={`${apiBase}${application.photoUrl}`}
                 alt={`${application.firstName} ${application.lastName}`}
-                className="w-32 h-32 rounded-full object-cover border-2 border-mancave-border"
+                className="w-32 h-32 rounded-full object-cover border-2 border-[#e6eaf3]"
               />
             </div>
           )}
@@ -119,14 +119,14 @@ export function ApplicationDetail({
             {fields.map((field, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-3 rounded-lg bg-mancave-surface border border-mancave-border"
+                className="flex items-center gap-3 p-3 rounded-lg bg-white border border-[#e6eaf3]"
               >
                 <div className="w-8 h-8 rounded bg-mancave-blue/10 flex items-center justify-center shrink-0">
-                  <field.icon className="w-4 h-4 text-mancave-blue" />
+                  <field.icon className="w-4 h-4 text-[#3b82f6]" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-mancave-muted">{field.label}</p>
-                  <p className="text-sm text-white truncate">{field.value}</p>
+                  <p className="text-xs text-[#6b7688]">{field.label}</p>
+                  <p className="text-sm text-[#0f1420] truncate">{field.value}</p>
                 </div>
               </div>
             ))}
@@ -134,11 +134,11 @@ export function ApplicationDetail({
 
           {/* About */}
           <div>
-            <h4 className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-mancave-blue" />
+            <h4 className="text-sm text-[#4a5568] mb-2 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#3b82f6]" />
               Hakkında
             </h4>
-            <p className="text-sm text-gray-300 bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
+            <p className="text-sm text-[#2c3648] bg-white rounded-lg p-3 border border-[#e6eaf3] whitespace-pre-wrap">
               {application.about}
             </p>
           </div>
@@ -146,11 +146,11 @@ export function ApplicationDetail({
           {/* Expectation */}
           {application.expectation && (
             <div>
-              <h4 className="text-sm text-gray-400 mb-2 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-mancave-blue" />
+              <h4 className="text-sm text-[#4a5568] mb-2 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#3b82f6]" />
                 Beklenti
               </h4>
-              <p className="text-sm text-gray-300 bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
+              <p className="text-sm text-[#2c3648] bg-white rounded-lg p-3 border border-[#e6eaf3] whitespace-pre-wrap">
                 {application.expectation}
               </p>
             </div>
@@ -169,7 +169,7 @@ export function ApplicationDetail({
           )}
 
           {/* Meta */}
-          <div className="flex items-center gap-4 text-xs text-mancave-muted pt-2 border-t border-mancave-border">
+          <div className="flex items-center gap-4 text-xs text-[#6b7688] pt-2 border-t border-[#e6eaf3]">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               Başvuru:{" "}

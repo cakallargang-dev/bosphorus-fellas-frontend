@@ -17,11 +17,11 @@ const tierStyles: Record<string, { label: string; className: string }> = {
   },
   gold: {
     label: "Altın",
-    className: "bg-mancave-blue/20 text-mancave-blue border-mancave-blue/30",
+    className: "bg-mancave-blue/20 text-[#3b82f6] border-mancave-blue/30",
   },
   silver: {
     label: "Gümüş",
-    className: "bg-gray-400/20 text-gray-400 border-gray-400/30",
+    className: "bg-gray-400/20 text-[#4a5568] border-gray-400/30",
   },
   bronze: {
     label: "Bronz",
@@ -35,10 +35,10 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
   const tier = tierStyles[sponsor.tier] || tierStyles.bronze;
 
   const content = (
-    <Card className="bg-mancave-card border-mancave-border hover:border-mancave-blue/30 transition-all group">
+    <Card className="bg-white border-[#e6eaf3] hover:border-mancave-blue/30 transition-all group">
       <CardContent className="p-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-lg bg-mancave-surface border border-mancave-border flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-blue/30 transition-colors">
+          <div className="w-16 h-16 rounded-lg bg-white border border-[#e6eaf3] flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-blue/30 transition-colors">
             {(sponsor.logoUrl || sponsor.logo) ? (
               <img
                 src={
@@ -50,14 +50,14 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
                 className="w-12 h-12 object-contain"
               />
             ) : (
-              <span className="text-mancave-blue font-bold text-lg">
+              <span className="text-[#3b82f6] font-bold text-lg">
                 {sponsor.name[0]}
               </span>
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-white font-medium text-sm truncate">
+              <h3 className="text-[#0f1420] font-medium text-sm truncate">
                 {sponsor.name}
               </h3>
               <Badge
@@ -68,13 +68,13 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
               </Badge>
             </div>
             {sponsor.description && (
-              <p className="text-mancave-muted text-xs line-clamp-2">
+              <p className="text-[#6b7688] text-xs line-clamp-2">
                 {sponsor.description}
               </p>
             )}
           </div>
           {(sponsor.websiteUrl || sponsor.website) && (
-            <ExternalLink className="w-4 h-4 text-mancave-muted group-hover:text-mancave-blue transition-colors shrink-0" />
+            <ExternalLink className="w-4 h-4 text-[#6b7688] group-hover:text-[#3b82f6] transition-colors shrink-0" />
           )}
         </div>
       </CardContent>
