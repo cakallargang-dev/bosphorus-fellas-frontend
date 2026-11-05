@@ -15,7 +15,7 @@ import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X } from "luc
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 const DAY = 86400000;
-const CHIPS = ["Tümü", "Yarış", "Deneme", "Buluşma"] as const;
+
 
 export default function DashboardPage() {
   return (
@@ -41,7 +41,7 @@ function countdown(date: string, time?: string) {
 function DashboardContent() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<(typeof CHIPS)[number]>("Tümü");
+  const [newRoll, setNewRoll] = useState(false);
   const [sheet, setSheet] = useState<RollUserCard | null>(null);
 
   const { data: dashboardData, isLoading } = useQuery({
@@ -80,12 +80,22 @@ function DashboardContent() {
   });
 
   const createRoll = useMutation({
-    mutationFn: () => rollApi.create({ title: "Roll denemesi" }),
+    mutationFn: (data: { title: string; date: string; place: string }) => rollApi.create(data),
     onSuccess: () => {
       toast.success("Talep açıldı");
+      setNewRoll(false);
       refresh();
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Talep açılamadı"),
+  });
+
+  const deleteRoll = useMutation({
+    mutationFn: (id: string) => rollApi.remove(id),
+    onSuccess: () => {
+      toast.success("Talep silindi");
+      refresh();
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
   });
 
   const joinRoll = useMutation({
@@ -106,25 +116,12 @@ function DashboardContent() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Ayrılma başarısız"),
   });
 
-  const closeRoll = useMutation({
-    mutationFn: (id: string) => rollApi.close(id),
-    onSuccess: () => {
-      toast.success("Talep kapatıldı");
-      refresh();
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Kapatılamadı"),
-  });
-
   const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() : "";
   const events = dashboardData?.data.upcomingEvents ?? [];
   const products = dashboardData?.data.products ?? [];
   const sponsors = dashboardData?.data.sponsors ?? [];
   const rollRequests = (rollData?.data ?? []) as RollRequest[];
 
-  const filteredEvents = useMemo(
-    () => events.filter((e) => filter === "Tümü" || (e.kind || "Buluşma") === filter),
-    [events, filter]
-  );
 
   return (
     <Layout>
@@ -151,29 +148,13 @@ function DashboardContent() {
             Yaklaşan etkinlikler
           </h2>
 
-          <div className="flex gap-2 flex-wrap mb-3">
-            {CHIPS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setFilter(c)}
-                className={`text-[13px] px-3 py-1 rounded-full border transition-colors ${
-                  filter === c
-                    ? "bg-[#3b82f6]/15 border-[#3b82f6] text-[#3b82f6]"
-                    : "bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800/60"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-
           {isLoading ? (
             <SkeletonCard className="h-64" />
-          ) : filteredEvents.length === 0 ? (
-            <EmptyState icon={Calendar} title="Etkinlik yok" description="Bu kategoride yaklaşan etkinlik bulunmuyor." />
+          ) : events.length === 0 ? (
+            <EmptyState icon={Calendar} title="Etkinlik yok" description="Yaklaşan etkinlik bulunmuyor." />
           ) : (
             <div className="space-y-3.5">
-              {filteredEvents.map((e) => {
+              {events.map((e) => {
                 const kind = e.kind || "Buluşma";
                 const joined = (e as { isJoined?: boolean }).isJoined;
                 const current = (e as { currentParticipants?: number }).currentParticipants ?? 0;
@@ -259,7 +240,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[15px] font-semibold text-white">Deneme talepleri</h2>
             <button
-              onClick={() => createRoll.mutate()}
+              onClick={() => setNewRoll(true)}
               disabled={createRoll.isPending}
               className="flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60 disabled:opacity-50"
             >
@@ -298,12 +279,12 @@ function DashboardContent() {
                       )}
                     </div>
 
-                    {r.isMine ? (
+                    {r.canDelete ? (
                       <button
-                        onClick={() => closeRoll.mutate(r.id)}
+                        onClick={() => deleteRoll.mutate(r.id)}
                         className="w-full mt-3 rounded-lg border border-gray-600 py-2 text-sm text-gray-200 hover:bg-gray-800/60"
                       >
-                        Talebi kapat
+                        {r.isMine ? "Talebi sil" : "Sil (admin)"}
                       </button>
                     ) : matched && r.isJoined ? (
                       <button
@@ -369,6 +350,14 @@ function DashboardContent() {
       </div>
 
       {sheet && <ProfileSheet user={sheet} onClose={() => setSheet(null)} />}
+
+      {newRoll && (
+        <NewRollSheet
+          onClose={() => setNewRoll(false)}
+          onSubmit={(d) => createRoll.mutate(d)}
+          pending={createRoll.isPending}
+        />
+      )}
     </Layout>
   );
 }
@@ -506,6 +495,81 @@ function EmptyState({
       </div>
       <h3 className="text-gray-400 font-medium text-sm">{title}</h3>
       <p className="text-mancave-muted text-xs max-w-xs">{description}</p>
+    </div>
+  );
+}
+
+function NewRollSheet({
+  onClose,
+  onSubmit,
+  pending,
+}: {
+  onClose: () => void;
+  onSubmit: (d: { title: string; date: string; place: string }) => void;
+  pending: boolean;
+}) {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [place, setPlace] = useState("");
+
+  const submit = () => {
+    if (!title.trim()) {
+      toast.error("Açıklama yazın");
+      return;
+    }
+    onSubmit({ title: title.trim(), date: date.trim(), place: place.trim() });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-gray-900 border border-gray-800 rounded-t-2xl w-full max-w-[430px] p-4 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[17px] font-semibold text-white">Talep aç</p>
+          <button
+            onClick={onClose}
+            className="text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+          >
+            Kapat
+          </button>
+        </div>
+
+        <label className="block text-[13px] text-mancave-muted mb-1">Açıklama</label>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Roll denemesi"
+          className="w-full mb-3 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
+        />
+
+        <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
+        <input
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          placeholder="12 Haz · 22:30"
+          className="w-full mb-3 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
+        />
+
+        <label className="block text-[13px] text-mancave-muted mb-1">Konum</label>
+        <input
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
+          placeholder="Anadolu yakası"
+          className="w-full mb-4 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
+        />
+
+        <button
+          onClick={submit}
+          disabled={pending}
+          className="w-full rounded-lg border border-[#3b82f6] py-2.5 text-sm font-medium text-[#3b82f6] hover:bg-[#3b82f6]/10 disabled:opacity-50"
+        >
+          {pending ? "Kaydediliyor..." : "Talebi oluştur"}
+        </button>
+      </div>
     </div>
   );
 }

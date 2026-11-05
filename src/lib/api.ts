@@ -320,6 +320,7 @@ export interface RollRequest {
   opponent: RollUserCard | null;
   isMine: boolean;
   isJoined: boolean;
+  canDelete?: boolean;
 }
 
 export const rollApi = {
@@ -336,6 +337,8 @@ export const rollApi = {
     request<ApiResponse<RollRequest>>(`/api/roll-requests/${id}/leave`, { method: "POST" }),
   close: (id: string) =>
     request<ApiResponse<{ id: string }>>(`/api/roll-requests/${id}/close`, { method: "POST" }),
+  remove: (id: string) =>
+    request<ApiResponse<{ id: string }>>(`/api/roll-requests/${id}`, { method: "DELETE" }),
 };
 
 // ============================================================
