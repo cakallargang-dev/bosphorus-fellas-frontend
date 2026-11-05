@@ -412,7 +412,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center"
+      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -420,7 +420,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         if (e.key === "Escape") onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-t-2xl w-full max-w-[430px] max-h-[88vh] overflow-auto p-4 pb-6">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
             {user.photo ? (
@@ -522,12 +522,12 @@ function NewRollSheet({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center"
+      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-t-2xl w-full max-w-[430px] p-4 pb-6">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] p-4">
         <div className="flex items-center justify-between mb-4">
           <p className="text-[17px] font-semibold text-white">Talep aç</p>
           <button
