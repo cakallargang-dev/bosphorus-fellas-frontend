@@ -97,6 +97,7 @@ const applySchema = z.object({
     .string()
     .min(4, "Geçerli bir yıl giriniz")
     .regex(/^\d{4}$/, "Geçerli bir yıl giriniz (örn: 2020)"),
+  carHp: z.string().optional(),
   plateNumber: z.string().optional(),
   instagram: z.string().optional(),
   occupation: z.string().optional(),
@@ -174,7 +175,7 @@ export default function ApplyPage() {
 
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
     1: ["firstName", "lastName", "phone", "password", "confirmPassword", "birthDate", "city"],
-    2: ["carBrand", "carModel", "carYear"],
+    2: ["carBrand", "carModel", "carYear", "carHp"],
   };
 
   // ── Preliminary navigation ──────────────────────────────────────────────
@@ -249,6 +250,7 @@ export default function ApplyPage() {
         carBrand: data.carBrand,
         carModel: data.carModel,
         carYear: parseInt(data.carYear, 10),
+        carSpec: data.carHp ? `HP: ${data.carHp.replace(/\D/g, "")}` : undefined,
         plateNumber: data.plateNumber || undefined,
         referansKodu: data.referansKodu || undefined,
         about: "-",
@@ -803,6 +805,20 @@ export default function ApplyPage() {
                       {errors.carYear && (
                         <p className="text-red-400 text-xs">{errors.carYear.message}</p>
                       )}
+                    </div>
+
+                    {/* HP */}
+                    <div className="space-y-2">
+                      <Label htmlFor="carHp" className="text-gray-300">
+                        HP
+                      </Label>
+                      <Input
+                        id="carHp"
+                        inputMode="numeric"
+                        placeholder="400"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
+                        {...register("carHp")}
+                      />
                     </div>
 
                     {/* Plate Number */}

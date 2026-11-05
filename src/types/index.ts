@@ -15,6 +15,7 @@ export interface User {
   status: "active" | "inactive" | "pending";
   carBrand?: string;
   carModel?: string;
+  carSpec?: string;
   plateNumber?: string;
   createdAt: string;
 }
@@ -27,6 +28,7 @@ export interface UserPublicProfile {
   avatar?: string;
   carBrand?: string;
   carModel?: string;
+  carSpec?: string;
   plateNumber?: string;
 }
 
@@ -60,6 +62,7 @@ export interface MembershipApplication {
   carBrand: string;
   carModel: string;
   carYear: number;
+  carSpec?: string;
   instagram?: string;
   occupation?: string;
   about: string;
@@ -83,6 +86,7 @@ export interface ApplicationFormData {
   carBrand: string;
   carModel: string;
   carYear: number;
+  carSpec?: string;
   instagram?: string;
   occupation?: string;
   about: string;
@@ -265,6 +269,7 @@ export interface ProfileUpdateData {
   avatar?: File;
   carBrand?: string;
   carModel?: string;
+  carSpec?: string;
   plateNumber?: string;
 }
 

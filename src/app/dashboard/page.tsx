@@ -541,7 +541,7 @@ function NewRollSheet({
   };
 
   const inputCls =
-    "w-full rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]";
+    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
 
   return (
     <div
@@ -574,15 +574,24 @@ function NewRollSheet({
           ))}
         </select>
 
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div>
-            <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
-          </div>
-          <div>
-            <label className="block text-[13px] text-mancave-muted mb-1">Saat</label>
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={inputCls} />
-          </div>
+        <div className="mb-3">
+          <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-[13px] text-mancave-muted mb-1">Saat</label>
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className={inputCls}
+          />
         </div>
 
         <label className="block text-[13px] text-mancave-muted mb-1">Konum</label>

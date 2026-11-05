@@ -39,6 +39,7 @@ const profileSchema = z.object({
   city: z.string().optional(),
   carBrand: z.string().optional(),
   carModel: z.string().optional(),
+  carHp: z.string().optional(),
   plateNumber: z.string().optional(),
   about: z.string().optional(),
 });
@@ -224,6 +225,7 @@ function ProfileContent() {
       city: user?.city ?? "",
       carBrand: user?.carBrand ?? "",
       carModel: user?.carModel ?? "",
+      carHp: (user?.carSpec || "").replace(/\D/g, ""),
       plateNumber: user?.plateNumber ?? "",
       about: "",
     },
@@ -248,6 +250,7 @@ function ProfileContent() {
         city: data.city || undefined,
         carBrand: data.carBrand || undefined,
         carModel: data.carModel || undefined,
+        carSpec: data.carHp ? `HP: ${data.carHp.replace(/\D/g, "")}` : undefined,
         plateNumber: data.plateNumber || undefined,
         avatar: removeAvatar ? (null as unknown as File) : avatarFile || undefined,
       });
@@ -463,6 +466,18 @@ function ProfileContent() {
                   placeholder="M3"
                   className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
                   {...registerProfile("carModel")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="carHp" className="text-gray-300">
+                  HP
+                </Label>
+                <Input
+                  id="carHp"
+                  inputMode="numeric"
+                  placeholder="400"
+                  className="bg-mancave-surface border-gray-800 text-white focus:border-[#3b82f6]/50"
+                  {...registerProfile("carHp")}
                 />
               </div>
               <div className="space-y-2">
