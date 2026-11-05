@@ -183,7 +183,7 @@ export default function ApplyPage() {
       return;
     }
     setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
-    setPreliminaryStep(3);
+    setPreliminaryStep(4);
   };
 
   // Verify reference code via API
