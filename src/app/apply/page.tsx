@@ -109,8 +109,7 @@ const STEPS = [
 const PRELIMINARY_STEPS = [
   { id: 1, label: "KVKK", icon: ShieldCheck },
   { id: 2, label: "Referans", icon: Ticket },
-  { id: 3, label: "Telefon", icon: Phone },
-  { id: 4, label: "Kayıt", icon: FileText },
+  { id: 3, label: "Kayıt", icon: FileText },
 ];
 
 const PRELIMINARY_MAIN_MAP: Record<number, number> = {
@@ -251,7 +250,7 @@ export default function ApplyPage() {
         if (payload.user) localStorage.setItem("mancave_user", JSON.stringify(payload.user));
       }
       setIsSuccess(true);
-      toast.success("Ekibimize hoş geldin!");
+      toast.success("Başvurun alındı, onay bekleniyor");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Kayıt sırasında bir hata oluştu";
@@ -273,19 +272,19 @@ export default function ApplyPage() {
                 <CheckCircle2 className="w-8 h-8 text-green-500" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-3">
-                Ekibimize Hoş Geldin!
+                Başvurun Alındı
               </h2>
               <p className="text-gray-400 mb-6 leading-relaxed">
-                Kaydın tamamlandı ve hesabın aktif. Artık telefon numaran ve
-                belirlediğin şifre ile giriş yapabilirsin.
+                Yönetim başvurunu inceleyip onaylayacak. Onaydan sonra telefon
+                numaran ve belirlediğin şifre ile giriş yapabilirsin.
               </p>
               <Button
                 onClick={() => {
-                  window.location.href = "/dashboard";
+                  window.location.href = "/login";
                 }}
                 className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
               >
-                Panele Git
+                Giriş Sayfasına Git
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </CardContent>
@@ -298,8 +297,8 @@ export default function ApplyPage() {
   // ── Preliminary Step Indicator ──────────────────────────────────────────
 
   const renderPreliminarySteps = () => {
-    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4 };
-    const currentActive = activeMap[preliminaryStep] || 4;
+    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 3 };
+    const currentActive = activeMap[preliminaryStep] || 3;
 
     return (
       <div className="flex items-center justify-center gap-2 mb-10">
