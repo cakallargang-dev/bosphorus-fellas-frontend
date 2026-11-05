@@ -236,7 +236,7 @@ function DashboardContent() {
                         <span>
                           {current} / {max || "∞"} katılımcı
                         </span>
-                        <span>{max && left <= 10 ? `Son ${left} kontenjan` : `%${pct} dolu`}</span>
+                        {max ? <span>{left}</span> : null}
                       </div>
 
                       <button
