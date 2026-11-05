@@ -6,6 +6,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { applicationsApi, referansApi, authApi } from "@/lib/api";
+import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+import {
+  getFirebaseAuth,
+  toE164,
+  mountRecaptchaHolder,
+  humanizeAuthError,
+  authErrorCode,
+  saveVerificationId,
+  loadVerificationId,
+  clearVerificationId,
+  verifyPhoneCode,
+} from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -522,16 +534,16 @@ export default function ApplyPage() {
     }
     setOtpLoading(true);
     try {
-      // SMS'i backend gönderiyor: reCAPTCHA yok, uygulama içi tarayıcıda da çalışır
-      const res = await authApi.otpSend(otpPhone);
-      if (!res.success) {
-        toast.error(res.message || "Kod gönderilemedi");
-        return;
-      }
+      // Tarayıcı modu: SMS'i Google (Firebase) gönderir, reCAPTCHA görünmez
+      const { holder } = mountRecaptchaHolder();
+      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, { size: "invisible" });
+      const res = await signInWithPhoneNumber(getFirebaseAuth(), toE164(otpPhone), verifier);
+      saveVerificationId(otpPhone, res.verificationId);
       setOtpSent(true);
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
-      toast.error(err instanceof Error && err.message ? err.message : "Kod gönderilemedi");
+      console.error("[OTP send]", authErrorCode(err), err);
+      toast.error(humanizeAuthError(err));
     } finally {
       setOtpLoading(false);
     }
@@ -544,11 +556,21 @@ export default function ApplyPage() {
     }
     setOtpLoading(true);
     try {
-      const res = await authApi.otpVerify(otpPhone, otpCode);
+      // Kod Firebase'de doğrulanır, backend sadece token'ı kontrol eder
+      const vid = loadVerificationId(otpPhone);
+      if (!vid) {
+        toast.error("Kodun süresi doldu, yenisini gönderin");
+        setOtpSent(false);
+        return;
+      }
+      const cred = await verifyPhoneCode(vid, otpCode);
+      const fbToken = await cred.user.getIdToken();
+      const res = await authApi.otpFirebase(fbToken);
       if (!res.success || !res.data?.idToken) {
         toast.error(res.message || "Kod doğrulanamadı");
         return;
       }
+      clearVerificationId();
       setIdToken(res.data.idToken);
       const digits = otpPhone.replace(/\D/g, "");
       const normalized = digits.startsWith("90")
@@ -560,7 +582,8 @@ export default function ApplyPage() {
       setPreliminaryStep(4);
       toast.success("Telefon doğrulandı");
     } catch (err) {
-      toast.error(err instanceof Error && err.message ? err.message : "Kod doğrulanamadı");
+      console.error("[OTP verify]", authErrorCode(err), err);
+      toast.error(humanizeAuthError(err));
     } finally {
       setOtpLoading(false);
     }

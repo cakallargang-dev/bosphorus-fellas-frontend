@@ -154,6 +154,12 @@ export const authApi = {
       body: JSON.stringify({ phone }),
     }),
 
+  otpFirebase: (firebaseIdToken: string) =>
+    request<ApiResponse<{ idToken: string; phone: string }>>("/api/auth/otp/firebase", {
+      method: "POST",
+      body: JSON.stringify({ idToken: firebaseIdToken }),
+    }),
+
   otpVerify: (phone: string, code: string) =>
     request<ApiResponse<{ idToken: string }>>("/api/auth/otp/verify", {
       method: "POST",
