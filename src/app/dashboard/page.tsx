@@ -80,7 +80,8 @@ function DashboardContent() {
   });
 
   const createRoll = useMutation({
-    mutationFn: (data: { title: string; date: string; place: string }) => rollApi.create(data),
+    mutationFn: (data: { title: string; date: string; place: string; mapUrl: string }) =>
+      rollApi.create(data),
     onSuccess: () => {
       toast.success("Talep açıldı");
       setNewRoll(false);
@@ -264,7 +265,18 @@ function DashboardContent() {
                     <p className="text-[17px] font-semibold text-white">{r.title}</p>
                     <div className="flex gap-3.5 flex-wrap text-[13px] text-mancave-muted mt-1">
                       <span>{r.date}</span>
-                      <span>{r.place}</span>
+                      {r.mapUrl ? (
+                        <a
+                          href={r.mapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#3b82f6] underline underline-offset-2"
+                        >
+                          {r.place} · Haritada aç
+                        </a>
+                      ) : (
+                        <span>{r.place}</span>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-[minmax(0,1fr)_44px_minmax(0,1fr)] items-center gap-1.5 mt-3.5">
@@ -505,20 +517,31 @@ function NewRollSheet({
   pending,
 }: {
   onClose: () => void;
-  onSubmit: (d: { title: string; date: string; place: string }) => void;
+  onSubmit: (d: { title: string; date: string; place: string; mapUrl: string }) => void;
   pending: boolean;
 }) {
-  const [title, setTitle] = useState("");
+  const OPTIONS = ["50-150 dostluk denemesi", "100-200 dostluk denemesi"];
+  const [title, setTitle] = useState(OPTIONS[0]);
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [place, setPlace] = useState("");
+  const [mapUrl, setMapUrl] = useState("");
 
   const submit = () => {
-    if (!title.trim()) {
-      toast.error("Açıklama yazın");
+    if (!date) {
+      toast.error("Tarih seçin");
       return;
     }
-    onSubmit({ title: title.trim(), date: date.trim(), place: place.trim() });
+    const label = `${new Date(`${date}T00:00:00`).toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })}${time ? ` · ${time}` : ""}`;
+    onSubmit({ title, date: label, place: place.trim(), mapUrl: mapUrl.trim() });
   };
+
+  const inputCls =
+    "w-full rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]";
 
   return (
     <div
@@ -538,28 +561,44 @@ function NewRollSheet({
           </button>
         </div>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Açıklama</label>
-        <input
+        <label className="block text-[13px] text-mancave-muted mb-1">Deneme türü</label>
+        <select
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Roll denemesi"
-          className="w-full mb-3 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
-        />
+          className={`${inputCls} mb-3`}
+        >
+          {OPTIONS.map((o) => (
+            <option key={o} value={o} className="bg-gray-900">
+              {o}
+            </option>
+          ))}
+        </select>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
-        <input
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          placeholder="12 Haz · 22:30"
-          className="w-full mb-3 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
-        />
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-[13px] text-mancave-muted mb-1">Saat</label>
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={inputCls} />
+          </div>
+        </div>
 
         <label className="block text-[13px] text-mancave-muted mb-1">Konum</label>
         <input
           value={place}
           onChange={(e) => setPlace(e.target.value)}
           placeholder="Anadolu yakası"
-          className="w-full mb-4 rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6]"
+          className={`${inputCls} mb-3`}
+        />
+
+        <label className="block text-[13px] text-mancave-muted mb-1">Google Maps linki</label>
+        <input
+          value={mapUrl}
+          onChange={(e) => setMapUrl(e.target.value)}
+          placeholder="https://maps.app.goo.gl/..."
+          className={`${inputCls} mb-4`}
         />
 
         <button
