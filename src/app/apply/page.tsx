@@ -109,7 +109,8 @@ const STEPS = [
 const PRELIMINARY_STEPS = [
   { id: 1, label: "KVKK", icon: ShieldCheck },
   { id: 2, label: "Referans", icon: Ticket },
-  { id: 3, label: "Kayıt", icon: FileText },
+  { id: 3, label: "Telefon", icon: Phone },
+  { id: 4, label: "Kayıt", icon: FileText },
 ];
 
 const PRELIMINARY_MAIN_MAP: Record<number, number> = {
@@ -182,7 +183,7 @@ export default function ApplyPage() {
       return;
     }
     setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
-    setPreliminaryStep(4);
+    setPreliminaryStep(3);
   };
 
   // Verify reference code via API
@@ -297,8 +298,8 @@ export default function ApplyPage() {
   // ── Preliminary Step Indicator ──────────────────────────────────────────
 
   const renderPreliminarySteps = () => {
-    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 3 };
-    const currentActive = activeMap[preliminaryStep] || 3;
+    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4 };
+    const currentActive = activeMap[preliminaryStep] || 4;
 
     return (
       <div className="flex items-center justify-center gap-2 mb-10">

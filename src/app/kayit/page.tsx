@@ -1,48 +1,243 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Ticket, Clock, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 
-const steps = [
-  { icon: Ticket, title: "Referans kodu", text: "Bir üyeden davet kodu al." },
-  { icon: ShieldCheck, title: "Başvuru formu", text: "Bilgilerini doldur, şifreni belirle." },
-  { icon: Clock, title: "Yönetim onayı", text: "Numaran kontrol edilir, hesabın açılır." },
-];
+type Step = "phone" | "code" | "password";
 
 export default function KayitPage() {
+  const [step, setStep] = useState<Step>("phone");
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const idTokenRef = useRef<string>("");
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const sendCode = async () => {
+    if (phone.replace(/\D/g, "").length < 10) {
+      toast.error("Geçerli bir telefon numarası giriniz");
+      return;
+    }
+    setLoading(true);
+    try {
+      // Kod backend'den gönderilir (WhatsApp/SMS) — tarayıcı doğrulaması yok
+      const res = await authApi.otpSend(phone);
+      if (!res.success) {
+        toast.error(res.message || "Kod gönderilemedi");
+        return;
+      }
+      setCooldown(60);
+      setStep("code");
+      toast.success("Doğrulama kodu gönderildi");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Kod gönderilemedi");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyCode = async () => {
+    if (code.replace(/\D/g, "").length !== 6) {
+      toast.error("6 haneli kodu giriniz");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await authApi.otpVerify(phone, code);
+      if (!res.success || !res.data?.idToken) {
+        toast.error(res.message || "Kod doğrulanamadı");
+        return;
+      }
+      idTokenRef.current = res.data.idToken;
+      setStep("password");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Kod doğrulanamadı");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finish = async () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("Ad ve soyad zorunludur");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Şifre en az 6 karakter olmalıdır");
+      return;
+    }
+    if (password !== password2) {
+      toast.error("Şifreler eşleşmiyor");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await authApi.register({
+        phone,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        password,
+        idToken: idTokenRef.current,
+      });
+      const token = (res.data as { token?: string } | undefined)?.token;
+      if (res.success && token) {
+        localStorage.setItem("mancave_token", token);
+        toast.success("Kaydınız tamamlandı, hoş geldiniz!");
+        window.location.href = "/dashboard";
+      } else {
+        toast.success(res.message || "Kaydınız alındı, onay bekleniyor");
+        window.location.href = "/login";
+      }
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Kayıt tamamlanamadı");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
       <Card className="w-full max-w-md bg-mancave-surface border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white text-xl">Üyelik Başvurusu</CardTitle>
+          <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>
           <CardDescription className="text-mancave-muted">
-            Kulübe katılım referans kodu ve yönetim onayı ile oluyor.
+            {step === "phone" && "Telefon numaranı gir, doğrulama kodu gönderelim."}
+            {step === "code" && "Telefonuna gelen 6 haneli kodu gir."}
+            {step === "password" && "Son adım: bilgilerini tamamla ve şifreni belirle."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-3">
-            {steps.map((s, i) => (
-              <div key={s.title} className="flex items-start gap-3">
-                <div className="w-8 h-8 shrink-0 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
-                  <s.icon className="w-4 h-4 text-[#3b82f6]" />
-                </div>
-                <div>
-                  <p className="text-white text-sm font-medium">
-                    {i + 1}. {s.title}
-                  </p>
-                  <p className="text-xs text-mancave-muted">{s.text}</p>
+          {step === "phone" && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-gray-300">Cep Telefonu</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="05XX XXX XX XX"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                  />
                 </div>
               </div>
-            ))}
-          </div>
+              <Button onClick={sendCode} disabled={loading} className="w-full">
+                {loading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
+              </Button>
+            </>
+          )}
 
-          <Link href="/apply" className="block">
-            <Button className="w-full gap-2">
-              Başvuruya Başla <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          {step === "code" && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="code" className="text-gray-300">SMS / WhatsApp Kodu</Label>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Input
+                    id="code"
+                    inputMode="numeric"
+                    placeholder="6 haneli kod"
+                    maxLength={6}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white tracking-widest placeholder:text-mancave-muted"
+                  />
+                </div>
+              </div>
+              <Button onClick={verifyCode} disabled={loading} className="w-full">
+                {loading ? "Doğrulanıyor..." : "Kodu Doğrula"}
+              </Button>
+              <button
+                onClick={sendCode}
+                disabled={loading || cooldown > 0}
+                className="text-xs text-mancave-muted hover:text-white disabled:opacity-50"
+              >
+                {cooldown > 0 ? `Kodu tekrar gönder (${cooldown}s)` : "Kodu tekrar gönder"}
+              </button>
+              <button
+                onClick={() => setStep("phone")}
+                className="text-xs text-mancave-muted hover:text-white flex items-center gap-1"
+              >
+                <ArrowLeft className="w-3 h-3" /> Numarayı değiştir
+              </button>
+            </>
+          )}
+
+          {step === "password" && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-gray-300">Ad</Label>
+                  <Input
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="bg-mancave-bg border-gray-800 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-gray-300">Soyad</Label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="bg-mancave-bg border-gray-800 text-white"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-300">Şifre</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="En az 6 karakter"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password2" className="text-gray-300">Şifre Tekrar</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Input
+                    id="password2"
+                    type="password"
+                    placeholder="Şifreyi tekrar giriniz"
+                    value={password2}
+                    onChange={(e) => setPassword2(e.target.value)}
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                  />
+                </div>
+              </div>
+              <Button onClick={finish} disabled={loading} className="w-full">
+                {loading ? "Kaydediliyor..." : "Kaydı Tamamla"}
+              </Button>
+            </>
+          )}
 
           <div className="pt-2 border-t border-gray-800 text-center text-sm text-mancave-muted">
             Hesabın var mı?{" "}
