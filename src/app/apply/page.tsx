@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
 import { Layout } from "@/components/Layout";
+import { InAppBrowserNotice } from "@/components/InAppBrowserNotice";
 import {
   Select,
   SelectContent,
@@ -150,6 +151,7 @@ export default function ApplyPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [idToken, setIdToken] = useState("");
+  const [showBrowser, setShowBrowser] = useState(false);
   const verifierRef = useRef<RecaptchaVerifier | null>(null);
 
   // Main form
@@ -535,6 +537,11 @@ export default function ApplyPage() {
     }
     setOtpLoading(true);
 
+    if (isInAppBrowser()) {
+      setShowBrowser(true);
+      setOtpLoading(false);
+      return;
+    }
     // TEK deneme: uygulama içi tarayıcıda görünür captcha, normalde görünmez.
     // (Eski kod captcha hatasında ikinci kez deniyordu → her denemede yeni SMS gidiyordu.)
     try {
@@ -554,6 +561,7 @@ export default function ApplyPage() {
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
       toast.error(humanizeAuthError(err));
+      if (/captcha|error-code:\s*-?\d+/i.test(authErrorCode(err))) setShowBrowser(true);
     } finally {
       setOtpLoading(false);
     }
@@ -594,6 +602,7 @@ export default function ApplyPage() {
   if (preliminaryStep === 3) {
     return (
       <Layout>
+        {showBrowser && <InAppBrowserNotice onClose={() => setShowBrowser(false)} />}
         <div className="max-w-2xl mx-auto px-4 py-12">
           <div className="text-center mb-10">
             <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">

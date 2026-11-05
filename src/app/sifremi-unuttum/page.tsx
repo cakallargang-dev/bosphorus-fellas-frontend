@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
+import { InAppBrowserNotice } from "@/components/InAppBrowserNotice";
 
 type Step = "phone" | "code" | "password";
 
@@ -36,6 +37,7 @@ export default function SifremiUnuttumPage() {
   const verifierRef = useRef<RecaptchaVerifier | null>(null);
   const idTokenRef = useRef<string>("");
   const [cooldown, setCooldown] = useState(0);
+  const [showBrowser, setShowBrowser] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -47,6 +49,10 @@ export default function SifremiUnuttumPage() {
     const digits = phone.replace(/\D/g, "");
     if (digits.length < 10) {
       toast.error("Geçerli bir telefon numarası giriniz");
+      return;
+    }
+    if (isInAppBrowser()) {
+      setShowBrowser(true);
       return;
     }
     setLoading(true);
@@ -74,6 +80,7 @@ export default function SifremiUnuttumPage() {
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
       toast.error(humanizeAuthError(err));
+      if (/captcha|error-code:\s*-?\d+/i.test(authErrorCode(err))) setShowBrowser(true);
     } finally {
       setLoading(false);
     }
@@ -125,6 +132,7 @@ export default function SifremiUnuttumPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
+      {showBrowser && <InAppBrowserNotice onClose={() => setShowBrowser(false)} />}
       <Card className="w-full max-w-md bg-mancave-surface border-gray-800">
         <CardHeader>
           <CardTitle className="text-white text-xl">Şifremi Unuttum</CardTitle>
