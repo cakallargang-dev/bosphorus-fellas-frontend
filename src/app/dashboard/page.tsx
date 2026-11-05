@@ -236,7 +236,6 @@ function DashboardContent() {
                         <span>
                           {current} / {max || "∞"} katılımcı
                         </span>
-                        {max ? <span>{left}</span> : null}
                       </div>
 
                       <button
