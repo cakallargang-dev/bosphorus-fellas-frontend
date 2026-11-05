@@ -121,8 +121,7 @@ const STEPS = [
 const PRELIMINARY_STEPS = [
   { id: 1, label: "KVKK", icon: ShieldCheck },
   { id: 2, label: "Referans", icon: Ticket },
-  { id: 3, label: "Telefon", icon: Phone },
-  { id: 4, label: "Kayıt", icon: FileText },
+  { id: 3, label: "Kayıt", icon: FileText },
 ];
 
 const PRELIMINARY_MAIN_MAP: Record<number, number> = {
@@ -195,7 +194,7 @@ export default function ApplyPage() {
       return;
     }
     setValue("referansKodu", referenceCode.trim(), { shouldValidate: true });
-    setPreliminaryStep(3);
+    setPreliminaryStep(3); // telefon doğrulaması atlandı → doğrudan kayıt formu
   };
 
   // Verify reference code via API
@@ -310,8 +309,8 @@ export default function ApplyPage() {
   // ── Preliminary Step Indicator ──────────────────────────────────────────
 
   const renderPreliminarySteps = () => {
-    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4 };
-    const currentActive = activeMap[preliminaryStep] || 4;
+    const activeMap: Record<number, number> = { 1: 1, 2: 2, 3: 3 };
+    const currentActive = activeMap[preliminaryStep] || 3;
 
     return (
       <div className="flex items-center justify-center gap-2 mb-10">
@@ -523,171 +522,7 @@ export default function ApplyPage() {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // PRELIMINARY STEP 3: Telefon Doğrulama (SMS kodu)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  const sendOtp = async () => {
-    if (otpPhone.replace(/\D/g, "").length < 10) {
-      toast.error("Geçerli bir telefon numarası giriniz");
-      return;
-    }
-    setOtpLoading(true);
-    try {
-      // Tarayıcı modu: SMS'i Google (Firebase) gönderir, reCAPTCHA görünmez
-      const { holder } = mountRecaptchaHolder();
-      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, { size: "invisible" });
-      const res = await signInWithPhoneNumber(getFirebaseAuth(), toE164(otpPhone), verifier);
-      saveVerificationId(otpPhone, res.verificationId);
-      setOtpSent(true);
-      toast.success("Doğrulama kodu SMS ile gönderildi");
-    } catch (err) {
-      console.error("[OTP send]", authErrorCode(err), err);
-      toast.error(humanizeAuthError(err));
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const verifyOtp = async () => {
-    if (otpCode.replace(/\D/g, "").length < 6) {
-      toast.error("6 haneli kodu giriniz");
-      return;
-    }
-    setOtpLoading(true);
-    try {
-      // Kod Firebase'de doğrulanır, backend sadece token'ı kontrol eder
-      const vid = loadVerificationId(otpPhone);
-      if (!vid) {
-        toast.error("Kodun süresi doldu, yenisini gönderin");
-        setOtpSent(false);
-        return;
-      }
-      const cred = await verifyPhoneCode(vid, otpCode);
-      const fbToken = await cred.user.getIdToken();
-      const res = await authApi.otpFirebase(fbToken);
-      if (!res.success || !res.data?.idToken) {
-        toast.error(res.message || "Kod doğrulanamadı");
-        return;
-      }
-      clearVerificationId();
-      setIdToken(res.data.idToken);
-      const digits = otpPhone.replace(/\D/g, "");
-      const normalized = digits.startsWith("90")
-        ? "0" + digits.slice(2)
-        : digits.startsWith("0")
-        ? digits
-        : "0" + digits;
-      setValue("phone", normalized, { shouldValidate: true });
-      setPreliminaryStep(4);
-      toast.success("Telefon doğrulandı");
-    } catch (err) {
-      console.error("[OTP verify]", authErrorCode(err), err);
-      toast.error(humanizeAuthError(err));
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  if (preliminaryStep === 3) {
-    return (
-      <Layout>
-        <div className="max-w-2xl mx-auto px-4 py-12">
-          <div className="text-center mb-10">
-            <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
-              <Phone className="w-7 h-7 text-[#3b82f6]" />
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Telefon Doğrulama
-            </h1>
-            <p className="text-mancave-muted">
-              Numarana SMS ile gönderilen 6 haneli kodu gir
-            </p>
-          </div>
-
-          {renderPreliminarySteps()}
-
-          <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Cep Telefonu</CardTitle>
-              <CardDescription className="text-mancave-muted">
-                {otpSent
-                  ? "Kodu girip devam edin"
-                  : "Numaranı gir, doğrulama kodu gönderelim"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!otpSent ? (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="otpPhone" className="text-gray-300">
-                      Telefon <span className="text-red-400">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
-                      <Input
-                        id="otpPhone"
-                        type="tel"
-                        inputMode="tel"
-                        placeholder="05XX XXX XX XX"
-                        value={otpPhone}
-                        onChange={(e) => setOtpPhone(e.target.value)}
-                        className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    onClick={sendOtp}
-                    disabled={otpLoading}
-                    className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
-                  >
-                    {otpLoading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="otpCode" className="text-gray-300">
-                      SMS Kodu <span className="text-red-400">*</span>
-                    </Label>
-                    <div className="relative">
-                      <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
-                      <Input
-                        id="otpCode"
-                        inputMode="numeric"
-                        placeholder="6 haneli kod"
-                        maxLength={6}
-                        value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value)}
-                        className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    onClick={verifyOtp}
-                    disabled={otpLoading}
-                    className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
-                  >
-                    {otpLoading ? "Kontrol ediliyor..." : "Kodu Doğrula"}
-                  </Button>
-                  <button
-                    type="button"
-                    onClick={() => setOtpSent(false)}
-                    className="w-full text-sm text-mancave-muted hover:text-gray-300"
-                  >
-                    Numarayı değiştir
-                  </button>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // MAIN FORM (preliminaryStep === 4)
+  // MAIN FORM (preliminaryStep === 3)
   // ═══════════════════════════════════════════════════════════════════════
 
   return (
