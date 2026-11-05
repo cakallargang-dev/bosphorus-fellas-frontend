@@ -626,9 +626,11 @@ export default function ApplyPage() {
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="phone"
-                          readOnly
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
                           placeholder="0555 555 55 55"
-                          className="pl-10 bg-mancave-surface/60 border-gray-800 text-gray-400 placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("phone")}
                         />
                       </div>
