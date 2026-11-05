@@ -148,6 +148,18 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
 
+  otpSend: (phone: string) =>
+    request<ApiResponse<{ sent: boolean; expiresIn: number }>>("/api/auth/otp/send", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
+
+  otpVerify: (phone: string, code: string) =>
+    request<ApiResponse<{ idToken: string }>>("/api/auth/otp/verify", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    }),
+
   checkPhone: (phone: string) =>
     request<ApiResponse<{ exists: boolean; status: string | null }>>("/api/auth/check-phone", {
       method: "POST",

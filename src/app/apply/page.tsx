@@ -5,19 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { applicationsApi, referansApi } from "@/lib/api";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import {
-  getFirebaseAuth,
-  toE164,
-  humanizeAuthError,
-  authErrorCode,
-  mountRecaptchaHolder,
-  isInAppBrowser,
-  saveVerificationId,
-  loadVerificationId,
-  verifyPhoneCode,
-} from "@/lib/firebase";
+import { applicationsApi, referansApi, authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FileUpload } from "@/components/FileUpload";
 import { Layout } from "@/components/Layout";
-import { InAppBrowserNotice } from "@/components/InAppBrowserNotice";
 import {
   Select,
   SelectContent,
@@ -151,8 +138,6 @@ export default function ApplyPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [idToken, setIdToken] = useState("");
-  const [showBrowser, setShowBrowser] = useState(false);
-  const verifierRef = useRef<RecaptchaVerifier | null>(null);
 
   // Main form
   const [step, setStep] = useState(1);
@@ -536,32 +521,17 @@ export default function ApplyPage() {
       return;
     }
     setOtpLoading(true);
-
-    if (isInAppBrowser()) {
-      setShowBrowser(true);
-      setOtpLoading(false);
-      return;
-    }
-    // TEK deneme: uygulama içi tarayıcıda görünür captcha, normalde görünmez.
-    // (Eski kod captcha hatasında ikinci kez deniyordu → her denemede yeni SMS gidiyordu.)
     try {
-      const forceVisible = isInAppBrowser();
-      const { holder, cleanup } = mountRecaptchaHolder(forceVisible);
-      try {
-        verifierRef.current?.clear();
-      } catch {}
-      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
-        size: forceVisible ? "normal" : "invisible",
-      });
-      verifierRef.current = verifier;
-      const conf = await signInWithPhoneNumber(getFirebaseAuth(), toE164(otpPhone), verifier);
-      saveVerificationId(otpPhone, conf.verificationId);
-      setTimeout(cleanup, 120000);
+      // SMS'i backend gönderiyor: reCAPTCHA yok, uygulama içi tarayıcıda da çalışır
+      const res = await authApi.otpSend(otpPhone);
+      if (!res.success) {
+        toast.error(res.message || "Kod gönderilemedi");
+        return;
+      }
       setOtpSent(true);
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
-      toast.error(humanizeAuthError(err));
-      if (/captcha|error-code:\s*-?\d+/i.test(authErrorCode(err))) setShowBrowser(true);
+      toast.error(err instanceof Error && err.message ? err.message : "Kod gönderilemedi");
     } finally {
       setOtpLoading(false);
     }
@@ -572,17 +542,14 @@ export default function ApplyPage() {
       toast.error("6 haneli kodu giriniz");
       return;
     }
-    const vid = loadVerificationId(otpPhone);
-    if (!vid) {
-      toast.error("Doğrulama oturumu bulunamadı. Kodu tekrar gönderin.");
-      setOtpSent(false);
-      return;
-    }
     setOtpLoading(true);
     try {
-      const cred = await verifyPhoneCode(vid, otpCode);
-      const token = await cred.user.getIdToken();
-      setIdToken(token);
+      const res = await authApi.otpVerify(otpPhone, otpCode);
+      if (!res.success || !res.data?.idToken) {
+        toast.error(res.message || "Kod doğrulanamadı");
+        return;
+      }
+      setIdToken(res.data.idToken);
       const digits = otpPhone.replace(/\D/g, "");
       const normalized = digits.startsWith("90")
         ? "0" + digits.slice(2)
@@ -593,7 +560,7 @@ export default function ApplyPage() {
       setPreliminaryStep(4);
       toast.success("Telefon doğrulandı");
     } catch (err) {
-      toast.error(`Kod hatalı veya süresi dolmuş (${authErrorCode(err)})`);
+      toast.error(err instanceof Error && err.message ? err.message : "Kod doğrulanamadı");
     } finally {
       setOtpLoading(false);
     }
@@ -602,7 +569,6 @@ export default function ApplyPage() {
   if (preliminaryStep === 3) {
     return (
       <Layout>
-        {showBrowser && <InAppBrowserNotice onClose={() => setShowBrowser(false)} />}
         <div className="max-w-2xl mx-auto px-4 py-12">
           <div className="text-center mb-10">
             <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">

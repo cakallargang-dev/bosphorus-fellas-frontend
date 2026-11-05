@@ -3,18 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import {
-  getFirebaseAuth,
-  toE164,
-  humanizeAuthError,
-  authErrorCode,
-  isInAppBrowser,
-  mountRecaptchaHolder,
-  saveVerificationId,
-  loadVerificationId,
-  verifyPhoneCode,
-} from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
-import { InAppBrowserNotice } from "@/components/InAppBrowserNotice";
 
 type Step = "phone" | "code" | "password";
 
@@ -34,10 +21,8 @@ export default function SifremiUnuttumPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
-  const verifierRef = useRef<RecaptchaVerifier | null>(null);
   const idTokenRef = useRef<string>("");
   const [cooldown, setCooldown] = useState(0);
-  const [showBrowser, setShowBrowser] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -51,55 +36,40 @@ export default function SifremiUnuttumPage() {
       toast.error("Geçerli bir telefon numarası giriniz");
       return;
     }
-    if (isInAppBrowser()) {
-      setShowBrowser(true);
-      return;
-    }
     setLoading(true);
     try {
       const check = await authApi.checkPhone(phone);
       if (!check.success || !check.data?.exists) {
         toast.error("Bu numara ile kayıtlı hesap bulunamadı");
-        setLoading(false);
         return;
       }
-      // Uygulama içi tarayıcıda görünür captcha ekranın ortasında açılır
-      const { holder, cleanup } = mountRecaptchaHolder();
-      try {
-        verifierRef.current?.clear();
-      } catch {}
-      const verifier = new RecaptchaVerifier(getFirebaseAuth(), holder, {
-        size: isInAppBrowser() ? "normal" : "invisible",
-      });
-      verifierRef.current = verifier;
-      const conf = await signInWithPhoneNumber(getFirebaseAuth(), toE164(phone), verifier);
-      saveVerificationId(phone, conf.verificationId);
-      setTimeout(cleanup, 120000);
+      const res = await authApi.otpSend(phone);
+      if (!res.success) {
+        toast.error(res.message || "Kod gönderilemedi");
+        return;
+      }
       setCooldown(60);
       setStep("code");
       toast.success("Doğrulama kodu SMS ile gönderildi");
     } catch (err) {
-      toast.error(humanizeAuthError(err));
-      if (/captcha|error-code:\s*-?\d+/i.test(authErrorCode(err))) setShowBrowser(true);
+      toast.error(err instanceof Error && err.message ? err.message : "Kod gönderilemedi");
     } finally {
       setLoading(false);
     }
   };
 
   const verifyCode = async () => {
-    const vid = loadVerificationId(phone);
-    if (!vid) {
-      toast.error("Doğrulama oturumu bulunamadı. Kodu tekrar gönderin.");
-      setStep("phone");
-      return;
-    }
     setLoading(true);
     try {
-      const cred = await verifyPhoneCode(vid, code);
-      idTokenRef.current = await cred.user.getIdToken();
+      const res = await authApi.otpVerify(phone, code);
+      if (!res.success || !res.data?.idToken) {
+        toast.error(res.message || "Kod doğrulanamadı");
+        return;
+      }
+      idTokenRef.current = res.data.idToken;
       setStep("password");
     } catch (err) {
-      toast.error(`Kod hatalı veya süresi dolmuş (${authErrorCode(err)})`);
+      toast.error(err instanceof Error && err.message ? err.message : "Kod doğrulanamadı");
     } finally {
       setLoading(false);
     }
@@ -132,7 +102,6 @@ export default function SifremiUnuttumPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
-      {showBrowser && <InAppBrowserNotice onClose={() => setShowBrowser(false)} />}
       <Card className="w-full max-w-md bg-mancave-surface border-gray-800">
         <CardHeader>
           <CardTitle className="text-white text-xl">Şifremi Unuttum</CardTitle>
