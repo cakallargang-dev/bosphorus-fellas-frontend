@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X } from "lucide-react";
+import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 const DAY = 86400000;
@@ -202,9 +202,31 @@ function DashboardContent() {
                       {e.description && (
                         <p className="text-[13px] text-mancave-muted mt-0.5">{e.description}</p>
                       )}
-                      <div className="flex gap-3.5 flex-wrap text-[13px] text-mancave-muted mt-2.5">
-                        <span>{e.time || new Date(e.date).toLocaleDateString("tr-TR")}</span>
-                        <span>{e.location}</span>
+                      <div className="flex flex-col gap-1 text-[13px] text-mancave-muted mt-2.5">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
+                          {new Date(e.date).toLocaleDateString("tr-TR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                          {e.time ? ` · ${e.time}` : ""}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#3b82f6]" />
+                          {e.locationUrl ? (
+                            <a
+                              href={e.locationUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#3b82f6] underline underline-offset-2"
+                            >
+                              {e.location || "Konum"}
+                            </a>
+                          ) : (
+                            e.location || "Konum belirtilmedi"
+                          )}
+                        </span>
                       </div>
 
                       <div className="h-1.5 rounded bg-gray-800 mt-3 overflow-hidden">
