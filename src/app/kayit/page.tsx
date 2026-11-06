@@ -113,11 +113,11 @@ export default function KayitPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#f5f7fb]">
-      <Card className="w-full max-w-md bg-white border-[#e6eaf3]">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
+      <Card className="w-full max-w-md bg-mancave-surface border-gray-800">
         <CardHeader>
-          <CardTitle className="text-[#0f1420] text-xl">Üye Kaydı</CardTitle>
-          <CardDescription className="text-[#6b7688]">
+          <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>
+          <CardDescription className="text-mancave-muted">
             {step === "phone" && "Telefon numaranı gir, doğrulama kodu gönderelim."}
             {step === "code" && "Telefonuna gelen 6 haneli kodu gir."}
             {step === "password" && "Son adım: bilgilerini tamamla ve şifreni belirle."}
@@ -127,9 +127,9 @@ export default function KayitPage() {
           {step === "phone" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[#2c3648]">Cep Telefonu</Label>
+                <Label htmlFor="phone" className="text-gray-300">Cep Telefonu</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="phone"
                     type="tel"
@@ -137,7 +137,7 @@ export default function KayitPage() {
                     placeholder="05XX XXX XX XX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="pl-10 bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688]"
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
                   />
                 </div>
               </div>
@@ -150,9 +150,9 @@ export default function KayitPage() {
           {step === "code" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="code" className="text-[#2c3648]">SMS / WhatsApp Kodu</Label>
+                <Label htmlFor="code" className="text-gray-300">SMS / WhatsApp Kodu</Label>
                 <div className="relative">
-                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="code"
                     inputMode="numeric"
@@ -160,7 +160,7 @@ export default function KayitPage() {
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="pl-10 bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420] tracking-widest placeholder:text-[#6b7688]"
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white tracking-widest placeholder:text-mancave-muted"
                   />
                 </div>
               </div>
@@ -170,13 +170,13 @@ export default function KayitPage() {
               <button
                 onClick={sendCode}
                 disabled={loading || cooldown > 0}
-                className="text-xs text-[#6b7688] hover:text-[#0f1420] disabled:opacity-50"
+                className="text-xs text-mancave-muted hover:text-white disabled:opacity-50"
               >
                 {cooldown > 0 ? `Kodu tekrar gönder (${cooldown}s)` : "Kodu tekrar gönder"}
               </button>
               <button
                 onClick={() => setStep("phone")}
-                className="text-xs text-[#6b7688] hover:text-[#0f1420] flex items-center gap-1"
+                className="text-xs text-mancave-muted hover:text-white flex items-center gap-1"
               >
                 <ArrowLeft className="w-3 h-3" /> Numarayı değiştir
               </button>
@@ -187,49 +187,49 @@ export default function KayitPage() {
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[#2c3648]">Ad</Label>
+                  <Label htmlFor="firstName" className="text-gray-300">Ad</Label>
                   <Input
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420]"
+                    className="bg-mancave-bg border-gray-800 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-[#2c3648]">Soyad</Label>
+                  <Label htmlFor="lastName" className="text-gray-300">Soyad</Label>
                   <Input
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420]"
+                    className="bg-mancave-bg border-gray-800 text-white"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[#2c3648]">Şifre</Label>
+                <Label htmlFor="password" className="text-gray-300">Şifre</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="En az 6 karakter"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688]"
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password2" className="text-[#2c3648]">Şifre Tekrar</Label>
+                <Label htmlFor="password2" className="text-gray-300">Şifre Tekrar</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                   <Input
                     id="password2"
                     type="password"
                     placeholder="Şifreyi tekrar giriniz"
                     value={password2}
                     onChange={(e) => setPassword2(e.target.value)}
-                    className="pl-10 bg-[#f5f7fb] border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688]"
+                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
                   />
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function KayitPage() {
             </>
           )}
 
-          <div className="pt-2 border-t border-[#e6eaf3] text-center text-sm text-[#6b7688]">
+          <div className="pt-2 border-t border-gray-800 text-center text-sm text-mancave-muted">
             Hesabın var mı?{" "}
             <Link href="/login" className="text-[#3b82f6] hover:underline">Giriş yap</Link>
           </div>

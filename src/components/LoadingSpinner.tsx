@@ -18,10 +18,10 @@ export function LoadingSpinner({
       className={`flex flex-col items-center justify-center gap-3 ${className}`}
     >
       <Loader2
-        className="animate-spin text-[#3b82f6]"
+        className="animate-spin text-mancave-blue"
         style={{ width: size, height: size }}
       />
-      {text && <p className="text-sm text-[#6b7688]">{text}</p>}
+      {text && <p className="text-sm text-mancave-muted">{text}</p>}
     </div>
   );
 
@@ -38,10 +38,10 @@ export function LoadingSpinner({
 
 export function PageLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f7fb]">
+    <div className="min-h-screen flex items-center justify-center bg-mancave-bg">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-mancave-blue/30 border-t-mancave-blue animate-spin" />
-        <p className="text-[#6b7688] text-sm tracking-wider">YÜKLENİYOR</p>
+        <p className="text-mancave-muted text-sm tracking-wider">YÜKLENİYOR</p>
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ export function PageLoading() {
 export function SkeletonCard({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`bg-white border border-[#e6eaf3] rounded-lg p-5 ${className}`}
+      className={`bg-mancave-card border border-mancave-border rounded-lg p-5 ${className}`}
     >
       <div className="skeleton h-4 w-3/4 rounded mb-3" />
       <div className="skeleton h-3 w-full rounded mb-2" />
@@ -66,7 +66,7 @@ export function SkeletonTable({ rows = 5 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 p-4 bg-white border border-[#e6eaf3] rounded-lg"
+          className="flex items-center gap-4 p-4 bg-mancave-card border border-mancave-border rounded-lg"
         >
           <div className="skeleton h-10 w-10 rounded-full shrink-0" />
           <div className="flex-1 space-y-2">

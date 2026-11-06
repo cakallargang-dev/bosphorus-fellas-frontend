@@ -71,7 +71,7 @@ export function FileUpload({
         <img
           src={displayedPreview}
           alt="Preview"
-          className="w-32 h-32 rounded-lg object-cover border border-[#e6eaf3]"
+          className="w-32 h-32 rounded-lg object-cover border border-mancave-border"
         />
         {!disabled && (
           <Button
@@ -95,25 +95,25 @@ export function FileUpload({
         ${
           isDragActive
             ? "border-mancave-blue bg-mancave-blue/5"
-            : "border-[#e6eaf3] hover:border-mancave-blue/50 hover:bg-mancave-blue/5"
+            : "border-mancave-border hover:border-mancave-blue/50 hover:bg-mancave-blue/5"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <input {...getInputProps()} />
       {uploading ? (
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="w-8 h-8 text-[#3b82f6] animate-spin" />
-          <p className="text-sm text-[#4a5568]">Yükleniyor...</p>
+          <Loader2 className="w-8 h-8 text-mancave-blue animate-spin" />
+          <p className="text-sm text-gray-400">Yükleniyor...</p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
           {isDragActive ? (
-            <Upload className="w-8 h-8 text-[#3b82f6]" />
+            <Upload className="w-8 h-8 text-mancave-blue" />
           ) : (
-            <FileImage className="w-8 h-8 text-[#6b7688]" />
+            <FileImage className="w-8 h-8 text-mancave-muted" />
           )}
-          <p className="text-sm text-[#4a5568]">{label}</p>
-          <p className="text-xs text-[#6b7688]">
+          <p className="text-sm text-gray-400">{label}</p>
+          <p className="text-xs text-mancave-muted">
             PNG, JPG veya WebP (max {Math.round(maxSize / 1024 / 1024)}MB)
           </p>
         </div>

@@ -280,15 +280,15 @@ export default function ApplyPage() {
     return (
       <Layout>
         <div className="min-h-[70vh] flex items-center justify-center px-4">
-          <Card className="w-full max-w-lg bg-white backdrop-blur border-[#e6eaf3] text-center">
+          <Card className="w-full max-w-lg bg-gray-900/50 backdrop-blur border-gray-800 text-center">
             <CardContent className="pt-12 pb-10">
               <div className="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-8 h-8 text-green-500" />
               </div>
-              <h2 className="text-2xl font-bold text-[#0f1420] mb-3">
+              <h2 className="text-2xl font-bold text-white mb-3">
                 Başvurun Alındı
               </h2>
-              <p className="text-[#4a5568] mb-6 leading-relaxed">
+              <p className="text-gray-400 mb-6 leading-relaxed">
                 Yönetim başvurunu inceleyip onaylayacak. Onaydan sonra telefon
                 numaran ve belirlediğin şifre ile giriş yapabilirsin.
               </p>
@@ -327,14 +327,14 @@ export default function ApplyPage() {
                     ? "bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6]"
                     : isDone
                     ? "bg-green-500/10 border border-green-500/30 text-green-500"
-                    : "bg-white border border-[#e6eaf3] text-[#6b7688]"
+                    : "bg-gray-900/50 border border-gray-800 text-mancave-muted"
                 }`}
               >
                 <ps.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{ps.label}</span>
               </div>
               {idx < PRELIMINARY_STEPS.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-[#6b7688]" />
+                <ArrowRight className="w-4 h-4 text-mancave-muted" />
               )}
             </div>
           );
@@ -356,10 +356,10 @@ export default function ApplyPage() {
             <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
               <Heart className="w-7 h-7 text-[#3b82f6]" />
             </div>
-            <h1 className="text-3xl font-bold text-[#0f1420] mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Üyelik Başvurusu
             </h1>
-            <p className="text-[#6b7688]">
+            <p className="text-mancave-muted">
               Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
             </p>
           </div>
@@ -367,19 +367,19 @@ export default function ApplyPage() {
           {/* Preliminary Step Indicators */}
           {renderPreliminarySteps()}
 
-          <Card className="bg-white backdrop-blur border-[#e6eaf3]">
+          <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
             <CardHeader>
-              <CardTitle className="text-[#0f1420] text-lg">
+              <CardTitle className="text-white text-lg">
                 KVKK Aydınlatma Metni
               </CardTitle>
-              <CardDescription className="text-[#6b7688]">
+              <CardDescription className="text-mancave-muted">
                 Lütfen aşağıdaki metni okuyun ve kabul edin
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
               {/* Scrollable KVKK text */}
-              <div className="bg-white border border-[#e6eaf3] rounded-lg p-5 max-h-64 overflow-y-auto text-sm text-[#2c3648] leading-relaxed">
+              <div className="bg-mancave-surface border border-gray-800 rounded-lg p-5 max-h-64 overflow-y-auto text-sm text-gray-300 leading-relaxed">
                 <p>
                   6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK)
                   kapsamında, başvuru formunda paylaştığınız kişisel
@@ -398,9 +398,9 @@ export default function ApplyPage() {
                   type="checkbox"
                   checked={kvkkAccepted}
                   onChange={(e) => setKvkkAccepted(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-[#e6eaf3] bg-white text-[#3b82f6] focus:ring-[#3b82f6]/50 focus:ring-offset-0 cursor-pointer"
+                  className="mt-0.5 w-4 h-4 rounded border-gray-700 bg-mancave-surface text-[#3b82f6] focus:ring-[#3b82f6]/50 focus:ring-offset-0 cursor-pointer"
                 />
-                <span className="text-sm text-[#2c3648] group-hover:text-[#1c2433] transition-colors select-none">
+                <span className="text-sm text-gray-300 group-hover:text-gray-200 transition-colors select-none">
                   KVKK Aydınlatma Metni&apos;ni okudum ve kabul ediyorum.
                 </span>
               </label>
@@ -434,10 +434,10 @@ export default function ApplyPage() {
             <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
               <Heart className="w-7 h-7 text-[#3b82f6]" />
             </div>
-            <h1 className="text-3xl font-bold text-[#0f1420] mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               Üyelik Başvurusu
             </h1>
-            <p className="text-[#6b7688]">
+            <p className="text-mancave-muted">
               Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
             </p>
           </div>
@@ -445,19 +445,19 @@ export default function ApplyPage() {
           {/* Preliminary Step Indicators */}
           {renderPreliminarySteps()}
 
-          <Card className="bg-white backdrop-blur border-[#e6eaf3]">
+          <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
             <CardHeader>
-              <CardTitle className="text-[#0f1420] text-lg">
+              <CardTitle className="text-white text-lg">
                 Referans Kodu
               </CardTitle>
-              <CardDescription className="text-[#6b7688]">
+              <CardDescription className="text-mancave-muted">
                 Üyelik için geçerli bir referans kodu zorunludur. Kod yoksa bir üyeden davet kodu isteyin.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="prelimRefCode" className="text-[#2c3648]">
+                <Label htmlFor="prelimRefCode" className="text-gray-300">
                   Referans Kodu <span className="text-red-400">*</span>
                 </Label>
                 <Input
@@ -474,7 +474,7 @@ export default function ApplyPage() {
                     }
                   }}
                   maxLength={8}
-                  className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50 uppercase"
+                  className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 uppercase"
                 />
 
                 {/* Validation status */}
@@ -535,10 +535,10 @@ export default function ApplyPage() {
           <div className="mx-auto w-14 h-14 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-4">
             <Heart className="w-7 h-7 text-[#3b82f6]" />
           </div>
-          <h1 className="text-3xl font-bold text-[#0f1420] mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Üyelik Başvurusu
           </h1>
-          <p className="text-[#6b7688]">
+          <p className="text-mancave-muted">
             Bosphorus Fellas ailesine katılmak için aşağıdaki formu doldurun
           </p>
         </div>
@@ -556,25 +556,25 @@ export default function ApplyPage() {
                     ? "bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6]"
                     : step > s.id
                     ? "bg-green-500/10 border border-green-500/30 text-green-500"
-                    : "bg-white border border-[#e6eaf3] text-[#6b7688]"
+                    : "bg-gray-900/50 border border-gray-800 text-mancave-muted"
                 }`}
               >
                 <s.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{s.label}</span>
               </div>
               {idx < STEPS.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-[#6b7688]" />
+                <ArrowRight className="w-4 h-4 text-mancave-muted" />
               )}
             </div>
           ))}
         </div>
 
-        <Card className="bg-white backdrop-blur border-[#e6eaf3]">
+        <Card className="bg-gray-900/50 backdrop-blur border-gray-800">
           <CardHeader>
-            <CardTitle className="text-[#0f1420] text-lg">
+            <CardTitle className="text-white text-lg">
               {STEPS[step - 1].label}
             </CardTitle>
-            <CardDescription className="text-[#6b7688]">
+            <CardDescription className="text-mancave-muted">
               {step === 1 && "Kişisel bilgilerinizi giriniz"}
               {step === 2 && "Aracınızı gir ve kaydını tamamla"}
               {step === 3 && "Kendinizden bahsedin ve fotoğrafınızı yükleyin"}
@@ -588,13 +588,13 @@ export default function ApplyPage() {
                 <div className="space-y-4 animate-in fade-in-50 slide-in-from-right-2 duration-300">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName" className="text-[#2c3648]">
+                      <Label htmlFor="firstName" className="text-gray-300">
                         Ad <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="firstName"
                         placeholder="Adınız"
-                        className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("firstName")}
                       />
                       {errors.firstName && (
@@ -602,13 +602,13 @@ export default function ApplyPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName" className="text-[#2c3648]">
+                      <Label htmlFor="lastName" className="text-gray-300">
                         Soyad <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="lastName"
                         placeholder="Soyadınız"
-                        className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("lastName")}
                       />
                       {errors.lastName && (
@@ -619,18 +619,18 @@ export default function ApplyPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-[#2c3648]">
+                      <Label htmlFor="phone" className="text-gray-300">
                         Telefon <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="phone"
                           type="tel"
                           inputMode="tel"
                           autoComplete="tel"
                           placeholder="0555 555 55 55"
-                          className="pl-10 bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("phone")}
                         />
                       </div>
@@ -639,16 +639,16 @@ export default function ApplyPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-[#2c3648]">
+                      <Label htmlFor="password" className="text-gray-300">
                         Şifre <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="password"
                           type="password"
                           placeholder="En az 6 karakter"
-                          className="pl-10 bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("password")}
                         />
                       </div>
@@ -657,16 +657,16 @@ export default function ApplyPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-[#2c3648]">
+                      <Label htmlFor="confirmPassword" className="text-gray-300">
                         Şifre Tekrar <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="confirmPassword"
                           type="password"
                           placeholder="Şifreyi tekrar giriniz"
-                          className="pl-10 bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("confirmPassword")}
                         />
                       </div>
@@ -678,15 +678,15 @@ export default function ApplyPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="birthDate" className="text-[#2c3648]">
+                      <Label htmlFor="birthDate" className="text-gray-300">
                         Doğum Tarihi <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="birthDate"
                           type="date"
-                          className="pl-10 bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50 [color-scheme:dark]"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 [color-scheme:dark]"
                           {...register("birthDate")}
                         />
                       </div>
@@ -695,15 +695,15 @@ export default function ApplyPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="city" className="text-[#2c3648]">
+                      <Label htmlFor="city" className="text-gray-300">
                         Şehir <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7688]" />
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
                         <Input
                           id="city"
                           placeholder="İstanbul"
-                          className="pl-10 bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                          className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                           {...register("city")}
                         />
                       </div>
@@ -721,7 +721,7 @@ export default function ApplyPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Car Brand */}
                     <div className="space-y-2">
-                      <Label htmlFor="carBrand" className="text-[#2c3648]">
+                      <Label htmlFor="carBrand" className="text-gray-300">
                         Marka <span className="text-red-400">*</span>
                       </Label>
                       <Select
@@ -732,12 +732,12 @@ export default function ApplyPage() {
                         }}
                       >
                         <SelectTrigger
-                          className="w-full bg-white border-[#e6eaf3] text-[#0f1420] data-placeholder:text-[#6b7688] focus:border-[#3b82f6]/50 pl-10"
+                          className="w-full bg-mancave-surface border-gray-800 text-white data-placeholder:text-mancave-muted focus:border-[#3b82f6]/50 pl-10"
                         >
-                          <Car className="absolute left-3 w-4 h-4 text-[#6b7688]" />
+                          <Car className="absolute left-3 w-4 h-4 text-mancave-muted" />
                           <SelectValue placeholder="Marka seçiniz" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-[#e6eaf3] text-[#0f1420] max-h-60">
+                        <SelectContent className="bg-mancave-card border-gray-800 text-white max-h-60">
                           {Object.keys(CAR_BRANDS).map((brand) => (
                             <SelectItem key={brand} value={brand}>
                               {brand}
@@ -752,7 +752,7 @@ export default function ApplyPage() {
 
                     {/* Car Model */}
                     <div className="space-y-2">
-                      <Label htmlFor="carModel" className="text-[#2c3648]">
+                      <Label htmlFor="carModel" className="text-gray-300">
                         Model <span className="text-red-400">*</span>
                       </Label>
                       {selectedCarBrand && !isCustomBrand ? (
@@ -762,10 +762,10 @@ export default function ApplyPage() {
                             setValue("carModel", value || "", { shouldValidate: true });
                           }}
                         >
-                          <SelectTrigger className="w-full bg-white border-[#e6eaf3] text-[#0f1420] data-placeholder:text-[#6b7688] focus:border-[#3b82f6]/50">
+                          <SelectTrigger className="w-full bg-mancave-surface border-gray-800 text-white data-placeholder:text-mancave-muted focus:border-[#3b82f6]/50">
                             <SelectValue placeholder="Model seçiniz" />
                           </SelectTrigger>
-                          <SelectContent className="bg-white border-[#e6eaf3] text-[#0f1420] max-h-60">
+                          <SelectContent className="bg-mancave-card border-gray-800 text-white max-h-60">
                             {(CAR_BRANDS[selectedCarBrand] || []).map((model) => (
                               <SelectItem key={model} value={model}>
                                 {model}
@@ -778,7 +778,7 @@ export default function ApplyPage() {
                           id="carModel"
                           placeholder={isCustomBrand ? "Model giriniz" : "Önce marka seçiniz"}
                           disabled={!isCustomBrand && !selectedCarBrand}
-                          className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50 disabled:opacity-50"
+                          className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 disabled:opacity-50"
                           value={selectedCarModel || ""}
                           onChange={(e) =>
                             setValue("carModel", e.target.value, { shouldValidate: true })
@@ -794,14 +794,14 @@ export default function ApplyPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Car Year */}
                     <div className="space-y-2">
-                      <Label htmlFor="carYear" className="text-[#2c3648]">
+                      <Label htmlFor="carYear" className="text-gray-300">
                         Yıl <span className="text-red-400">*</span>
                       </Label>
                       <Input
                         id="carYear"
                         placeholder="2024"
                         maxLength={4}
-                        className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("carYear")}
                       />
                       {errors.carYear && (
@@ -811,40 +811,40 @@ export default function ApplyPage() {
 
                     {/* HP */}
                     <div className="space-y-2">
-                      <Label htmlFor="carHp" className="text-[#2c3648]">
+                      <Label htmlFor="carHp" className="text-gray-300">
                         HP
                       </Label>
                       <Input
                         id="carHp"
                         inputMode="numeric"
                         placeholder="400"
-                        className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50"
                         {...register("carHp")}
                       />
                     </div>
 
                     {/* Plate Number */}
                     <div className="space-y-2">
-                      <Label htmlFor="plateNumber" className="text-[#2c3648]">
+                      <Label htmlFor="plateNumber" className="text-gray-300">
                         Araç Plakası
                       </Label>
                       <Input
                         id="plateNumber"
                         placeholder="34 ABC 123"
-                        className="bg-white border-[#e6eaf3] text-[#0f1420] placeholder:text-[#6b7688] focus:border-[#3b82f6]/50 uppercase"
+                        className="bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 uppercase"
                         {...register("plateNumber")}
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg bg-white border border-[#e6eaf3]">
+                  <div className="p-4 rounded-lg bg-mancave-surface border border-gray-800">
                     <div className="flex items-start gap-3">
                       <Car className="w-5 h-5 text-[#3b82f6] mt-0.5" />
                       <div>
-                        <p className="text-sm text-[#2c3648] font-medium">
+                        <p className="text-sm text-gray-300 font-medium">
                           Aracınız kulübümüzün bir parçası
                         </p>
-                        <p className="text-xs text-[#6b7688] mt-1">
+                        <p className="text-xs text-mancave-muted mt-1">
                           Bosphorus Fellas&apos;ta her marka ve model araca açığız.
                           Önemli olan otomobil tutkusu!
                         </p>
@@ -855,13 +855,13 @@ export default function ApplyPage() {
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#e6eaf3]">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                 {step > 1 ? (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
-                    className="border-[#e6eaf3] text-[#2c3648] hover:bg-[#eef2f9]"
+                    className="border-gray-700 text-gray-300 hover:bg-gray-800"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Geri
