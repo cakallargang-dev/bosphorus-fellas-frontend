@@ -743,6 +743,12 @@ function EventCard({
     maxParticipants?: number;
     currentParticipants?: number;
     isJoined?: boolean;
+    participants?: {
+      id: string;
+      userId: string;
+      userName: string;
+      userAvatar: string | null;
+    }[];
   };
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
@@ -841,7 +847,7 @@ function EventCard({
         {/* Katilim */}
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
-            onClick={() => (joined ? onLeave(e.id) : onJoin(e.id))}
+            onClick={() => (joined ? undefined : onJoin(e.id))}
             disabled={pending || (full && !joined)}
             className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
               joined
@@ -850,7 +856,8 @@ function EventCard({
             }`}
           >
             <Check className="w-3.5 h-3.5" />
-            {joined ? "Katılıyorum" : full ? "Dolu" : "Katılıyorum"}
+            Katılıyorum
+            {current > 0 && <span className="ml-0.5 text-[10px] opacity-70">{current}</span>}
           </button>
 
           <button
@@ -858,7 +865,7 @@ function EventCard({
             disabled={pending || !joined}
             className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-40 ${
               joined
-                ? "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
+                ? "border-[#ef4444] bg-[#ef4444]/15 text-[#f87171]"
                 : "border-[#162544] text-[#8b9bb0]"
             }`}
           >
@@ -866,6 +873,27 @@ function EventCard({
             Katılmıyorum
           </button>
         </div>
+
+        {/* Katilimcilar */}
+        {!!(e.participants?.length || 0) && (
+          <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+            {e.participants!.slice(0, 10).map((p) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={p.id}
+                src={p.userAvatar ? imgUrl(p.userAvatar) : "/brand-mark-white.png"}
+                alt={p.userName}
+                title={`${p.userName} · katılıyor`}
+                className="w-6 h-6 rounded-full object-cover ring-2 ring-[#22c55e]/60"
+              />
+            ))}
+            {e.participants!.length > 10 && (
+              <span className="text-[10.5px] text-[#7a8da4]">
+                +{e.participants!.length - 10}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -1140,25 +1168,24 @@ function NewMeetingSheet({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1.5">
-              <label className="text-[11.5px] text-[#9fb0c4]">Tarih</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[11.5px] text-[#9fb0c4]">Saat</label>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">Tarih</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="block w-full min-w-0 h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">Saat</label>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="block w-full min-w-0 h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+            />
           </div>
 
           <div className="space-y-1.5">
