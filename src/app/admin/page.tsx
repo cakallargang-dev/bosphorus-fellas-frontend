@@ -611,6 +611,26 @@ function MembersTab() {
     },
   });
 
+  const statsMutation = useMutation({
+    mutationFn: ({
+      id,
+      activeScore,
+      eventCount,
+    }: {
+      id: string;
+      activeScore?: number;
+      eventCount?: number;
+    }) => membersApi.updateStats(id, { activeScore, eventCount }),
+    onSuccess: () => {
+      toast.success("Üye istatistikleri güncellendi");
+      queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
+      queryClient.invalidateQueries({ queryKey: ["team-directory"] });
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Güncellenemedi");
+    },
+  });
+
   const deleteMemberMutation = useMutation({
     mutationFn: (id: string) => membersApi.delete(id),
     onSuccess: (data: any) => {
@@ -667,6 +687,8 @@ function MembersTab() {
                 <TableHead className="text-gray-400">Şehir</TableHead>
                 <TableHead className="text-gray-400">Rol</TableHead>
                 <TableHead className="text-gray-400">Durum</TableHead>
+                <TableHead className="text-gray-400">Etkinlik</TableHead>
+                <TableHead className="text-gray-400">Aktiflik</TableHead>
                 <TableHead className="text-gray-400 text-right">İşlem</TableHead>
               </TableRow>
             </TableHeader>
@@ -728,6 +750,39 @@ function MembersTab() {
                       />
                       {member.status === "active" ? "Aktif" : "Pasif"}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <input
+                      type="number"
+                      min={0}
+                      max={500}
+                      defaultValue={(member as any).eventCount ?? 0}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value);
+                        if (Number.isFinite(v) && v !== ((member as any).eventCount ?? 0)) {
+                          statsMutation.mutate({ id: member.id, eventCount: v });
+                        }
+                      }}
+                      className="w-16 rounded-md bg-gray-800/70 border border-gray-700 px-2 py-1 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={10}
+                        defaultValue={(member as any).activeScore ?? 0}
+                        onBlur={(e) => {
+                          const v = Number(e.target.value);
+                          if (Number.isFinite(v) && v !== ((member as any).activeScore ?? 0)) {
+                            statsMutation.mutate({ id: member.id, activeScore: v });
+                          }
+                        }}
+                        className="w-14 rounded-md bg-gray-800/70 border border-gray-700 px-2 py-1 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
+                      />
+                      <span className="text-xs text-gray-500">/10</span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">

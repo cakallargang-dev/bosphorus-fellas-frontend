@@ -300,6 +300,15 @@ export const membersApi = {
       body: JSON.stringify({ status }),
     }),
 
+  updateStats: (
+    id: string,
+    data: { activeScore?: number; eventCount?: number }
+  ) =>
+    request<ApiResponse<{ id: string; activeScore: number; eventCount: number }>>(
+      `/api/members/${id}/stats`,
+      { method: "PATCH", body: JSON.stringify(data) }
+    ),
+
   resetPassword: (id: string) =>
     request<ApiResponse<{ tempPassword: string }>>(
       `/api/members/${id}/reset-password`,
