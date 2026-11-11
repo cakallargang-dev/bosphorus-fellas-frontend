@@ -13,7 +13,7 @@ import {
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Play, X, CalendarDays, ChevronRight, Download, ExternalLink, Check } from "lucide-react";
+import { Play, X, CalendarDays, ChevronRight, Download, Check } from "lucide-react";
 
 export default function MediaPage() {
   return (
@@ -423,16 +423,6 @@ function DownloadButtons({ photo }: { photo: GalleryImageItem }) {
           </>
         )}
       </button>
-
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 py-2.5 text-[12px] font-medium text-white/75 hover:bg-white/10 transition-colors press-scale"
-      >
-        <ExternalLink className="w-3.5 h-3.5" />
-        Yeni sekmede aç
-      </a>
 
       <p className="text-center text-[9.5px] text-white/30 leading-relaxed">
         {state === "failed"
