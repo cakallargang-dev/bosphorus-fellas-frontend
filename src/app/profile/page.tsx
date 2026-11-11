@@ -11,6 +11,7 @@ import { authApi, referansApi, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
+import { BrandSelect } from "@/components/BrandSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -218,6 +219,8 @@ function ProfileContent() {
   const {
     register: registerProfile,
     handleSubmit: handleProfileSubmit,
+    watch: watchProfile,
+    setValue: setValueProfile,
     formState: { errors: profileErrors, isDirty: isProfileDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -519,15 +522,13 @@ function ProfileContent() {
                 <Label htmlFor="carBrand" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Araç Markası
                 </Label>
-                <div className="relative">
-                  <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
-                  <Input
-                    id="carBrand"
-                    placeholder="BMW"
-                    className="pl-10 bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
-                    {...registerProfile("carBrand")}
-                  />
-                </div>
+                <BrandSelect
+                  value={watchProfile("carBrand")}
+                  onChange={(slug) =>
+                    setValueProfile("carBrand", slug, { shouldDirty: true })
+                  }
+                  error={profileErrors.carBrand?.message}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="carModel" className="text-[#9fb0c4] text-[11.5px] font-medium">

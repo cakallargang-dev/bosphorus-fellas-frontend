@@ -20,6 +20,7 @@ import {
 } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BrandSelect } from "@/components/BrandSelect";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -724,27 +725,14 @@ export default function ApplyPage() {
                       <Label htmlFor="carBrand" className="text-[#b9c6d8]">
                         Marka <span className="text-red-400">*</span>
                       </Label>
-                      <Select
-                        value={selectedCarBrand || ""}
-                        onValueChange={(value) => {
-                          setValue("carBrand", value || "", { shouldValidate: true });
+                      <BrandSelect
+                        value={selectedCarBrand}
+                        onChange={(slug) => {
+                          setValue("carBrand", slug, { shouldValidate: true });
                           setValue("carModel", "", { shouldValidate: false });
                         }}
-                      >
-                        <SelectTrigger
-                          className="w-full bg-mancave-surface border-[#162544] text-white data-placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 pl-10"
-                        >
-                          <Car className="absolute left-3 w-4 h-4 text-[#7a8da4]" />
-                          <SelectValue placeholder="Marka seçiniz" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-mancave-card border-[#162544] text-white max-h-60">
-                          {Object.keys(CAR_BRANDS).map((brand) => (
-                            <SelectItem key={brand} value={brand}>
-                              {brand}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        error={errors.carBrand?.message}
+                      />
                       {errors.carBrand && (
                         <p className="text-red-400 text-xs">{errors.carBrand.message}</p>
                       )}
