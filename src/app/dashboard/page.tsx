@@ -956,12 +956,23 @@ function NewMeetingSheet({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 80,
+      }}
+      className="bg-black/70 flex items-end justify-center"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-[430px] max-h-[88vh] overflow-auto rounded-t-3xl sm:rounded-2xl border border-[#162544] bg-[#0c1729]">
+      <div
+        style={{ width: "100%", maxWidth: 430, maxHeight: "92vh" }}
+        className="overflow-y-auto rounded-t-3xl border border-[#162544] bg-[#0c1729]"
+      >
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#162544]">
           <p className="text-[15px] font-semibold text-white">Yeni Buluşma</p>
           <button
@@ -973,7 +984,7 @@ function NewMeetingSheet({
           </button>
         </div>
 
-        <div className="px-4 py-4 space-y-3">
+        <div className="px-4 py-4 space-y-3 pb-8">
           <div className="space-y-1.5">
             <label className="text-[11.5px] text-[#9fb0c4]">Buluşma adı</label>
             <input
