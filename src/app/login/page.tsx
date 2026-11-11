@@ -15,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LogIn, Phone, Lock, Car, ScanFace } from "lucide-react";
 import { Footer } from "@/components/Footer";
-import { ScreenshotProtection } from "@/components/ScreenshotProtection";
 
 const loginSchema = z.object({
   phone: z
@@ -103,7 +102,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4 animate-fade-in overflow-hidden">
-      <ScreenshotProtection />
       {/* Marka arka plani */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div

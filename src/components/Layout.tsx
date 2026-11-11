@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { Footer } from "@/components/Footer";
-import { ScreenshotProtection } from "@/components/ScreenshotProtection";
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,7 +20,6 @@ export function Layout({ children, hideFooter }: LayoutProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/80 via-[#030711]/65 to-[#030711]" />
       </div>
 
-      <ScreenshotProtection />
       <main className="relative flex-1">{children}</main>
       {!hideFooter && <Footer />}
     </div>

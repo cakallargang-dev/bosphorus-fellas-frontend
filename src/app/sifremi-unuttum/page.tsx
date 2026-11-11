@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/Footer";
-import { ScreenshotProtection } from "@/components/ScreenshotProtection";
 
 type Step = "phone" | "code" | "password";
 
@@ -107,7 +106,6 @@ export default function SifremiUnuttumPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg animate-fade-in overflow-hidden">
-      <ScreenshotProtection />
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
