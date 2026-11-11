@@ -752,19 +752,36 @@ function MembersTab() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <input
-                      type="number"
-                      min={0}
-                      max={500}
-                      defaultValue={(member as any).eventCount ?? 0}
-                      onBlur={(e) => {
-                        const v = Number(e.target.value);
-                        if (Number.isFinite(v) && v !== ((member as any).eventCount ?? 0)) {
-                          statsMutation.mutate({ id: member.id, eventCount: v });
-                        }
-                      }}
-                      className="w-16 rounded-md bg-gray-800/70 border border-gray-700 px-2 py-1 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const cur = (member as any).eventCount ?? 0;
+                          if (cur > 0)
+                            statsMutation.mutate({ id: member.id, eventCount: cur - 1 });
+                        }}
+                        disabled={statsMutation.isPending || ((member as any).eventCount ?? 0) <= 0}
+                        className="w-6 h-6 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-30 leading-none"
+                        aria-label="Azalt"
+                      >
+                        −
+                      </button>
+                      <span className="w-6 text-center text-sm text-white tabular-nums">
+                        {(member as any).eventCount ?? 0}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const cur = (member as any).eventCount ?? 0;
+                          statsMutation.mutate({ id: member.id, eventCount: cur + 1 });
+                        }}
+                        disabled={statsMutation.isPending}
+                        className="w-6 h-6 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-30 leading-none"
+                        aria-label="Artır"
+                      >
+                        +
+                      </button>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
