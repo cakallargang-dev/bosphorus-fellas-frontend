@@ -315,6 +315,43 @@ function DashboardContent() {
           </div>
         </section>
 
+{/* Sponsorlar */}
+        <section className="mb-8">
+          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+            <Star className="w-4 h-4 text-[#3b82f6]" />
+            Sponsorlar
+          </h2>
+          {isLoading ? (
+            <SkeletonCard className="h-20" />
+          ) : sponsors.length === 0 ? (
+            <EmptyState icon={Star} title="Henüz sponsor yok" description="Sponsorlarımız burada listelenecek." compact />
+          ) : (
+            <div className="space-y-3">
+              {sponsors.map((s) => (
+                <SponsorCard key={s.id} sponsor={s} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* MANCAVE Market */}
+        <section>
+          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+            <ShoppingBag className="w-4 h-4 text-[#3b82f6]" />
+            MANCAVE Market
+          </h2>
+          {isLoading ? (
+            <SkeletonCard className="h-40" />
+          ) : products.length === 0 ? (
+            <EmptyState icon={ShoppingBag} title="Henüz ürün yok" description="Market ürünleri yakında burada." compact />
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
       {sheet && <ProfileSheet user={sheet} onClose={() => setSheet(null)} />}
