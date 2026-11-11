@@ -508,11 +508,17 @@ function MeetingCard({
     : m.date;
 
   // Google Maps statik onizleme (lat/lng varsa)
-  // OpenStreetMap statik harita — API anahtari gerekmez
-  const mapImg =
+  // Google Maps embed — anahtar gerekmez, pin otomatik cikar
+  const mapQuery =
     m.lat != null && m.lng != null
-      ? `https://maps.google.com/maps?q=${m.lat},${m.lng}&z=15&output=embed&hl=tr`
-      : null;
+      ? `${m.lat},${m.lng}`
+      : m.place && m.place !== "Konum belirtilmedi"
+        ? m.place
+        : null;
+
+  const mapImg = mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=16&output=embed&hl=tr`
+    : null;
 
   return (
     <article className="relative overflow-hidden rounded-2xl border border-[#f97316]/25 bg-[#0f1d32]/70 premium-shadow">
