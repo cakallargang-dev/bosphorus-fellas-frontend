@@ -171,7 +171,7 @@ function DashboardContent() {
                     }`}
                   >
                     <div
-                      className="relative h-[110px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
+                      className="relative h-[190px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
                       style={image ? { backgroundImage: `url('${image}')` } : undefined}
                     >
                       {!image &&
