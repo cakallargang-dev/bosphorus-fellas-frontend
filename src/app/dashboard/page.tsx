@@ -713,100 +713,126 @@ function EventCard({
   onLeave: (id: string) => void;
   pending: boolean;
 }) {
-  const kind = e.kind || "Buluşma";
-  const joined = e.isJoined;
+  const kind = e.kind && e.kind.trim() ? e.kind : "Etkinlik";
+  const joined = Boolean(e.isJoined);
   const current = e.currentParticipants ?? 0;
   const max = e.maxParticipants || 0;
-  const pct = max ? Math.min(100, Math.round((current / max) * 100)) : 0;
+  const pct = max ? Math.min(100, Math.round((current / max) * 100)) : current > 0 ? 100 : 0;
   const image = e.imageUrl ? imgUrl(e.imageUrl) : null;
+  const full = max > 0 && current >= max && !joined;
+
   return (
-<article
-key={e.id}
-className={`bg-[#0f1d32]/50 border rounded-xl overflow-hidden ${
-  e.featured ? "border-[#3b82f6]" : "border-[#162544]"
-}`}
+    <article
+      key={e.id}
+      className={`bg-[#0f1d32]/50 border rounded-xl overflow-hidden ${
+        e.featured ? "border-[#3b82f6]" : "border-[#162544]"
+      }`}
+    >
+      <div
+        className="relative h-[160px] bg-[#0a1628] flex items-center justify-center bg-cover bg-center"
+        style={image ? { backgroundImage: `url('${image}')` } : undefined}
       >
-<div
-  className="relative h-[190px] bg-[#0a1628] flex items-center justify-center bg-cover bg-center"
-  style={image ? { backgroundImage: `url('${image}')` } : undefined}
->
-  {!image &&
-    (kind === "Yarış" ? (
-      <Trophy className="w-11 h-11 text-[#6b7d94]" />
-    ) : (
-      <Car className="w-11 h-11 text-[#6b7d94]" />
-    ))}
-  <span
-    className={`absolute top-2.5 left-2.5 text-[12px] px-2.5 py-0.5 rounded-lg ${
-      kind === "Yarış"
-        ? "bg-red-500/15 text-red-400"
-        : kind === "Deneme"
-        ? "bg-amber-500/15 text-amber-400"
-        : "bg-[#3b82f6]/15 text-[#3b82f6]"
-    }`}
-  >
-    {e.featured ? "Öne çıkan · " : ""}
-    {kind}
-  </span>
-  <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-[#0f1d32] border border-[#162544] px-2.5 py-0.5 rounded-lg text-gray-200">
-    {countdown(e.date, e.time)}
-  </span>
-</div>
-
-<div className="p-3.5">
-  <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{e.title}</p>
-  {e.description && (
-    <p className="text-[13px] text-[#7a8da4] mt-0.5">{e.description}</p>
-  )}
-  <div className="flex flex-col gap-1 text-[13px] text-[#7a8da4] mt-2.5">
-    <span className="flex items-center gap-1.5">
-      <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
-      {new Date(e.date).toLocaleDateString("tr-TR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })}
-      {e.time ? ` · ${e.time}` : ""}
-    </span>
-    <span className="flex items-center gap-1.5">
-      <MapPin className="w-3.5 h-3.5 text-[#3b82f6]" />
-      {e.locationUrl ? (
-        <a
-          href={e.locationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[#3b82f6] underline underline-offset-2"
+        {!image &&
+          (kind === "Yarış" ? (
+            <Trophy className="w-11 h-11 text-[#6b7d94]" />
+          ) : (
+            <Car className="w-11 h-11 text-[#6b7d94]" />
+          ))}
+        <span
+          className={`absolute top-2.5 left-2.5 text-[11px] px-2.5 py-0.5 rounded-lg ${
+            kind === "Yarış" ? "bg-red-500/15 text-red-400" : "bg-[#3b82f6]/15 text-[#3b82f6]"
+          }`}
         >
-          {e.location || "Konum"}
-        </a>
-      ) : (
-        e.location || "Konum belirtilmedi"
-      )}
-    </span>
-  </div>
+          {e.featured ? "Öne çıkan · " : ""}
+          {kind}
+        </span>
+        <span className="absolute top-2.5 right-2.5 text-[11px] font-semibold bg-[#0f1d32] border border-[#162544] px-2.5 py-0.5 rounded-lg text-gray-200">
+          {countdown(e.date, e.time)}
+        </span>
+      </div>
 
-  <div className="h-1.5 rounded bg-[#0a1628] mt-3 overflow-hidden">
-    <div className="h-full bg-[#3b82f6] transition-all" style={{ width: `${pct}%` }} />
-  </div>
-  <div className="flex justify-between text-[13px] text-[#7a8da4] mt-1.5">
-    <span>
-      {current} / {max || "∞"} katılımcı
-    </span>
-  </div>
+      <div className="p-3.5">
+        <p className="text-[15px] font-semibold tracking-[-0.01em] text-white">{e.title}</p>
+        {e.description && (
+          <p className="text-[12.5px] text-[#7a8da4] mt-0.5 line-clamp-2">{e.description}</p>
+        )}
 
-  <button
-    onClick={() => (joined ? onLeave(e.id) : onJoin(e.id))}
-    disabled={pending}
-    className={`w-full mt-3 rounded-lg border py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-      joined
-        ? "border-red-500 text-red-400 hover:bg-red-500/10"
-        : "border-[#3b82f6] text-[#3b82f6] hover:bg-[#3b82f6]/10"
-    }`}
-  >
-    {joined ? "Ayrıl" : "Katıl"}
-  </button>
-</div>
-      </article>
+        <div className="flex flex-col gap-1 text-[12.5px] text-[#7a8da4] mt-2.5">
+          <span className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
+            {new Date(e.date).toLocaleDateString("tr-TR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+            {e.time ? ` · ${e.time}` : ""}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#3b82f6]" />
+            {e.locationUrl ? (
+              <a
+                href={e.locationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#3b82f6] underline underline-offset-2"
+              >
+                {e.location || "Konum"}
+              </a>
+            ) : (
+              e.location || "Konum belirtilmedi"
+            )}
+          </span>
+        </div>
+
+        {/* Katilimci cubugu */}
+        <div className="h-1.5 rounded-full bg-[#0a1628] mt-3 overflow-hidden">
+          <div
+            className={`h-full transition-all duration-500 ${
+              full ? "bg-red-500" : "bg-[#3b82f6]"
+            }`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-[11.5px] mt-1.5">
+          <span className="text-[#7a8da4]">
+            <span className="text-white font-medium">{current}</span>
+            {max > 0 ? ` / ${max}` : ""} katılımcı
+          </span>
+          {max > 0 && (
+            <span className={full ? "text-red-400" : "text-[#5b6b80]"}>{pct}%</span>
+          )}
+        </div>
+
+        {/* Katilim */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => (joined ? onLeave(e.id) : onJoin(e.id))}
+            disabled={pending || (full && !joined)}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
+              joined
+                ? "border-[#22c55e] bg-[#22c55e]/15 text-[#4ade80]"
+                : "border-[#162544] text-[#8b9bb0] hover:border-[#22c55e]/50 hover:text-[#4ade80]"
+            }`}
+          >
+            <Check className="w-3.5 h-3.5" />
+            {joined ? "Katılıyorum" : full ? "Dolu" : "Katılıyorum"}
+          </button>
+
+          <button
+            onClick={() => (joined ? onLeave(e.id) : undefined)}
+            disabled={pending || !joined}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-40 ${
+              joined
+                ? "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
+                : "border-[#162544] text-[#8b9bb0]"
+            }`}
+          >
+            <X className="w-3.5 h-3.5" />
+            Katılmıyorum
+          </button>
+        </div>
+      </div>
+    </article>
   );
 }
 
