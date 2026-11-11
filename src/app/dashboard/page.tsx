@@ -964,14 +964,14 @@ function NewMeetingSheet({
         bottom: 0,
         zIndex: 80,
       }}
-      className="bg-black/70 flex items-end justify-center"
+      className="bg-black/70 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        style={{ width: "100%", maxWidth: 430, maxHeight: "92vh" }}
-        className="overflow-y-auto rounded-t-3xl border border-[#162544] bg-[#0c1729]"
+        style={{ width: "100%", maxWidth: 430, maxHeight: "85vh" }}
+        className="overflow-y-auto rounded-2xl border border-[#162544] bg-[#0c1729] shadow-2xl"
       >
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#162544]">
           <p className="text-[15px] font-semibold text-white">Yeni Buluşma</p>
