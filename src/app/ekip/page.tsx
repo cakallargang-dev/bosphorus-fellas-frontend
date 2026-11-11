@@ -407,7 +407,7 @@ function TeamContent() {
             <p className="text-[13px] text-[#7a8da4]">Eşleşen üye yok.</p>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {members.map((m, i) => {
               const b = brandOf(m.car);
               return (
@@ -415,48 +415,75 @@ function TeamContent() {
                   key={m.id}
                   onClick={() => setOpen(m)}
                   style={{ animationDelay: `${Math.min(i * 45, 450)}ms` }}
-                  className="group relative bg-[#0f1d32]/70 border border-[#162544] rounded-2xl overflow-hidden card-hover press-scale cursor-pointer animate-fade-in"
+                  className="group relative rounded-2xl overflow-hidden border border-[#162544] bg-[#0f1d32] card-hover press-scale cursor-pointer animate-fade-in"
                 >
-                  <span
-                    style={{ background: b ? b.accent : "#3b82f6" }}
-                    className="absolute left-0 top-0 bottom-0 w-[2.5px] opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-                  />
-
-                  <div className="flex items-center gap-3 p-3 pl-4">
-                    <div className="relative w-[58px] h-[58px] shrink-0 rounded-xl overflow-hidden bg-[#0a1628] border border-[#162544]/80">
-                      {m.photo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={`${API_BASE}${m.photo}`}
-                          alt={m.car}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <span className="absolute inset-0 flex items-center justify-center text-[15px] font-semibold text-[#3b82f6]/60 tracking-wide">
+                  {/* Araç fotoğrafı — kart zemini */}
+                  <div className="absolute inset-0 bg-[#0a1628]">
+                    {m.photo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`${API_BASE}${m.photo}`}
+                        alt={m.car}
+                        className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          background: `radial-gradient(ellipse at 70% 20%, ${
+                            b ? b.accent : "#3b82f6"
+                          }22 0%, transparent 65%)`,
+                        }}
+                      >
+                        <span className="text-[34px] font-semibold text-white/[0.07] tracking-[0.15em]">
                           {m.initials}
                         </span>
-                      )}
+                      </div>
+                    )}
+                    {/* Okunabilirlik katmanı */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#050b16] via-[#050b16]/92 via-45% to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050b16]/85 via-transparent to-transparent" />
+                  </div>
+
+                  {/* Marka rengi şerit */}
+                  <span
+                    style={{ background: b ? b.accent : "#3b82f6" }}
+                    className="absolute left-0 top-0 bottom-0 w-[2.5px] opacity-70 group-hover:opacity-100 transition-opacity duration-300 z-20"
+                  />
+
+                  {/* İçerik */}
+                  <div className="relative z-10 flex items-center gap-3 px-4 py-4 min-h-[118px]">
+                    {/* Sol: logo */}
+                    <div className="shrink-0">
+                      <BrandBadge car={m.car} size={44} />
                     </div>
 
+                    {/* Orta: metin */}
                     <div className="min-w-0 flex-1">
-                      <p className="text-[14px] font-semibold tracking-[-0.01em] text-white truncate">
-                        {m.name}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <BrandBadge car={m.car} size={20} />
-                        <p className="text-[12.5px] text-[#b9c6d8] truncate">{m.car}</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-[15px] font-semibold tracking-[-0.015em] text-white truncate drop-shadow">
+                          {m.name}
+                        </p>
+                        <span className="text-[9.5px] text-white/35 uppercase tracking-[0.14em] shrink-0">
+                          üye
+                        </span>
                       </div>
+
+                      <p className="text-[13.5px] font-medium text-white/90 truncate mt-0.5 drop-shadow">
+                        {m.car}
+                      </p>
                       {m.spec && (
-                        <p className="text-[11px] text-[#6b7d94] truncate font-mono tracking-tight">
+                        <p className="text-[10.5px] text-white/45 truncate font-mono tracking-tight mt-0.5">
                           {m.spec}
                         </p>
                       )}
-                      <div className="flex items-center gap-3 mt-1.5 text-[10.5px] text-[#4d5c70]">
+
+                      <div className="flex items-center gap-3 mt-2 text-[10.5px] text-white/45">
                         <span className="flex items-center gap-1">
                           <CalendarCheck className="w-2.5 h-2.5" />
-                          {m.events} etkinlik
+                          {m.events}
                         </span>
-                        <span className="flex items-center gap-1 text-[#3b82f6]/70">
+                        <span className="flex items-center gap-1 text-[#60a5fa]/90">
                           <Gauge className="w-2.5 h-2.5" />
                           {m.score}/10
                         </span>
@@ -467,6 +494,7 @@ function TeamContent() {
                       </div>
                     </div>
 
+                    {/* Sağ: WhatsApp */}
                     {m.phone && (
                       <a
                         href={waLink(m.phone)}
@@ -474,7 +502,7 @@ function TeamContent() {
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         aria-label="WhatsApp ile yaz"
-                        className="w-9 h-9 rounded-full bg-[#25D366]/10 border border-[#25D366]/25 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-[#030711] transition-all duration-300 shrink-0"
+                        className="w-9 h-9 rounded-full bg-[#25D366]/12 border border-[#25D366]/30 backdrop-blur-sm flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-[#030711] transition-all duration-300 shrink-0"
                       >
                         <WaIcon className="w-[15px] h-[15px]" />
                       </a>
