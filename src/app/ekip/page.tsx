@@ -6,7 +6,7 @@ import { teamApi, type TeamMember, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -251,7 +251,14 @@ function TeamContent() {
                       <p className="text-[13.5px] font-medium text-white/90 truncate mt-0.5 drop-shadow">
                         {m.car}
                       </p>
-                      {m.spec && (
+                      {(m.carYear || m.carHp) && (
+                        <p className="text-[10.5px] text-white/50 truncate font-mono tracking-tight mt-0.5">
+                          {[m.carYear, m.carHp ? `${m.carHp} HP` : null]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      )}
+                      {!m.carYear && !m.carHp && m.spec && (
                         <p className="text-[10.5px] text-white/45 truncate font-mono tracking-tight mt-0.5">
                           {m.spec}
                         </p>
@@ -296,6 +303,15 @@ function TeamContent() {
 
       {open && <TeamSheet member={open} onClose={() => setOpen(null)} />}
     </Layout>
+  );
+}
+
+function StatCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="px-2 py-2 text-center">
+      <p className="text-[9.5px] text-[#6b7d94] uppercase tracking-wider">{label}</p>
+      <p className="text-[12.5px] text-white font-medium mt-0.5 truncate">{value}</p>
+    </div>
   );
 }
 
@@ -345,7 +361,49 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
           <p className="text-[20px] font-semibold tracking-[-0.02em] text-white">{m.name}</p>
           <p className="text-[13px] text-[#b9c6d8] mt-0.5">{m.car}</p>
           {m.spec && <p className="text-[11.5px] text-[#6b7d94] font-mono mt-0.5">{m.spec}</p>}
+
+          {/* Ilce */}
+          {(m.district || m.city) && (
+            <p className="text-[11.5px] text-[#7a8da4] mt-1.5 flex items-center gap-1.5">
+              <MapPin className="w-3 h-3 text-[#3b82f6]/70" />
+              {m.district || m.city}
+            </p>
+          )}
+
           {m.bio && <p className="text-[12.5px] text-[#7a8da4] mt-3 leading-relaxed">{m.bio}</p>}
+
+          {/* Arac bilgileri */}
+          {(m.carYear || m.carHp || m.plateNumber || m.carFeatures) && (
+            <div className="mt-3.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl overflow-hidden">
+              <div className="grid grid-cols-3 divide-x divide-[#162544]/70">
+                <StatCell label="Model" value={m.carModel || "-"} />
+                <StatCell label="Yıl" value={m.carYear ? String(m.carYear) : "-"} />
+                <StatCell label="Güç" value={m.carHp ? `${m.carHp} HP` : "-"} />
+              </div>
+              {m.plateNumber && (
+                <div className="border-t border-[#162544]/70 px-3 py-2 flex items-center justify-between">
+                  <span className="text-[10.5px] text-[#6b7d94] flex items-center gap-1.5">
+                    <Hash className="w-3 h-3 text-[#3b82f6]/70" />
+                    Plaka
+                  </span>
+                  <span className="text-[12px] font-mono tracking-wider text-white bg-[#162544]/60 px-2 py-0.5 rounded">
+                    {m.plateNumber}
+                  </span>
+                </div>
+              )}
+              {m.carFeatures && (
+                <div className="border-t border-[#162544]/70 px-3 py-2.5">
+                  <span className="text-[10.5px] text-[#6b7d94] flex items-center gap-1.5 mb-1">
+                    <Wrench className="w-3 h-3 text-[#3b82f6]/70" />
+                    Araç Özellikleri
+                  </span>
+                  <p className="text-[12px] text-[#b9c6d8] leading-relaxed whitespace-pre-wrap">
+                    {m.carFeatures}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-4 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-[#3b82f6]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">

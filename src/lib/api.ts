@@ -276,6 +276,15 @@ export interface TeamMember {
   photo: string | null;
   car: string;
   spec: string;
+  carBrand: string | null;
+  carModel: string | null;
+  carYear: number | null;
+  carHp: number | null;
+  carFeatures: string | null;
+  plateNumber: string | null;
+  city: string | null;
+  district: string | null;
+  role: string;
   rolls: number;
   events: number;
   score: number;
