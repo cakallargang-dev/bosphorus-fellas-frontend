@@ -749,23 +749,23 @@ function MembersTab() {
                       <button
                         type="button"
                         onClick={() => {
-                          const cur = (member as any).eventCount ?? 0;
+                          const cur = (member as any).eventCountPast ?? 0;
                           if (cur > 0)
                             statsMutation.mutate({ id: member.id, eventCount: cur - 1 });
                         }}
-                        disabled={statsMutation.isPending || ((member as any).eventCount ?? 0) <= 0}
+                        disabled={statsMutation.isPending || ((member as any).eventCountPast ?? 0) <= 0}
                         className="w-6 h-6 rounded-md border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-30 leading-none"
                         aria-label="Azalt"
                       >
                         −
                       </button>
                       <span className="w-6 text-center text-sm text-white tabular-nums">
-                        {(member as any).eventCount ?? 0}
+                        {(member as any).eventCountPast ?? 0}
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          const cur = (member as any).eventCount ?? 0;
+                          const cur = (member as any).eventCountPast ?? 0;
                           statsMutation.mutate({ id: member.id, eventCount: cur + 1 });
                         }}
                         disabled={statsMutation.isPending}
