@@ -89,12 +89,16 @@ export function BrandWheel({
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] bg-black/70 flex items-end justify-center"
+          style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100 }}
+          className="bg-black/70 flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="w-full max-w-[430px] rounded-t-3xl border-t border-[#162544] bg-[#0c1729] overflow-hidden">
+          <div
+            style={{ width: "100%", maxWidth: 430 }}
+            className="rounded-2xl border border-[#162544] bg-[#0c1729] overflow-hidden shadow-2xl"
+          >
             {/* Baslik */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#162544]">
               <button
