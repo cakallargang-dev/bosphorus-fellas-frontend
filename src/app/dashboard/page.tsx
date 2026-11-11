@@ -651,7 +651,18 @@ function DayModal({
   onLeaveEvent,
 }: {
   label: string;
-  events: { id: string; title: string; time?: string; location?: string; locationUrl?: string | null; kind?: string; isJoined?: boolean }[];
+  events: {
+    id: string;
+    title: string;
+    description?: string;
+    time?: string;
+    date?: string;
+    location?: string;
+    locationUrl?: string | null;
+    imageUrl?: string | null;
+    kind?: string;
+    isJoined?: boolean;
+  }[];
   rolls: RollRequest[];
   onClose: () => void;
   onOpenUser: (u: RollUserCard) => void;
@@ -663,7 +674,7 @@ function DayModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+      className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -687,11 +698,28 @@ function DayModal({
         {events.length > 0 && (
           <div className="space-y-2.5 mb-3">
             {events.map((e) => (
-              <div key={e.id} className="bg-gray-800/70 rounded-[10px] p-3">
+              <div key={e.id} className="bg-gray-800/70 rounded-[10px] overflow-hidden">
+                {e.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`${API_BASE}${e.imageUrl}`}
+                    alt={e.title}
+                    className="w-full h-[150px] object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-[90px] bg-[#3b82f6]/10 flex items-center justify-center">
+                    {e.kind === "Yarış" ? (
+                      <Trophy className="w-8 h-8 text-[#3b82f6]/60" />
+                    ) : (
+                      <Car className="w-8 h-8 text-[#3b82f6]/60" />
+                    )}
+                  </div>
+                )}
+                <div className="p-3">
                 <div className="flex items-start gap-2">
                   <i className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: CAL_EVENT }} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-semibold text-white truncate">{e.title}</p>
+                    <p className="text-[14px] font-semibold text-white">{e.title}</p>
                     <div className="flex flex-wrap gap-2.5 text-[12px] text-mancave-muted mt-1">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-[#3b82f6]" />
@@ -714,6 +742,14 @@ function DayModal({
                         </span>
                       )}
                     </div>
+                    {e.description && (
+                      <p className="text-[12px] text-mancave-muted mt-1.5 line-clamp-4">{e.description}</p>
+                    )}
+                    {e.date && !e.time && (
+                      <p className="text-[12px] text-mancave-muted mt-1">
+                        {new Date(e.date).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <button
@@ -726,6 +762,7 @@ function DayModal({
                 >
                   {e.isJoined ? "Ayrıl" : "Katıl"}
                 </button>
+                </div>
               </div>
             ))}
           </div>
@@ -760,7 +797,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
