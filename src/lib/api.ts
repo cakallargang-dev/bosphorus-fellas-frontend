@@ -312,6 +312,7 @@ export interface RollRequest {
   id: string;
   title: string;
   date: string;
+  dateIso: string | null;
   place: string;
   mapUrl: string | null;
   status: "open" | "matched" | "closed";
@@ -327,7 +328,13 @@ export interface RollRequest {
 export const rollApi = {
   list: () => request<ApiResponse<RollRequest[]>>("/api/roll-requests"),
   me: () => request<ApiResponse<RollUserCard>>("/api/roll-requests/me"),
-  create: (data: { title?: string; date?: string; place?: string; mapUrl?: string }) =>
+  create: (data: {
+    title?: string;
+    date?: string;
+    dateDate?: string;
+    place?: string;
+    mapUrl?: string;
+  }) =>
     request<ApiResponse<RollRequest>>("/api/roll-requests", {
       method: "POST",
       body: JSON.stringify(data),
