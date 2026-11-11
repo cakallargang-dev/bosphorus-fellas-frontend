@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame, Clock, Trash2 } from "lucide-react";
+import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame, Clock, Trash2, Check } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 const DAY = 86400000;
@@ -135,6 +135,16 @@ function DashboardContent() {
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "Buluşma oluşturulamadı"),
+  });
+
+  const respondMeeting = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "going" | "not_going" }) =>
+      meetingApi.respond(id, status),
+    onSuccess: (res) => {
+      toast.success(res.message || "Yanıtın kaydedildi");
+      queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Kaydedilemedi"),
   });
 
   const deleteMeeting = useMutation({
@@ -421,6 +431,7 @@ function DashboardContent() {
           onClose={() => setCalDay(null)}
           onOpenUser={(u) => setSheet({ id: u.id, name: `${u.firstName} ${u.lastName}`, car: [u.carBrand, u.carModel].filter(Boolean).join(" "), spec: "", photo: u.avatar, bio: "", rolls: 0, wins: 0, since: "" })}
           onDeleteMeeting={(id) => deleteMeeting.mutate(id)}
+          onRespond={(id, status) => respondMeeting.mutate({ id, status })}
           onJoinEvent={(id) => joinEvent.mutate(id)}
           onLeaveEvent={(id) => leaveEvent.mutate(id)}
           canDeleteMeeting={true}
@@ -482,11 +493,13 @@ function MeetingCard({
   m,
   onOpen,
   onDelete,
+  onRespond,
   canDelete,
 }: {
   m: Meeting;
   onOpen: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDelete: (id: string) => void;
+  onRespond: (id: string, status: "going" | "not_going") => void;
   canDelete: boolean;
 }) {
   const d = new Date(m.dateIso || m.date);
@@ -605,6 +618,65 @@ function MeetingCard({
             </button>
           )}
         </div>
+
+        {/* Katilim */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => onRespond(m.id, "going")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors ${
+              m.myResponse === "going"
+                ? "border-[#22c55e] bg-[#22c55e]/15 text-[#4ade80]"
+                : "border-[#162544] text-[#8b9bb0] hover:border-[#22c55e]/50 hover:text-[#4ade80]"
+            }`}
+          >
+            <Check className="w-3.5 h-3.5" />
+            Katılıyorum
+            {!!m.goingCount && (
+              <span className="ml-0.5 text-[10px] opacity-70">{m.goingCount}</span>
+            )}
+          </button>
+
+          <button
+            onClick={() => onRespond(m.id, "not_going")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors ${
+              m.myResponse === "not_going"
+                ? "border-[#ef4444] bg-[#ef4444]/15 text-[#f87171]"
+                : "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
+            }`}
+          >
+            <X className="w-3.5 h-3.5" />
+            Katılamıyorum
+            {!!m.notGoingCount && (
+              <span className="ml-0.5 text-[10px] opacity-70">{m.notGoingCount}</span>
+            )}
+          </button>
+        </div>
+
+        {/* Katilimcilar */}
+        {!!(m.going?.length || m.notGoing?.length) && (
+          <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+            {m.going?.slice(0, 8).map((u) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`g-${u.id}`}
+                src={u.avatar ? imgUrl(u.avatar) : "/brand-mark-white.png"}
+                alt={`${u.firstName} ${u.lastName}`}
+                title={`${u.firstName} ${u.lastName} · katılıyor`}
+                className="w-6 h-6 rounded-full object-cover ring-2 ring-[#22c55e]/60"
+              />
+            ))}
+            {m.notGoing?.slice(0, 8).map((u) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`n-${u.id}`}
+                src={u.avatar ? imgUrl(u.avatar) : "/brand-mark-white.png"}
+                alt={`${u.firstName} ${u.lastName}`}
+                title={`${u.firstName} ${u.lastName} · katılamıyor`}
+                className="w-6 h-6 rounded-full object-cover ring-2 ring-[#ef4444]/40 grayscale opacity-60"
+              />
+            ))}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -739,6 +811,7 @@ function DayModal({
   onClose,
   onOpenUser,
   onDeleteMeeting,
+  onRespond,
   onJoinEvent,
   onLeaveEvent,
   canDeleteMeeting,
@@ -760,6 +833,7 @@ function DayModal({
   onClose: () => void;
   onOpenUser: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDeleteMeeting: (id: string) => void;
+  onRespond: (id: string, status: "going" | "not_going") => void;
   onJoinEvent: (id: string) => void;
   onLeaveEvent: (id: string) => void;
   canDeleteMeeting: boolean;
@@ -809,6 +883,7 @@ function DayModal({
                 m={m}
                 onOpen={onOpenUser}
                 onDelete={onDeleteMeeting}
+                onRespond={onRespond}
                 canDelete={canDeleteMeeting}
               />
             ))}

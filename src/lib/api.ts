@@ -367,6 +367,11 @@ export interface Meeting {
     carModel: string | null;
   };
   isMine: boolean;
+  myResponse?: "going" | "not_going" | null;
+  goingCount?: number;
+  notGoingCount?: number;
+  going?: { id: string; firstName: string; lastName: string; avatar: string | null }[];
+  notGoing?: { id: string; firstName: string; lastName: string; avatar: string | null }[];
 }
 
 export const meetingApi = {
@@ -389,6 +394,18 @@ export const meetingApi = {
     request<ApiResponse<Meeting>>(`/api/meetings/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
+    }),
+
+  respond: (id: string, status: "going" | "not_going") =>
+    request<ApiResponse<{
+      myResponse: string;
+      goingCount: number;
+      notGoingCount: number;
+      going: { id: string; firstName: string; lastName: string; avatar: string | null }[];
+      notGoing: { id: string; firstName: string; lastName: string; avatar: string | null }[];
+    }>>(`/api/meetings/${id}/respond`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
     }),
 
   remove: (id: string) =>
