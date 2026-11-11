@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { useWebPush } from "@/lib/useWebPush";
 import { authApi, referansApi } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
@@ -30,6 +31,7 @@ import {
   Check,
   Share2,
   Clock,
+  Bell,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -199,6 +201,7 @@ export default function ProfilePage() {
 
 function ProfileContent() {
   const { user, refreshProfile, logout } = useAuth();
+  const push = useWebPush();
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -635,6 +638,59 @@ function ProfileContent() {
                 </Button>
               </div>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Bildirimler */}
+        <Card className="bg-[#0f1d32]/50 backdrop-blur border-[#162544]">
+          <CardContent className="pt-6 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center shrink-0">
+                <Bell className="w-4 h-4 text-[#3b82f6]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white">Bildirimler</p>
+                <p className="text-xs text-[#7a8da4] mt-0.5 leading-relaxed">
+                  Yeni etkinlik, etkinlik hatırlatması ve duyurular için push bildirimi al.
+                </p>
+              </div>
+            </div>
+
+            {push.status === "granted" ? (
+              <div className="space-y-2">
+                <p className="text-xs text-[#25D366] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#25D366]" />
+                  Bildirimler açık
+                </p>
+                <Button
+                  onClick={push.disable}
+                  disabled={push.busy}
+                  variant="outline"
+                  className="w-full border-[#162544] text-[#9fb0c4] hover:bg-[#162544]/60"
+                >
+                  Bildirimleri kapat
+                </Button>
+              </div>
+            ) : push.status === "denied" ? (
+              <p className="text-xs text-[#e08080] leading-relaxed">
+                Bildirim izni reddedilmiş. Tarayıcı/telefon ayarlarından bu site için izni
+                açman gerekiyor.
+              </p>
+            ) : push.status === "unsupported" ? (
+              <p className="text-xs text-[#7a8da4]">Bu tarayıcı bildirimleri desteklemiyor.</p>
+            ) : (
+              <Button
+                onClick={push.enable}
+                disabled={push.busy || push.status === "loading"}
+                className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white"
+              >
+                {push.busy ? "Açılıyor..." : "Bildirimleri aç"}
+              </Button>
+            )}
+
+            {push.error && (
+              <p className="text-xs text-[#e0b070] leading-relaxed">{push.error}</p>
+            )}
           </CardContent>
         </Card>
 

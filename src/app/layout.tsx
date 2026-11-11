@@ -17,6 +17,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bosphorus Fellas",
   description: "Bosphorus Fellas - Ham Güç, Arınmış Ruh",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Bosphorus",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export const viewport: Viewport = {
