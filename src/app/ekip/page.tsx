@@ -6,7 +6,7 @@ import { teamApi, type TeamMember } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, Flag, X, Gauge, CalendarDays, CalendarCheck } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -354,20 +354,17 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
           {m.spec && <p className="text-[11.5px] text-[#6b7d94] font-mono mt-0.5">{m.spec}</p>}
           {m.bio && <p className="text-[12.5px] text-[#7a8da4] mt-3 leading-relaxed">{m.bio}</p>}
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {[
-              { v: `${m.events}`, l: "Katıldığı etkinlik", Icon: CalendarCheck },
-              { v: `${m.rolls}`, l: "Roll", Icon: Flag },
-            ].map((s) => (
-              <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2.5 text-center">
-                <s.Icon className="w-3 h-3 mx-auto text-[#3b82f6]/60 mb-1" />
-                <b className="block text-[16px] text-white tabular-nums">{s.v}</b>
-                <span className="text-[10.5px] text-[#6b7d94]">{s.l}</span>
-              </div>
-            ))}
+          <div className="mt-4 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#3b82f6]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">
+              <CalendarCheck className="w-4 h-4 text-[#3b82f6]" />
+            </div>
+            <div className="min-w-0">
+              <b className="block text-[17px] text-white tabular-nums leading-tight">{m.events}</b>
+              <span className="text-[10.5px] text-[#6b7d94]">Katıldığı etkinlik</span>
+            </div>
           </div>
 
-          {/* Katılım puanı */}
+          {/* Aktiflik */}
           <div className="mt-2.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] text-[#6b7d94] flex items-center gap-1.5">
