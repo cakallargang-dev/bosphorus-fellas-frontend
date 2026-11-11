@@ -344,45 +344,55 @@ export interface RollUserCard {
   since: string;
 }
 
-export interface RollRequest {
+
+export interface Meeting {
   id: string;
   title: string;
+  description: string;
   date: string;
-  dateIso: string | null;
+  dateIso: string;
+  time: string;
   place: string;
   mapUrl: string | null;
-  status: "open" | "matched" | "closed";
+  lat: number | null;
+  lng: number | null;
+  createdAt: string;
   creatorId: string;
-  opponentId: string | null;
-  creator: RollUserCard;
-  opponent: RollUserCard | null;
+  creator: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatar: string | null;
+    carBrand: string | null;
+    carModel: string | null;
+  };
   isMine: boolean;
-  isJoined: boolean;
-  canDelete?: boolean;
 }
 
-export const rollApi = {
-  list: () => request<ApiResponse<RollRequest[]>>("/api/roll-requests"),
-  me: () => request<ApiResponse<RollUserCard>>("/api/roll-requests/me"),
+export const meetingApi = {
+  list: () => request<ApiResponse<Meeting[]>>("/api/meetings"),
+
   create: (data: {
-    title?: string;
-    date?: string;
-    dateDate?: string;
+    title: string;
+    description?: string;
+    date: string;
+    time?: string;
     place?: string;
     mapUrl?: string;
   }) =>
-    request<ApiResponse<RollRequest>>("/api/roll-requests", {
+    request<ApiResponse<Meeting>>("/api/meetings", {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  join: (id: string) =>
-    request<ApiResponse<RollRequest>>(`/api/roll-requests/${id}/join`, { method: "POST" }),
-  leave: (id: string) =>
-    request<ApiResponse<RollRequest>>(`/api/roll-requests/${id}/leave`, { method: "POST" }),
-  close: (id: string) =>
-    request<ApiResponse<{ id: string }>>(`/api/roll-requests/${id}/close`, { method: "POST" }),
+
+  update: (id: string, data: Partial<{ title: string; description: string; date: string; time: string; place: string; mapUrl: string }>) =>
+    request<ApiResponse<Meeting>>(`/api/meetings/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   remove: (id: string) =>
-    request<ApiResponse<{ id: string }>>(`/api/roll-requests/${id}`, { method: "DELETE" }),
+    request<ApiResponse<{ id: string }>>(`/api/meetings/${id}`, { method: "DELETE" }),
 };
 
 // ============================================================

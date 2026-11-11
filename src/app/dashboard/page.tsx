@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { dashboardApi, eventsApi, rollApi, type RollRequest, type RollUserCard, imgUrl } from "@/lib/api";
+import { dashboardApi, eventsApi, meetingApi, type Meeting, type RollUserCard, imgUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame } from "lucide-react";
+import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame, Clock, Trash2 } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 const DAY = 86400000;
@@ -35,7 +35,7 @@ const TR_MONTHS_SHORT = [
 ];
 const TR_DAYS = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"];
 const CAL_EVENT = "#3b82f6";
-const CAL_ROLL = "#f59e0b";
+const CAL_ROLL = "#f97316";
 
 const dayKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -90,15 +90,15 @@ function DashboardContent() {
     staleTime: 30_000,
   });
 
-  const { data: rollData } = useQuery({
-    queryKey: ["roll-requests"],
-    queryFn: () => rollApi.list(),
+  const { data: meetData } = useQuery({
+    queryKey: ["meetings"],
+    queryFn: () => meetingApi.list(),
     staleTime: 15_000,
   });
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-    queryClient.invalidateQueries({ queryKey: ["roll-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["meetings"] });
   };
 
   const joinEvent = useMutation({
@@ -119,49 +119,38 @@ function DashboardContent() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Ayrılma başarısız"),
   });
 
-  const createRoll = useMutation({
-    mutationFn: (data: { title: string; date: string; dateDate: string; place: string; mapUrl: string }) =>
-      rollApi.create(data),
+  const createMeeting = useMutation({
+    mutationFn: (data: {
+      title: string;
+      description?: string;
+      date: string;
+      time?: string;
+      place?: string;
+      mapUrl?: string;
+    }) => meetingApi.create(data),
     onSuccess: () => {
-      toast.success("Talep açıldı");
+      toast.success("Buluşma daveti oluşturuldu");
       setNewRoll(false);
       refresh();
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Talep açılamadı"),
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "Buluşma oluşturulamadı"),
   });
 
-  const deleteRoll = useMutation({
-    mutationFn: (id: string) => rollApi.remove(id),
+  const deleteMeeting = useMutation({
+    mutationFn: (id: string) => meetingApi.remove(id),
     onSuccess: () => {
-      toast.success("Talep silindi");
+      toast.success("Buluşma silindi");
       refresh();
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
-  });
-
-  const joinRoll = useMutation({
-    mutationFn: (id: string) => rollApi.join(id),
-    onSuccess: () => {
-      toast.success("Talebe katıldınız");
-      refresh();
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Katılım başarısız"),
-  });
-
-  const leaveRoll = useMutation({
-    mutationFn: (id: string) => rollApi.leave(id),
-    onSuccess: () => {
-      toast.success("Talepten ayrıldınız");
-      refresh();
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Ayrılma başarısız"),
   });
 
   const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() : "";
   const events = dashboardData?.data.upcomingEvents ?? [];
   const products = dashboardData?.data.products ?? [];
   const sponsors = dashboardData?.data.sponsors ?? [];
-  const rollRequests = (rollData?.data ?? []) as RollRequest[];
+  const meetings = (meetData?.data ?? []) as Meeting[];
 
   const calMap = useMemo(() => {
     const map = new Map<string, { events: number; rolls: number }>();
@@ -173,12 +162,9 @@ function DashboardContent() {
       map.set(key, cur);
     };
     events.forEach((e) => bump(new Date(e.date), "events"));
-    rollRequests.forEach((r) => {
-      const iso = (r as { dateIso?: string | null }).dateIso;
-      bump(iso ? new Date(iso) : parseDateLabel(r.date), "rolls");
-    });
+    meetings.forEach((m) => bump(new Date(m.dateIso || m.date), "rolls"));
     return map;
-  }, [events, rollRequests]);
+  }, [events, meetings]);
 
   const upcomingCount = events.filter((e) => new Date(e.date) >= new Date()).length;
   const monthLabel = new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
@@ -186,11 +172,10 @@ function DashboardContent() {
   const calCells = useMemo(() => monthGrid(calMonth.y, calMonth.m), [calMonth]);
   const todayKey = dayKey(new Date());
   const calEventList = calDay ? events.filter((e) => dayKey(new Date(e.date)) === calDay) : [];
-  const calRollList = calDay
-    ? rollRequests.filter((r) => {
-        const iso = (r as { dateIso?: string | null }).dateIso;
-        const d = iso ? new Date(iso) : parseDateLabel(r.date);
-        return d ? dayKey(d) === calDay : false;
+  const calMeetingList = calDay
+    ? meetings.filter((m) => {
+        const d = new Date(m.dateIso || m.date);
+        return !isNaN(d.getTime()) && dayKey(d) === calDay;
       })
     : [];
 
@@ -289,11 +274,11 @@ function DashboardContent() {
             Takvim
             <button
               onClick={() => setNewRoll(true)}
-              disabled={createRoll.isPending}
+              disabled={createMeeting.isPending}
               className="flex items-center gap-1 text-[12px] border border-[#162544] rounded-lg px-2.5 py-1 text-gray-200 hover:bg-[#0a1628]/80 disabled:opacity-50"
             >
               <Plus className="w-3 h-3" />
-              Talep aç
+              Buluşma
             </button>
             <span className="ml-auto flex items-center gap-3 text-[11px] font-normal text-[#7a8da4]">
               <span className="flex items-center gap-1">
@@ -302,7 +287,7 @@ function DashboardContent() {
               </span>
               <span className="flex items-center gap-1">
                 <i className="w-2 h-2 rounded-full inline-block" style={{ background: CAL_ROLL }} />
-                Deneme
+                Buluşma
               </span>
             </span>
           </h2>
@@ -432,22 +417,21 @@ function DashboardContent() {
         <DayModal
           label={`${Number(calDay.slice(8, 10))} ${TR_MONTHS[Number(calDay.slice(5, 7)) - 1]} ${calDay.slice(0, 4)}`}
           events={calEventList}
-          rolls={calRollList}
+          meetings={calMeetingList}
           onClose={() => setCalDay(null)}
-          onOpenUser={setSheet}
-          onDelete={(id) => deleteRoll.mutate(id)}
-          onJoinRoll={(id) => joinRoll.mutate(id)}
-          onLeaveRoll={(id) => leaveRoll.mutate(id)}
+          onOpenUser={(u) => setSheet({ id: u.id, name: `${u.firstName} ${u.lastName}`, car: [u.carBrand, u.carModel].filter(Boolean).join(" "), spec: "", photo: u.avatar, bio: "", rolls: 0, wins: 0, since: "" })}
+          onDeleteMeeting={(id) => deleteMeeting.mutate(id)}
           onJoinEvent={(id) => joinEvent.mutate(id)}
           onLeaveEvent={(id) => leaveEvent.mutate(id)}
+          canDeleteMeeting={true}
         />
       )}
 
       {newRoll && (
-        <NewRollSheet
+        <NewMeetingSheet
           onClose={() => setNewRoll(false)}
-          onSubmit={(d) => createRoll.mutate(d)}
-          pending={createRoll.isPending}
+          onSubmit={(d) => createMeeting.mutate(d)}
+          pending={createMeeting.isPending}
         />
       )}
     </Layout>
@@ -494,76 +478,135 @@ function CarBox({
   );
 }
 
-function RollCard({
-  r,
+function MeetingCard({
+  m,
   onOpen,
   onDelete,
-  onJoin,
-  onLeave,
+  canDelete,
 }: {
-  r: RollRequest;
-  onOpen: (u: RollUserCard) => void;
+  m: Meeting;
+  onOpen: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDelete: (id: string) => void;
-  onJoin: (id: string) => void;
-  onLeave: (id: string) => void;
+  canDelete: boolean;
 }) {
-  const matched = Boolean(r.opponent);
+  const d = new Date(m.dateIso || m.date);
+  const dateLabel = !isNaN(d.getTime())
+    ? d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "short" })
+    : m.date;
+
+  // Google Maps statik onizleme (lat/lng varsa)
+  // OpenStreetMap statik harita — API anahtari gerekmez
+  const mapImg =
+    m.lat != null && m.lng != null
+      ? `https://maps.google.com/maps?q=${m.lat},${m.lng}&z=15&output=embed&hl=tr`
+      : null;
+
   return (
-  <article key={r.id} className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3.5">
-          <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{r.title}</p>
-          <div className="flex gap-3.5 flex-wrap text-[13px] text-[#7a8da4] mt-1">
-            <span>{r.date}</span>
-            {r.mapUrl ? (
-              <a
-                href={r.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#3b82f6] underline underline-offset-2"
-              >
-                {r.place} · Haritada aç
-              </a>
-            ) : (
-              <span>{r.place}</span>
-            )}
-          </div>
+    <article className="relative overflow-hidden rounded-2xl border border-[#f97316]/25 bg-[#0f1d32]/70 premium-shadow">
+      {/* Turuncu serit */}
+      <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#f97316] z-10" />
 
-          <div className="grid grid-cols-[minmax(0,1fr)_44px_minmax(0,1fr)] items-center gap-1.5 mt-3.5">
-            <CarBox user={r.creator} isMe={r.isMine} onOpen={onOpen} />
-            <div className="text-center text-xl font-bold text-red-500 tracking-wide">VS</div>
-            {r.opponent ? (
-              <CarBox user={r.opponent} isMe={r.isJoined} onOpen={onOpen} />
-            ) : (
-              <div className="rounded-[10px] border border-dashed border-[#162544] min-h-[150px] flex items-center justify-center p-2">
-                <p className="text-[12px] text-[#7a8da4] text-center">Rakip bekleniyor</p>
-              </div>
-            )}
-          </div>
+      {/* Harita / yer gorseli */}
+      {mapImg && (
+        <div className="relative h-[130px] overflow-hidden bg-[#0a1628]">
+          <iframe
+            src={mapImg}
+            title={m.place}
+            loading="lazy"
+            className="w-full h-full border-0 pointer-events-none scale-[1.15]"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-[#0f1d32] via-transparent to-transparent pointer-events-none" />
+          {m.mapUrl && (
+            <a
+              href={m.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-2 left-3 right-3 flex items-center gap-1 text-[10.5px] text-white/90 hover:text-[#fb923c]"
+            >
+              <MapPin className="w-3 h-3 text-[#f97316] shrink-0" />
+              <span className="truncate">{m.place}</span>
+            </a>
+          )}
+        </div>
+      )}
 
-          {r.canDelete ? (
+      <div className="p-3.5 pl-4">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[15px] font-semibold tracking-[-0.01em] text-white leading-snug">
+            {m.title}
+          </p>
+          <span className="shrink-0 rounded-full bg-[#f97316]/15 border border-[#f97316]/30 px-2 py-0.5 text-[9px] uppercase tracking-[0.1em] text-[#fb923c]">
+            Buluşma
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap text-[12px] text-[#8b9bb0] mt-1.5">
+          <span className="flex items-center gap-1">
+            <CalendarDays className="w-3 h-3" />
+            {dateLabel}
+          </span>
+          {m.time && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {m.time}
+            </span>
+          )}
+        </div>
+
+        {!mapImg && m.mapUrl && (
+          <a
+            href={m.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1.5 flex items-center gap-1 text-[12px] text-[#f97316] underline underline-offset-2"
+          >
+            <MapPin className="w-3 h-3" />
+            {m.place} · Haritada aç
+          </a>
+        )}
+
+        {m.description && (
+          <p className="mt-2 text-[12px] leading-relaxed text-[#8b9bb0] line-clamp-3">
+            {m.description}
+          </p>
+        )}
+
+        {/* Olusturan */}
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            onClick={() => onOpen(m.creator)}
+            className="flex items-center gap-2 rounded-full bg-white/5 pl-0.5 pr-2.5 py-0.5 hover:bg-white/10 transition-colors"
+          >
+            {m.creator.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imgUrl(m.creator.avatar)}
+                alt=""
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <span className="w-6 h-6 rounded-full bg-[#f97316]/20 flex items-center justify-center text-[9px] font-semibold text-[#fb923c]">
+                {(m.creator.firstName?.[0] || "") + (m.creator.lastName?.[0] || "")}
+              </span>
+            )}
+            <span className="text-[11px] text-[#b9c6d8]">
+              {m.creator.firstName} {m.creator.lastName}
+            </span>
+          </button>
+
+          {canDelete && (
             <button
-              onClick={() => onDelete(r.id)}
-              className="w-full mt-3 rounded-lg border border-[#23365c] py-2 text-sm text-gray-200 hover:bg-[#0a1628]/80"
+              onClick={() => onDelete(m.id)}
+              className="ml-auto flex items-center gap-1 rounded-lg border border-[#3a1c1c] px-2.5 py-1 text-[11px] text-red-400 hover:bg-red-500/10 transition-colors"
             >
-              {r.isMine ? "Talebi sil" : "Sil (admin)"}
-            </button>
-          ) : matched && r.isJoined ? (
-            <button
-              onClick={() => onLeave(r.id)}
-              className="w-full mt-3 rounded-lg border border-red-500 py-2 text-sm text-red-400 hover:bg-red-500/10"
-            >
-              Ayrıl
-            </button>
-          ) : matched ? (
-            <p className="text-center text-[12px] text-[#7a8da4] mt-3">Eşleşme tamamlandı</p>
-          ) : (
-            <button
-              onClick={() => onJoin(r.id)}
-              className="w-full mt-3 rounded-lg border border-[#3b82f6] py-2 text-sm text-[#3b82f6] hover:bg-[#3b82f6]/10"
-            >
-              Katıl
+              <Trash2 className="w-3 h-3" />
+              Sil
             </button>
           )}
-        </article>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -692,14 +735,13 @@ className={`bg-[#0f1d32]/50 border rounded-xl overflow-hidden ${
 function DayModal({
   label,
   events,
-  rolls,
+  meetings,
   onClose,
   onOpenUser,
-  onDelete,
-  onJoinRoll,
-  onLeaveRoll,
+  onDeleteMeeting,
   onJoinEvent,
   onLeaveEvent,
+  canDeleteMeeting,
 }: {
   label: string;
   events: {
@@ -714,14 +756,13 @@ function DayModal({
     kind?: string;
     isJoined?: boolean;
   }[];
-  rolls: RollRequest[];
+  meetings: Meeting[];
   onClose: () => void;
-  onOpenUser: (u: RollUserCard) => void;
-  onDelete: (id: string) => void;
-  onJoinRoll: (id: string) => void;
-  onLeaveRoll: (id: string) => void;
+  onOpenUser: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
+  onDeleteMeeting: (id: string) => void;
   onJoinEvent: (id: string) => void;
   onLeaveEvent: (id: string) => void;
+  canDeleteMeeting: boolean;
 }) {
   return (
     <div
@@ -742,7 +783,7 @@ function DayModal({
           </button>
         </div>
 
-        {events.length === 0 && rolls.length === 0 && (
+        {events.length === 0 && meetings.length === 0 && (
           <p className="text-[13px] text-[#7a8da4]">Bu gün için kayıt yok.</p>
         )}
 
@@ -760,16 +801,15 @@ function DayModal({
           </div>
         )}
 
-        {rolls.length > 0 && (
+        {meetings.length > 0 && (
           <div className="space-y-2.5">
-            {rolls.map((r) => (
-              <RollCard
-                key={r.id}
-                r={r}
+            {meetings.map((m) => (
+              <MeetingCard
+                key={m.id}
+                m={m}
                 onOpen={onOpenUser}
-                onDelete={onDelete}
-                onJoin={onJoinRoll}
-                onLeave={onLeaveRoll}
+                onDelete={onDeleteMeeting}
+                canDelete={canDeleteMeeting}
               />
             ))}
           </div>
@@ -876,118 +916,146 @@ function EmptyState({
   );
 }
 
-function NewRollSheet({
+function NewMeetingSheet({
   onClose,
   onSubmit,
   pending,
 }: {
   onClose: () => void;
-  onSubmit: (d: { title: string; date: string; dateDate: string; place: string; mapUrl: string }) => void;
+  onSubmit: (d: {
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    place: string;
+    mapUrl: string;
+  }) => void;
   pending: boolean;
 }) {
-  const OPTIONS = ["50-150 dostluk denemesi", "100-200 dostluk denemesi"];
-  const [title, setTitle] = useState(OPTIONS[0]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [place, setPlace] = useState("");
   const [mapUrl, setMapUrl] = useState("");
+  const [place, setPlace] = useState("");
+  const [err, setErr] = useState<string | null>(null);
 
   const submit = () => {
-    if (!date) {
-      toast.error("Tarih seçin");
-      return;
-    }
-    const label = `${new Date(`${date}T00:00:00`).toLocaleDateString("tr-TR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })}${time ? ` · ${time}` : ""}`;
+    if (title.trim().length < 2) return setErr("Buluşma adı girin");
+    if (!date) return setErr("Tarih seçin");
+    setErr(null);
     onSubmit({
-      title,
-      date: label,
-      dateDate: `${date}T${time || "00:00"}:00`,
+      title: title.trim(),
+      description: description.trim(),
+      date,
+      time,
       place: place.trim(),
       mapUrl: mapUrl.trim(),
     });
   };
 
-  const inputCls =
-    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-[#0a1628]/90 border border-[#162544] px-3 py-2 text-sm text-white placeholder:text-[#6b7d94] focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
-
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] p-4">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">Talep aç</p>
+      <div className="w-full max-w-[430px] max-h-[88vh] overflow-auto rounded-t-3xl sm:rounded-2xl border border-[#162544] bg-[#0c1729]">
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#162544]">
+          <p className="text-[15px] font-semibold text-white">Yeni Buluşma</p>
           <button
             onClick={onClose}
-            className="text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
+            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8b9bb0]"
+            aria-label="Kapat"
           >
-            Kapat
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <label className="block text-[13px] text-[#7a8da4] mb-1">Deneme türü</label>
-        <select
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className={`${inputCls} mb-3`}
-        >
-          {OPTIONS.map((o) => (
-            <option key={o} value={o} className="bg-[#0f1d32]">
-              {o}
-            </option>
-          ))}
-        </select>
+        <div className="px-4 py-4 space-y-3">
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">Buluşma adı</label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Örn. Cumartesi kahve & araç buluşması"
+              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
+            />
+          </div>
 
-        <div className="mb-3">
-          <label className="block text-[13px] text-[#7a8da4] mb-1">Tarih</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className={inputCls}
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <label className="text-[11.5px] text-[#9fb0c4]">Tarih</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11.5px] text-[#9fb0c4]">Saat</label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">Google Maps linki</label>
+            <input
+              value={mapUrl}
+              onChange={(e) => setMapUrl(e.target.value)}
+              placeholder="https://maps.google.com/..."
+              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
+            />
+            <p className="text-[10px] text-[#5b6b80]">
+              Mekanın fotoğrafı otomatik gösterilir
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">
+              Mekan adı <span className="text-[#5b6b80]">(opsiyonel)</span>
+            </label>
+            <input
+              value={place}
+              onChange={(e) => setPlace(e.target.value)}
+              placeholder="Boş bırakırsan haritadan alınır"
+              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11.5px] text-[#9fb0c4]">
+              Açıklama <span className="text-[#5b6b80]">(opsiyonel)</span>
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Buluşma hakkında detaylar"
+              className="w-full rounded-xl bg-[#0a1628] border border-[#162544] px-3 py-2.5 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60 resize-none"
+            />
+          </div>
+
+          {err && <p className="text-[11.5px] text-red-400">{err}</p>}
+
+          <button
+            onClick={submit}
+            disabled={pending}
+            className="w-full h-[46px] rounded-xl bg-[#f97316] text-[13.5px] font-semibold text-black hover:bg-[#fb923c] transition-colors disabled:opacity-60"
+          >
+            {pending ? "Oluşturuluyor..." : "Buluşma Oluştur"}
+          </button>
+          <p className="text-center text-[10px] text-[#5b6b80]">
+            Tüm üyelere bildirim gönderilecek
+          </p>
         </div>
-
-        <div className="mb-3">
-          <label className="block text-[13px] text-[#7a8da4] mb-1">Saat</label>
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className={inputCls}
-          />
-        </div>
-
-        <label className="block text-[13px] text-[#7a8da4] mb-1">Konum</label>
-        <input
-          value={place}
-          onChange={(e) => setPlace(e.target.value)}
-          placeholder="Anadolu yakası"
-          className={`${inputCls} mb-3`}
-        />
-
-        <label className="block text-[13px] text-[#7a8da4] mb-1">Google Maps linki</label>
-        <input
-          value={mapUrl}
-          onChange={(e) => setMapUrl(e.target.value)}
-          placeholder="https://maps.app.goo.gl/..."
-          className={`${inputCls} mb-4`}
-        />
-
-        <button
-          onClick={submit}
-          disabled={pending}
-          className="w-full rounded-lg border border-[#3b82f6] py-2.5 text-sm font-medium text-[#3b82f6] hover:bg-[#3b82f6]/10 disabled:opacity-50"
-        >
-          {pending ? "Kaydediliyor..." : "Talebi oluştur"}
-        </button>
       </div>
     </div>
   );
