@@ -13,7 +13,7 @@ import {
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Play, X, CalendarDays, ChevronRight, Download } from "lucide-react";
+import { Play, X, CalendarDays, ChevronRight, Download, ExternalLink, Check } from "lucide-react";
 
 export default function MediaPage() {
   return (
@@ -333,21 +333,112 @@ function PhotoModal({ photo, onClose }: { photo: GalleryImageItem; onClose: () =
           </div>
         )}
 
-        {/* Indirme */}
-        <a
-          href={galleryDownloadUrl(photo.url, photo.eventName || photo.caption || undefined)}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] py-3 text-[13px] font-semibold text-black hover:bg-[#60a5fa] transition-colors press-scale"
-        >
-          <Download className="w-4 h-4" />
-          Fotoğrafı İndir
-        </a>
-        <p className="mt-1.5 text-center text-[9.5px] text-white/30">
-          Tam çözünürlük · Instagram için hazır
-        </p>
+        <DownloadButtons photo={photo} />
       </div>
+    </div>
+  );
+}
+
+/* ---------- Indirme: PWA uyumlu ---------- */
+function DownloadButtons({ photo }: { photo: GalleryImageItem }) {
+  const url = galleryDownloadUrl(photo.url, photo.eventName || photo.caption || undefined) || "";
+  const [state, setState] = useState<"idle" | "busy" | "done" | "failed">("idle");
+
+  async function handleDownload() {
+    if (!url) return;
+    setState("busy");
+
+    try {
+      // 1) Fetch + blob: PWA/standalone modda en guvenilir yol
+      const res = await fetch(url, { mode: "cors" });
+      if (!res.ok) throw new Error(`${res.status}`);
+
+      const blob = await res.blob();
+      const ext = blob.type.includes("png") ? "png" : "jpg";
+      const safe =
+        (photo.eventName || photo.caption || "bosphorus-fellas")
+          .replace(/[^a-zA-Z0-9-_]/g, "_")
+          .slice(0, 50) || "bosphorus-fellas";
+
+      const file = new File([blob], `${safe}.${ext}`, { type: blob.type });
+
+      // 2) iOS/Android paylasim sayfasi (Fotograflara Kaydet sunar)
+      const nav = navigator as Navigator & {
+        canShare?: (d: { files: File[] }) => boolean;
+        share?: (d: { files: File[]; title?: string }) => Promise<void>;
+      };
+
+      if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
+        try {
+          await nav.share({ files: [file], title: safe });
+          setState("done");
+          setTimeout(() => setState("idle"), 3000);
+          return;
+        } catch {
+          // kullanici iptal etti -> blob indirmeye dus
+        }
+      }
+
+      // 3) Blob URL ile indirme
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${safe}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+
+      setState("done");
+      setTimeout(() => setState("idle"), 3000);
+    } catch {
+      setState("failed");
+      // 4) Son care: yeni sekmede ac (uzun bas -> Fotograflara Kaydet)
+      window.open(url, "_blank", "noopener,noreferrer");
+      setTimeout(() => setState("idle"), 4000);
+    }
+  }
+
+  return (
+    <div className="mt-3 space-y-2">
+      <button
+        onClick={handleDownload}
+        disabled={state === "busy"}
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] py-3 text-[13px] font-semibold text-black hover:bg-[#60a5fa] transition-colors press-scale disabled:opacity-70"
+      >
+        {state === "busy" ? (
+          <>
+            <Download className="w-4 h-4 animate-pulse" />
+            İndiriliyor...
+          </>
+        ) : state === "done" ? (
+          <>
+            <Check className="w-4 h-4" />
+            İndirildi
+          </>
+        ) : (
+          <>
+            <Download className="w-4 h-4" />
+            Fotoğrafı İndir
+          </>
+        )}
+      </button>
+
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 py-2.5 text-[12px] font-medium text-white/75 hover:bg-white/10 transition-colors press-scale"
+      >
+        <ExternalLink className="w-3.5 h-3.5" />
+        Yeni sekmede aç
+      </a>
+
+      <p className="text-center text-[9.5px] text-white/30 leading-relaxed">
+        {state === "failed"
+          ? "Yeni sekmede açıldı — fotoğrafa uzun basıp 'Fotoğraflara Kaydet' seç"
+          : "Tam çözünürlük · Instagram için hazır"}
+      </p>
     </div>
   );
 }
