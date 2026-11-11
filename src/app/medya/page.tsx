@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { mediaApi, imgUrl, type GalleryImageItem, type YouTubeVideoItem } from "@/lib/api";
+import {
+  mediaApi,
+  imgUrl,
+  galleryDownloadUrl,
+  galleryThumbUrl,
+  type GalleryImageItem,
+  type YouTubeVideoItem,
+} from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Play, X, CalendarDays, ChevronRight } from "lucide-react";
+import { Play, X, CalendarDays, ChevronRight, Download } from "lucide-react";
 
 export default function MediaPage() {
   return (
@@ -209,7 +216,7 @@ function MediaContent() {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={imgUrl(p.url)}
+                      src={galleryThumbUrl(p.url, 400)}
                       alt={p.caption || "Etkinlik fotoğrafı"}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -311,7 +318,7 @@ function PhotoModal({ photo, onClose }: { photo: GalleryImageItem; onClose: () =
         <img
           src={imgUrl(photo.url)}
           alt={photo.caption || "Etkinlik fotoğrafı"}
-          className="w-full h-auto max-h-[75vh] object-contain rounded-xl"
+          className="w-full h-auto max-h-[70vh] object-contain rounded-xl"
         />
         {(photo.eventName || photo.caption) && (
           <div className="mt-3 text-center">
@@ -325,6 +332,21 @@ function PhotoModal({ photo, onClose }: { photo: GalleryImageItem; onClose: () =
             )}
           </div>
         )}
+
+        {/* Indirme */}
+        <a
+          href={galleryDownloadUrl(photo.url, photo.eventName || photo.caption || undefined)}
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] py-3 text-[13px] font-semibold text-black hover:bg-[#60a5fa] transition-colors press-scale"
+        >
+          <Download className="w-4 h-4" />
+          Fotoğrafı İndir
+        </a>
+        <p className="mt-1.5 text-center text-[9.5px] text-white/30">
+          Tam çözünürlük · Instagram için hazır
+        </p>
       </div>
     </div>
   );

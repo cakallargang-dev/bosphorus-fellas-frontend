@@ -686,3 +686,18 @@ export const mediaApi = {
       body: JSON.stringify(data),
     }),
 };
+
+/** Galeri gorseli icin tam boy indirme URL'si (Cloudinary fl_attachment) */
+export function galleryDownloadUrl(url: string | null | undefined, name?: string | null): string | undefined {
+  if (!url) return undefined;
+  if (!url.includes("res.cloudinary.com")) return imgUrl(url);
+  const clean = name ? name.replace(/[^a-zA-Z0-9-_]/g, "_").slice(0, 60) : "bosphorus-fellas";
+  return url.replace("/image/upload/", `/image/upload/fl_attachment:${clean}/`);
+}
+
+/** Galeri kucuk onizleme (izgara icin optimize) */
+export function galleryThumbUrl(url: string | null | undefined, w = 400): string | undefined {
+  if (!url) return undefined;
+  if (!url.includes("res.cloudinary.com")) return imgUrl(url);
+  return url.replace("/image/upload/", `/image/upload/w_${w},c_fill,q_auto:good,f_auto/`);
+}
