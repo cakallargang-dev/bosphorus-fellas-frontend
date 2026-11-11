@@ -16,6 +16,10 @@ export interface User {
   carBrand?: string;
   carModel?: string;
   carSpec?: string;
+  carYear?: number;
+  carHp?: number;
+  carFeatures?: string;
+  district?: string;
   plateNumber?: string;
   createdAt: string;
 }
@@ -29,6 +33,10 @@ export interface UserPublicProfile {
   carBrand?: string;
   carModel?: string;
   carSpec?: string;
+  carYear?: number;
+  carHp?: number;
+  carFeatures?: string;
+  district?: string;
   plateNumber?: string;
 }
 
@@ -63,6 +71,9 @@ export interface MembershipApplication {
   carModel: string;
   carYear: number;
   carSpec?: string;
+  carHp?: number;
+  carFeatures?: string;
+  district?: string;
   instagram?: string;
   occupation?: string;
   about: string;
@@ -87,6 +98,9 @@ export interface ApplicationFormData {
   carModel: string;
   carYear: number;
   carSpec?: string;
+  carHp?: number;
+  carFeatures?: string;
+  district?: string;
   instagram?: string;
   occupation?: string;
   about: string;
@@ -271,6 +285,10 @@ export interface ProfileUpdateData {
   carBrand?: string;
   carModel?: string;
   carSpec?: string;
+  carYear?: number;
+  carHp?: number;
+  carFeatures?: string;
+  district?: string;
   plateNumber?: string;
 }
 

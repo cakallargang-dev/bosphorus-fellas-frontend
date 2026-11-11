@@ -91,7 +91,7 @@ const applySchema = z.object({
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
   confirmPassword: z.string().min(6, "Şifre tekrarı zorunludur"),
   birthDate: z.string().min(1, "Doğum tarihi zorunludur"),
-  city: z.string().min(2, "Şehir zorunludur"),
+  district: z.string().min(2, "İlçe zorunludur"),
   carBrand: z.string().min(2, "Araç markası zorunludur"),
   carModel: z.string().min(1, "Araç modeli zorunludur"),
   carYear: z
@@ -100,6 +100,7 @@ const applySchema = z.object({
     .regex(/^\d{4}$/, "Geçerli bir yıl giriniz (örn: 2020)"),
   carHp: z.string().optional(),
   plateNumber: z.string().optional(),
+  carFeatures: z.string().optional(),
   instagram: z.string().optional(),
   occupation: z.string().optional(),
   about: z.string().optional(),
@@ -175,7 +176,7 @@ export default function ApplyPage() {
   const isCustomBrand = selectedCarBrand === "Diğer";
 
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
-    1: ["firstName", "lastName", "phone", "password", "confirmPassword", "birthDate", "city"],
+    1: ["firstName", "lastName", "phone", "password", "confirmPassword", "birthDate", "district"],
     2: ["carBrand", "carModel", "carYear", "carHp"],
   };
 
@@ -247,11 +248,12 @@ export default function ApplyPage() {
         password: data.password,
         phone: data.phone,
         birthDate: data.birthDate,
-        city: data.city,
+        district: data.district,
         carBrand: data.carBrand,
         carModel: data.carModel,
         carYear: parseInt(data.carYear, 10),
-        carSpec: data.carHp ? `HP: ${data.carHp.replace(/\D/g, "")}` : undefined,
+        carHp: data.carHp ? parseInt(data.carHp.replace(/\D/g, ''), 10) : undefined,
+        carFeatures: data.carFeatures || undefined,
         plateNumber: data.plateNumber || undefined,
         referansKodu: data.referansKodu || undefined,
         about: "-",
@@ -696,20 +698,20 @@ export default function ApplyPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="city" className="text-[#b9c6d8]">
-                        Şehir <span className="text-red-400">*</span>
+                      <Label htmlFor="district" className="text-[#b9c6d8]">
+                        İlçe <span className="text-red-400">*</span>
                       </Label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                         <Input
-                          id="city"
-                          placeholder="İstanbul"
+                          id="district"
+                          placeholder="Kadıköy"
                           className="pl-10 bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50"
-                          {...register("city")}
+                          {...register("district")}
                         />
                       </div>
-                      {errors.city && (
-                        <p className="text-red-400 text-xs">{errors.city.message}</p>
+                      {errors.district && (
+                        <p className="text-red-400 text-xs">{errors.district.message}</p>
                       )}
                     </div>
                   </div>
@@ -800,7 +802,7 @@ export default function ApplyPage() {
                     {/* HP */}
                     <div className="space-y-2">
                       <Label htmlFor="carHp" className="text-[#b9c6d8]">
-                        HP
+                        Beygir Gücü
                       </Label>
                       <Input
                         id="carHp"
@@ -823,6 +825,19 @@ export default function ApplyPage() {
                         {...register("plateNumber")}
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="carFeatures" className="text-[#b9c6d8]">
+                      Araç Özellikleri
+                    </Label>
+                    <Textarea
+                      id="carFeatures"
+                      placeholder="Örn. Stage 2, karbon paket, adaptif süspansiyon"
+                      rows={3}
+                      className="bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 resize-none"
+                      {...register("carFeatures")}
+                    />
                   </div>
 
                   <div className="p-4 rounded-lg bg-mancave-surface border border-[#162544]">

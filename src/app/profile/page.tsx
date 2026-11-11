@@ -33,18 +33,53 @@ import {
   Share2,
   Clock,
   Bell,
+  Pencil,
+  Calendar,
+  Gauge,
+  Hash,
+  Wrench,
 } from "lucide-react";
+
+function SummaryRow({
+  icon: Icon,
+  label,
+  value,
+  multiline,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  multiline?: boolean;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-7 h-7 shrink-0 rounded-lg bg-[#3b82f6]/10 border border-[#3b82f6]/20 flex items-center justify-center mt-0.5">
+        <Icon className="w-3.5 h-3.5 text-[#3b82f6]" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10.5px] text-[#7a8da4]">{label}</p>
+        <p
+          className={`text-[13px] text-white ${
+            multiline ? "whitespace-pre-wrap leading-relaxed" : "truncate"
+          }`}
+        >
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "Ad en az 2 karakter olmalıdır"),
   lastName: z.string().min(2, "Soyad en az 2 karakter olmalıdır"),
-  phone: z.string().optional(),
-  city: z.string().optional(),
+  district: z.string().optional(),
   carBrand: z.string().optional(),
   carModel: z.string().optional(),
+  carYear: z.string().optional(),
   carHp: z.string().optional(),
+  carFeatures: z.string().optional(),
   plateNumber: z.string().optional(),
-  about: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -209,6 +244,8 @@ function ProfileContent() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [passwordResult, setPasswordResult] = useState<"success" | "error" | null>(null);
   const [passwordMessage, setPasswordMessage] = useState("");
 
@@ -227,13 +264,13 @@ function ProfileContent() {
     defaultValues: {
       firstName: user?.firstName ?? "",
       lastName: user?.lastName ?? "",
-      phone: user?.phone ?? "",
-      city: user?.city ?? "",
+      district: user?.district ?? "",
       carBrand: user?.carBrand ?? "",
       carModel: user?.carModel ?? "",
-      carHp: (user?.carSpec || "").replace(/\D/g, ""),
+      carYear: user?.carYear ? String(user.carYear) : "",
+      carHp: user?.carHp ? String(user.carHp) : "",
+      carFeatures: user?.carFeatures ?? "",
       plateNumber: user?.plateNumber ?? "",
-      about: "",
     },
   });
 
@@ -252,19 +289,20 @@ function ProfileContent() {
       await authApi.updateProfile({
         firstName: data.firstName,
         lastName: data.lastName,
-        phone: data.phone || undefined,
-        city: data.city || undefined,
+        district: data.district || undefined,
         carBrand: data.carBrand || undefined,
         carModel: data.carModel || undefined,
-        carSpec: data.carHp ? `HP: ${data.carHp.replace(/\D/g, "")}` : undefined,
+        carYear: data.carYear ? Number(data.carYear) : undefined,
+        carHp: data.carHp ? Number(data.carHp) : undefined,
+        carFeatures: data.carFeatures || undefined,
         plateNumber: data.plateNumber || undefined,
-        bio: data.about || undefined,
         avatar: removeAvatar ? null : avatarFile || undefined,
       });
       await refreshProfile();
       setAvatarFile(null);
       setRemoveAvatar(false);
       toast.success("Profil başarıyla güncellendi!");
+      setIsEditing(false);
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Profil güncellenirken bir hata oluştu"
@@ -377,7 +415,7 @@ function ProfileContent() {
         <div className="px-4">
         {/* Profile Card */}
         <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
-          <CardHeader className="pb-4 border-b border-white/[0.06]">
+          <CardHeader className="pb-4 border-b border-white/[0.06] relative">
             <CardTitle className="text-white text-[14px] font-semibold flex items-center gap-2 tracking-tight">
               <span className="w-6 h-6 rounded-md bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center">
                 <User className="w-3 h-3 text-[#3b82f6]" />
@@ -387,141 +425,126 @@ function ProfileContent() {
             <CardDescription className="text-[#7a8da4] text-[11.5px]">
               Bilgilerini güncel tut, ekip seni tanısın.
             </CardDescription>
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="absolute right-4 top-4 flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-3 py-1.5 text-[11.5px] font-medium text-[#60a5fa] hover:bg-[#3b82f6]/20 transition-colors"
+              >
+                <Pencil className="w-3 h-3" />
+                Düzenle
+              </button>
+            )}
           </CardHeader>
 
           <CardContent className="pt-5">
+            {!isEditing && (
+              <div className="space-y-3.5">
+                <SummaryRow icon={User} label="İsim Soyisim" value={`${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()} />
+                <SummaryRow icon={Phone} label="Telefon" value={user?.phone ?? "-"} />
+                <SummaryRow icon={MapPin} label="İlçe" value={user?.district || "-"} />
+                <Separator className="bg-[#0a1628]" />
+                <SummaryRow icon={Car} label="Araç Markası" value={user?.carBrand || "-"} />
+                <SummaryRow icon={Car} label="Araç Modeli" value={user?.carModel || "-"} />
+                <SummaryRow icon={Calendar} label="Araç Yılı" value={user?.carYear ? String(user.carYear) : "-"} />
+                <SummaryRow icon={Gauge} label="Beygir Gücü" value={user?.carHp ? `${user.carHp} HP` : "-"} />
+                <SummaryRow icon={Hash} label="Plaka" value={user?.plateNumber || "-"} />
+                <SummaryRow
+                  icon={Wrench}
+                  label="Araç Özellikleri"
+                  value={user?.carFeatures || "-"}
+                  multiline
+                />
+                <div className="pt-3 border-t border-white/[0.06]">
+                  <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
+                  <div className="mt-2">
+                    <FileUpload
+                      value={removeAvatar ? null : avatarFile || user?.avatar || null}
+                      onChange={(file) => {
+                        setAvatarFile(file);
+                        setRemoveAvatar(file === null);
+                        setIsEditing(true);
+                      }}
+                      label="Yeni fotoğraf yüklemek için tıklayın"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form
+              style={{ display: isEditing ? undefined : "none" }}
               onSubmit={handleProfileSubmit(onProfileSubmit)}
               className="space-y-5"
             >
-              {/* Avatar upload */}
+              <Separator className="bg-[#0a1628]" />
+
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
-                  {removeAvatar ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRemoveAvatar(false);
-                        setAvatarFile(null);
-                      }}
-                      className="text-xs text-[#60a5fa] hover:text-[#93c5fd]"
-                    >
-                      Geri al
-                    </button>
-                  ) : (
-                    user?.avatar && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAvatarFile(null);
-                          setRemoveAvatar(true);
-                        }}
-                        className="text-xs text-red-400 hover:text-red-300"
-                      >
-                        Fotoğrafı Kaldır
-                      </button>
-                    )
-                  )}
+                <Label htmlFor="firstName" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                  İsim Soyisim
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Input
+                      id="firstName"
+                      placeholder="Ad"
+                      className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                      {...registerProfile("firstName")}
+                    />
+                    {profileErrors.firstName && (
+                      <p className="text-red-400 text-[11px] mt-1">
+                        {profileErrors.firstName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      id="lastName"
+                      placeholder="Soyad"
+                      className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                      {...registerProfile("lastName")}
+                    />
+                    {profileErrors.lastName && (
+                      <p className="text-red-400 text-[11px] mt-1">
+                        {profileErrors.lastName.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <FileUpload
-                  value={removeAvatar ? null : avatarFile || user?.avatar || null}
-                  onChange={(file) => {
-                    setAvatarFile(file);
-                    setRemoveAvatar(file === null);
-                  }}
-                  label="Yeni fotoğraf yüklemek için tıklayın"
-                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Telefon</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
+                  <Input
+                    value={user?.phone ?? ""}
+                    disabled
+                    className="pl-10 bg-[#0f1d32]/60 border-[#162544] text-[#7a8da4] cursor-not-allowed"
+                  />
+                </div>
+                <p className="text-[10.5px] text-[#7a8da4]">Telefon numarası değiştirilemez</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="district" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                  İlçe
+                </Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
+                  <Input
+                    id="district"
+                    placeholder="Kadıköy"
+                    className="pl-10 bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                    {...registerProfile("district")}
+                  />
+                </div>
               </div>
 
               <Separator className="bg-[#0a1628]" />
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Ad
-                  </Label>
-                  <Input
-                    id="firstName"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("firstName")}
-                  />
-                  {profileErrors.firstName && (
-                    <p className="text-red-400 text-xs">
-                      {profileErrors.firstName.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Soyad
-                  </Label>
-                  <Input
-                    id="lastName"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("lastName")}
-                  />
-                  {profileErrors.lastName && (
-                    <p className="text-red-400 text-xs">
-                      {profileErrors.lastName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Telefon
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
-                  <Input
-                    id="phone"
-                    value={user?.phone ?? ""}
-                    disabled
-                    className="pl-10 bg-mancave-surface/50 border-[#162544] text-[#7a8da4] cursor-not-allowed"
-                  />
-                </div>
-                <p className="text-xs text-[#7a8da4]">
-                  E-posta adresiniz değiştirilemez
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Telefon
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
-                    <Input
-                      id="phone"
-                      placeholder="0555 555 55 55"
-                      className="pl-10 bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
-                      {...registerProfile("phone")}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Şehir
-                  </Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
-                    <Input
-                      id="city"
-                      placeholder="İstanbul"
-                      className="pl-10 bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
-                      {...registerProfile("city")}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="carBrand" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Araç Markası
-                </Label>
+                <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Araç Markası</Label>
                 <BrandSelect
                   value={watchProfile("carBrand")}
                   onChange={(slug) =>
@@ -530,59 +553,89 @@ function ProfileContent() {
                   error={profileErrors.carBrand?.message}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="carModel" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Araç Modeli
-                </Label>
-                <Input
-                  id="carModel"
-                  placeholder="M3"
-                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                  {...registerProfile("carModel")}
-                />
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="carModel" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                    Araç Modeli
+                  </Label>
+                  <Input
+                    id="carModel"
+                    placeholder="M3"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                    {...registerProfile("carModel")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="carYear" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                    Araç Yılı
+                  </Label>
+                  <Input
+                    id="carYear"
+                    inputMode="numeric"
+                    placeholder="2020"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                    {...registerProfile("carYear")}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="carHp" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  HP
-                </Label>
-                <Input
-                  id="carHp"
-                  inputMode="numeric"
-                  placeholder="400"
-                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                  {...registerProfile("carHp")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="plateNumber" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Plaka
-                </Label>
-                <Input
-                  id="plateNumber"
-                  placeholder="34 ABC 123"
-                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                  {...registerProfile("plateNumber")}
-                />
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="carHp" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                    Beygir Gücü
+                  </Label>
+                  <Input
+                    id="carHp"
+                    inputMode="numeric"
+                    placeholder="400"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                    {...registerProfile("carHp")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="plateNumber" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                    Plaka
+                  </Label>
+                  <Input
+                    id="plateNumber"
+                    placeholder="34 ABC 123"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
+                    {...registerProfile("plateNumber")}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="about" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Hakkımda
+                <Label htmlFor="carFeatures" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                  Araç Özellikleri
                 </Label>
                 <Textarea
-                  id="about"
-                  placeholder="Kendinden kısaca bahset..."
+                  id="carFeatures"
+                  placeholder="Örn. Stage 2, karbon paket, adaptif süspansiyon"
                   rows={3}
-                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] resize-none transition-all duration-300"
-                  {...registerProfile("about")}
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 resize-none transition-all duration-300"
+                  {...registerProfile("carFeatures")}
                 />
               </div>
 
-              <div className="pt-1">
+              <div className="pt-1 flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setAvatarFile(null);
+                    setRemoveAvatar(false);
+                  }}
+                  className="flex-1 rounded-xl py-2.5 border-[#162544] text-[#9fb0c4] hover:bg-[#0a1628]"
+                >
+                  Vazgeç
+                </Button>
                 <Button
                   type="submit"
                   disabled={isSavingProfile || (!isProfileDirty && !avatarFile && !removeAvatar)}
-                  className="w-full bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
+                  className="flex-[2] bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
                 >
                   {isSavingProfile ? (
                     <span className="flex items-center gap-2">
