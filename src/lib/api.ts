@@ -630,3 +630,59 @@ export function imgUrl(pathOrUrl: string | null | undefined): string | undefined
   const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
   return `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
 }
+
+// ============================================================
+// Medya (YouTube + Galeri)
+// ============================================================
+
+export interface YouTubeVideoItem {
+  id: string;
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  publishedAt: string;
+  url: string;
+}
+
+export interface GalleryImageItem {
+  id: string;
+  url: string;
+  publicId: string | null;
+  caption: string | null;
+  eventName: string | null;
+  order: number;
+  createdAt: string;
+}
+
+export const mediaApi = {
+  videos: () => request<ApiResponse<YouTubeVideoItem[]>>("/api/media/videos"),
+
+  syncVideos: () =>
+    request<ApiResponse<{ added: number; total: number; videos: YouTubeVideoItem[] }>>(
+      "/api/media/videos/sync",
+      { method: "POST" }
+    ),
+
+  gallery: () => request<ApiResponse<GalleryImageItem[]>>("/api/media/gallery"),
+
+  uploadGallery: (files: File[], meta?: { caption?: string; eventName?: string }) => {
+    const fd = new FormData();
+    files.forEach((f) => fd.append("images", f));
+    if (meta?.caption) fd.append("caption", meta.caption);
+    if (meta?.eventName) fd.append("eventName", meta.eventName);
+    return request<ApiResponse<GalleryImageItem[]>>("/api/media/gallery", {
+      method: "POST",
+      body: fd,
+    });
+  },
+
+  deleteGallery: (id: string) =>
+    request<ApiResponse<null>>(`/api/media/gallery/${id}`, { method: "DELETE" }),
+
+  updateGallery: (id: string, data: { caption?: string; eventName?: string }) =>
+    request<ApiResponse<GalleryImageItem>>(`/api/media/gallery/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+};
