@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, FileImage, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { imgUrl } from "@/lib/api";
 
 interface FileUploadProps {
   value?: File | string | null;
@@ -19,7 +20,7 @@ export function FileUpload({
   value,
   onChange,
   accept = { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
-  maxSize = 5 * 1024 * 1024,
+  maxSize = 25 * 1024 * 1024,
   preview = true,
   label = "Dosya yüklemek için tıklayın veya sürükleyin",
   disabled = false,
@@ -60,10 +61,7 @@ export function FileUpload({
   };
 
   const displayedPreview =
-    previewUrl ||
-    (typeof value === "string" && value
-      ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050"}${value}`
-      : null);
+    previewUrl || (typeof value === "string" && value ? imgUrl(value) : null);
 
   if (displayedPreview && preview) {
     return (

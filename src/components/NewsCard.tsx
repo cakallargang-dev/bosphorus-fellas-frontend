@@ -5,6 +5,7 @@ import type { News } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Newspaper } from "lucide-react";
+import { imgUrl } from "@/lib/api";
 
 interface NewsCardProps {
   news: News;
@@ -21,7 +22,7 @@ export function NewsCard({ news }: NewsCardProps) {
             src={
               news.imageUrl.startsWith("http")
                 ? news.imageUrl
-                : `${apiBase}${news.imageUrl}`
+                : imgUrl(news.imageUrl)
             }
             alt={news.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

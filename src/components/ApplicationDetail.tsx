@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import type { MembershipApplication } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { imgUrl } from "@/lib/api";
 import {
   User,
   Phone,
@@ -107,7 +108,7 @@ export function ApplicationDetail({
           {application.photoUrl && (
             <div className="flex justify-center">
               <img
-                src={`${apiBase}${application.photoUrl}`}
+                src={imgUrl(application.photoUrl)}
                 alt={`${application.firstName} ${application.lastName}`}
                 className="w-32 h-32 rounded-full object-cover border-2 border-mancave-border"
               />

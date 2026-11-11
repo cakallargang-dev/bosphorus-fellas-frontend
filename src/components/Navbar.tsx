@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { imgUrl } from "@/lib/api";
 import {
   Menu,
   X,
@@ -86,7 +87,7 @@ export function Navbar() {
                   >
                     <Avatar className="h-8 w-8 border border-mancave-border">
                       <AvatarImage
-                        src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : undefined}
+                        src={user?.avatar ? imgUrl(user.avatar) : undefined}
                         alt={user?.firstName}
                       />
                       <AvatarFallback className="bg-mancave-blue/10 text-mancave-blue text-xs">
@@ -193,7 +194,7 @@ export function Navbar() {
                   <div className="flex items-center gap-3 px-3 py-2">
                     <Avatar className="h-10 w-10 border border-mancave-border">
                       <AvatarImage
-                        src={user?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}` : undefined}
+                        src={user?.avatar ? imgUrl(user.avatar) : undefined}
                       />
                       <AvatarFallback className="bg-mancave-blue/10 text-mancave-blue text-xs">
                         {initials}

@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Event } from "@/types";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { imgUrl } from "@/lib/api";
 
 interface EventCardProps {
   event: Event;
@@ -52,7 +53,7 @@ export function EventCard({
             src={
               event.imageUrl.startsWith("http")
                 ? event.imageUrl
-                : `${apiBase}${event.imageUrl}`
+                : imgUrl(event.imageUrl)
             }
             alt={event.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -152,7 +153,7 @@ export function EventCard({
                   >
                     <Avatar className="w-5 h-5">
                       <AvatarImage
-                        src={p.userAvatar ? `${apiBase}${p.userAvatar}` : undefined}
+                        src={p.userAvatar ? imgUrl(p.userAvatar) : undefined}
                       />
                       <AvatarFallback className="text-[10px] bg-mancave-blue/20 text-mancave-blue">
                         {p.userName.charAt(0)}

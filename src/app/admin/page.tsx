@@ -853,7 +853,7 @@ function MembersTab() {
                         <AvatarImage
                           src={
                             member.avatar
-                              ? `${apiBase}${member.avatar}`
+                              ? imgUrl(member.avatar)
                               : undefined
                           }
                         />
@@ -1150,9 +1150,7 @@ function EventsTab() {
                       {event.imageUrl && (
                         <img
                           src={
-                            event.imageUrl.startsWith("http")
-                              ? event.imageUrl
-                              : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050"}${event.imageUrl}`
+                            imgUrl(event.imageUrl)
                           }
                           alt=""
                           className="w-10 h-10 rounded object-cover"
@@ -1372,9 +1370,7 @@ function SponsorsTab() {
                         {sp.logoUrl && (
                           <img
                             src={
-                              sp.logoUrl.startsWith("http")
-                                ? sp.logoUrl
-                                : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050"}${sp.logoUrl}`
+                              imgUrl(sp.logoUrl)
                             }
                             alt=""
                             className="w-8 h-8 rounded object-contain bg-black/20"
@@ -1936,9 +1932,7 @@ function MarketTab() {
                         {product.imageUrl ? (
                           <img
                             src={
-                              product.imageUrl.startsWith("http")
-                                ? product.imageUrl
-                                : `${apiBase}${product.imageUrl}`
+                              imgUrl(product.imageUrl)
                             }
                             alt={product.name}
                             className="w-full h-full object-cover"

@@ -3,6 +3,7 @@
 import { ShoppingBag, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Product } from "@/types";
+import { imgUrl } from "@/lib/api";
 
 const CATEGORY_LABELS: Record<string, string> = {
   monthly: "Aylık Paket",
@@ -33,7 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
             src={
               product.imageUrl.startsWith("http")
                 ? product.imageUrl
-                : `${apiBase}${product.imageUrl}`
+                : imgUrl(product.imageUrl)
             }
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

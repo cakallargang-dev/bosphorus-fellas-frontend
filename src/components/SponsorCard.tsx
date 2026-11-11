@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Sponsor } from "@/types";
 import { ExternalLink } from "lucide-react";
+import { imgUrl } from "@/lib/api";
 
 interface SponsorCardProps {
   sponsor: Sponsor;
@@ -44,7 +45,7 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
                 src={
                   (sponsor.logoUrl || sponsor.logo || "").startsWith("http")
                     ? (sponsor.logoUrl || sponsor.logo)
-                    : `${apiBase}${sponsor.logoUrl || sponsor.logo}`
+                    : imgUrl(sponsor.logoUrl || sponsor.logo)
                 }
                 alt={sponsor.name}
                 className="w-12 h-12 object-contain"
