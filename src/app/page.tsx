@@ -58,7 +58,7 @@ export default function Home() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-mancave-bg">
+    <div className="min-h-screen flex flex-col bg-mancave-bg animate-fade-in">
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">

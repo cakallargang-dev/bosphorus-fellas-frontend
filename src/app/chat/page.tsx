@@ -175,7 +175,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
     messages.filter((m) => m.senderId === senderId && !m.replied).length;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-3 pb-2 border-b border-mancave-border">
         <Button

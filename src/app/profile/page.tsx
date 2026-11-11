@@ -295,7 +295,7 @@ function ProfileContent() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-2xl mx-auto px-4 py-10 animate-fade-in">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <User className="w-6 h-6 text-[#3b82f6]" />

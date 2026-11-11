@@ -100,7 +100,7 @@ export default function LoginPage() {
   if (isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4 animate-fade-in">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-3 mb-8 group">
         <div className="w-12 h-12 rounded border border-[#3b82f6] flex items-center justify-center group-hover:bg-[#3b82f6]/10 transition-colors">

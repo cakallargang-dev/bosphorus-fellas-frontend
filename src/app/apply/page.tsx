@@ -279,7 +279,7 @@ export default function ApplyPage() {
   if (isSuccess) {
     return (
       <Layout>
-        <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <div className="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in">
           <Card className="w-full max-w-lg bg-[#0f1d32]/50 backdrop-blur border-[#162544] text-center">
             <CardContent className="pt-12 pb-10">
               <div className="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">

@@ -113,7 +113,7 @@ export default function KayitPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg animate-fade-in">
       <Card className="w-full max-w-md bg-mancave-surface border-[#162544]">
         <CardHeader>
           <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>

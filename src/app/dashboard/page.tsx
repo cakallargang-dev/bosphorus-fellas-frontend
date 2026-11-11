@@ -194,7 +194,7 @@ function DashboardContent() {
 
   return (
     <Layout>
-      <div className="max-w-[430px] mx-auto px-4 pb-10">
+      <div className="max-w-[430px] mx-auto px-4 pb-10 animate-fade-in">
         {/* Hoş geldin */}
         <div className="flex items-center gap-3 mt-2 mb-6 p-4 rounded-xl bg-gradient-to-br from-[#3b82f6]/10 via-transparent to-transparent border border-[#3b82f6]/10">
           <Avatar className="w-12 h-12 border-2 border-[#3b82f6]/30">
@@ -235,7 +235,7 @@ function DashboardContent() {
             </span>
           </h2>
 
-          <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3">
+          <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3 animate-slide-up">
             <div className="flex items-center justify-between mb-2.5">
               <button
                 onClick={() =>
