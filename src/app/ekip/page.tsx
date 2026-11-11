@@ -10,51 +10,236 @@ import { Search, X, Gauge, CalendarDays, CalendarCheck } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
-/* ---------- Marka rozetleri ---------- */
-const BRANDS: { key: string; label: string; accent: string; mono: string }[] = [
-  { key: "bmw", label: "BMW", accent: "#0066B1", mono: "BMW" },
-  { key: "mercedes", label: "Mercedes", accent: "#9BA3AA", mono: "M" },
-  { key: "audi", label: "Audi", accent: "#BB0A30", mono: "A" },
-  { key: "porsche", label: "Porsche", accent: "#B12B28", mono: "P" },
-  { key: "volkswagen", label: "Volkswagen", accent: "#3D6EB4", mono: "VW" },
-  { key: "vw", label: "Volkswagen", accent: "#3D6EB4", mono: "VW" },
-  { key: "ford", label: "Ford", accent: "#4A90D9", mono: "F" },
-  { key: "renault", label: "Renault", accent: "#EFDF00", mono: "R" },
-  { key: "fiat", label: "Fiat", accent: "#96152C", mono: "FIAT" },
-  { key: "toyota", label: "Toyota", accent: "#EB0A1E", mono: "T" },
-  { key: "honda", label: "Honda", accent: "#E40521", mono: "H" },
-  { key: "hyundai", label: "Hyundai", accent: "#4A7EB8", mono: "H" },
-  { key: "opel", label: "Opel", accent: "#C9C93A", mono: "O" },
-  { key: "seat", label: "Seat", accent: "#E30613", mono: "S" },
-  { key: "skoda", label: "Skoda", accent: "#4BA82E", mono: "S" },
-  { key: "volvo", label: "Volvo", accent: "#8E9AA6", mono: "V" },
-  { key: "mini", label: "MINI", accent: "#C9D4E2", mono: "MINI" },
-  { key: "tesla", label: "Tesla", accent: "#E82127", mono: "T" },
-  { key: "alfa", label: "Alfa Romeo", accent: "#3E6FA8", mono: "AR" },
-  { key: "peugeot", label: "Peugeot", accent: "#3E7AB8", mono: "P" },
-  { key: "citroen", label: "Citroën", accent: "#C0564B", mono: "C" },
-  { key: "kia", label: "Kia", accent: "#BB162B", mono: "K" },
-  { key: "nissan", label: "Nissan", accent: "#C3002F", mono: "N" },
-  { key: "mazda", label: "Mazda", accent: "#910A2D", mono: "M" },
-  { key: "chevrolet", label: "Chevrolet", accent: "#D1A83B", mono: "C" },
-  { key: "dacia", label: "Dacia", accent: "#646B72", mono: "D" },
-  { key: "jaguar", label: "Jaguar", accent: "#3E7A5E", mono: "J" },
-  { key: "land", label: "Land Rover", accent: "#4A7A5E", mono: "LR" },
-  { key: "lexus", label: "Lexus", accent: "#8E9AA6", mono: "L" },
-  { key: "mitsubishi", label: "Mitsubishi", accent: "#C1272D", mono: "M" },
-  { key: "suzuki", label: "Suzuki", accent: "#2A5FA8", mono: "S" },
-  { key: "subaru", label: "Subaru", accent: "#3D6EB4", mono: "S" },
-  { key: "cupra", label: "Cupra", accent: "#C96F3A", mono: "C" },
-  { key: "lancia", label: "Lancia", accent: "#3E5A8E", mono: "L" },
-  { key: "dodge", label: "Dodge", accent: "#C1272D", mono: "D" },
-  { key: "jeep", label: "Jeep", accent: "#4A7A3E", mono: "J" },
-  { key: "byd", label: "BYD", accent: "#C1272D", mono: "BYD" },
-  { key: "mg", label: "MG", accent: "#C1272D", mono: "MG" },
+/* ---------- Marka logolari (gercek SVG) ---------- */
+type BrandDef = {
+  key: string[];
+  label: string;
+  accent: string;
+  svg: React.ReactNode;
+};
+
+const LogoBMW = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="3" />
+    <circle cx="24" cy="24" r="15.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M24 8.5 A15.5 15.5 0 0 1 39.5 24 L24 24 Z" fill="currentColor" opacity=".9" />
+    <path d="M24 39.5 A15.5 15.5 0 0 1 8.5 24 L24 24 Z" fill="currentColor" opacity=".9" />
+  </svg>
+);
+
+const LogoAudi = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    {[10, 19, 28, 37].map((cx, i) => (
+      <circle key={i} cx={cx} cy="24" r="7" fill="none" stroke="currentColor" strokeWidth="2.2" />
+    ))}
+  </svg>
+);
+
+const LogoMercedes = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.6" />
+    <path d="M24 4 L24 24 M24 24 L37.5 39 M24 24 L10.5 39" stroke="currentColor" strokeWidth="2.6" fill="none" />
+  </svg>
+);
+
+const LogoVW = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.6" />
+    <path d="M13 13 L19 33 L24 20 L29 33 L35 13" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
+  </svg>
+);
+
+const LogoPorsche = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M24 4 L40 10 V26 C40 36 32 42 24 45 C16 42 8 36 8 26 V10 Z" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M24 10 V39 M11 22 H37" stroke="currentColor" strokeWidth="1.6" opacity=".8" />
+  </svg>
+);
+
+const LogoTesla = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M24 6 C16 6 10 9 7 12 C10 13 13 14 15 16 C18 13 21 11 24 11 C27 11 30 13 33 16 C35 14 38 13 41 12 C38 9 32 6 24 6 Z" fill="currentColor" />
+    <path d="M24 18 C20 18 17 20 15 22 L18 25 C19.5 23.5 21.5 22.5 24 22.5 C26.5 22.5 28.5 23.5 30 25 L33 22 C31 20 28 18 24 18 Z" fill="currentColor" />
+    <path d="M20 30 L24 43 L28 30 C26.5 29 25.2 28.5 24 28.5 C22.8 28.5 21.5 29 20 30 Z" fill="currentColor" />
+  </svg>
+);
+
+const LogoFord = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="22" ry="13" fill="none" stroke="currentColor" strokeWidth="2.6" />
+    <text x="24" y="28.5" textAnchor="middle" fill="currentColor" fontSize="9" fontWeight="700" fontStyle="italic" fontFamily="serif">Ford</text>
+  </svg>
+);
+
+const LogoRenault = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M24 5 L34 18 L34 30 L24 43 L14 30 L14 18 Z" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M24 13 L29 22 L29 26 L24 35 L19 26 L19 22 Z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);
+
+const LogoFiat = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="22" ry="15" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <text x="24" y="29" textAnchor="middle" fill="currentColor" fontSize="11" fontWeight="700" fontFamily="sans-serif" letterSpacing="1">FIAT</text>
+  </svg>
+);
+
+const LogoToyota = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="14" fill="none" stroke="currentColor" strokeWidth="2.2" />
+    <ellipse cx="24" cy="24" rx="10" ry="7.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+    <ellipse cx="24" cy="21" rx="4.5" ry="11" fill="none" stroke="currentColor" strokeWidth="2.2" />
+  </svg>
+);
+
+const LogoHonda = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M13 8 V40 M35 8 V40" stroke="currentColor" strokeWidth="3" fill="none" />
+    <path d="M13 22 H35" stroke="currentColor" strokeWidth="3" fill="none" />
+    <path d="M13 8 C13 8 24 13 35 8" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M13 40 C13 40 24 35 35 40" stroke="currentColor" strokeWidth="2" fill="none" />
+  </svg>
+);
+
+const LogoHyundai = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="14" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M16 16 C20 22 20 26 16 32 M32 16 C28 22 28 26 32 32" stroke="currentColor" strokeWidth="2.6" fill="none" />
+  </svg>
+);
+
+const LogoSeat = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M24 4 C24 4 12 12 9 20 C7 26 11 34 24 34 C37 34 41 26 39 20 C36 12 24 4 24 4 Z" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M24 34 V44 M17 34 L15 42 M31 34 L33 42" stroke="currentColor" strokeWidth="2" fill="none" />
+  </svg>
+);
+
+const LogoSkoda = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M13 26 C17 20 22 17 27 18 C30 18.5 32 21 31 23.5 C30 26 26 26.5 23 25.5" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+    <circle cx="31" cy="27" r="2.4" fill="currentColor" />
+  </svg>
+);
+
+const LogoVolvo = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="26" r="15" fill="none" stroke="currentColor" strokeWidth="2.6" />
+    <path d="M33 17 L42 8 M36 8 H42 V14" stroke="currentColor" strokeWidth="2.6" fill="none" />
+    <text x="24" y="30" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="700" letterSpacing="1">VOLVO</text>
+  </svg>
+);
+
+const LogoMini = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M14 20 H34 V22 H27 V26 H34 V28 H27 V32 H25 V28 H18" stroke="currentColor" strokeWidth="2.6" fill="none" strokeLinejoin="round" />
+  </svg>
+);
+
+const LogoAlfa = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M24 6 V42 M6 24 H42" stroke="currentColor" strokeWidth="1.6" opacity=".7" />
+    <path d="M13 16 C17 20 17 28 13 32 M35 16 C31 20 31 28 35 32" stroke="currentColor" strokeWidth="2" fill="none" />
+  </svg>
+);
+
+const LogoPeugeot = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M14 8 H34 L31 20 L24 40 L17 20 Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+    <path d="M18 16 H30" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);
+
+const LogoCitroen = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <path d="M8 16 L15 26 L24 18 L33 26 L40 16" stroke="currentColor" strokeWidth="2.8" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+    <path d="M8 30 L15 20 L24 28 L33 20 L40 30" stroke="currentColor" strokeWidth="2.8" fill="none" strokeLinejoin="round" strokeLinecap="round" />
+  </svg>
+);
+
+const LogoKia = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="13" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M14 30 V18 M14 24 L20 18 M20 24 L14 30" stroke="currentColor" strokeWidth="2.4" fill="none" />
+    <path d="M24 30 V18 M24 18 L24 30" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M30 30 L34 18 L37 30" stroke="currentColor" strokeWidth="2.4" fill="none" />
+  </svg>
+);
+
+const LogoNissan = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <rect x="10" y="19" width="28" height="10" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+    <text x="24" y="26.8" textAnchor="middle" fill="currentColor" fontSize="6.5" fontWeight="700" letterSpacing=".5">NISSAN</text>
+  </svg>
+);
+
+const LogoMazda = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="15" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M11 27 C16 20 20 17 24 17 C28 17 32 20 37 27" stroke="currentColor" strokeWidth="2.4" fill="none" />
+    <path d="M24 17 V31" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
+const LogoLexus = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="15" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M20 14 V30 H31" stroke="currentColor" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+const LogoJaguar = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <path d="M13 20 C18 16 24 16 30 19 C33 20.5 34 23 33 25" stroke="currentColor" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+    <path d="M15 28 H33" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+  </svg>
+);
+
+const LogoLandRover = (
+  <svg viewBox="0 0 48 48" className="w-full h-full">
+    <ellipse cx="24" cy="24" rx="21" ry="13" fill="none" stroke="currentColor" strokeWidth="2.4" />
+    <text x="24" y="22" textAnchor="middle" fill="currentColor" fontSize="5.5" fontWeight="700" letterSpacing=".3">LAND</text>
+    <text x="24" y="29.5" textAnchor="middle" fill="currentColor" fontSize="5.5" fontWeight="700" letterSpacing=".3">ROVER</text>
+  </svg>
+);
+
+const BRANDS: BrandDef[] = [
+  { key: ["bmw"], label: "BMW", accent: "#4A9EE0", svg: LogoBMW },
+  { key: ["audi"], label: "Audi", accent: "#E0344D", svg: LogoAudi },
+  { key: ["mercedes", "benz"], label: "Mercedes", accent: "#C8D0D8", svg: LogoMercedes },
+  { key: ["volkswagen", "vw"], label: "Volkswagen", accent: "#5B93DC", svg: LogoVW },
+  { key: ["porsche"], label: "Porsche", accent: "#E04A46", svg: LogoPorsche },
+  { key: ["tesla"], label: "Tesla", accent: "#F0444A", svg: LogoTesla },
+  { key: ["ford"], label: "Ford", accent: "#6BA6E8", svg: LogoFord },
+  { key: ["renault"], label: "Renault", accent: "#F0E03C", svg: LogoRenault },
+  { key: ["fiat"], label: "Fiat", accent: "#D9485C", svg: LogoFiat },
+  { key: ["toyota"], label: "Toyota", accent: "#F24A56", svg: LogoToyota },
+  { key: ["honda"], label: "Honda", accent: "#F04450", svg: LogoHonda },
+  { key: ["hyundai"], label: "Hyundai", accent: "#6BA0DC", svg: LogoHyundai },
+  { key: ["seat"], label: "Seat", accent: "#F04450", svg: LogoSeat },
+  { key: ["skoda"], label: "Skoda", accent: "#6BC44E", svg: LogoSkoda },
+  { key: ["volvo"], label: "Volvo", accent: "#A8B4C0", svg: LogoVolvo },
+  { key: ["mini"], label: "MINI", accent: "#D8E0EC", svg: LogoMini },
+  { key: ["alfa"], label: "Alfa Romeo", accent: "#5B8FD0", svg: LogoAlfa },
+  { key: ["peugeot"], label: "Peugeot", accent: "#5B90D0", svg: LogoPeugeot },
+  { key: ["citroen", "citroën"], label: "Citroën", accent: "#DC6A5E", svg: LogoCitroen },
+  { key: ["kia"], label: "Kia", accent: "#E0485C", svg: LogoKia },
+  { key: ["nissan"], label: "Nissan", accent: "#E0485C", svg: LogoNissan },
+  { key: ["mazda"], label: "Mazda", accent: "#C0485C", svg: LogoMazda },
+  { key: ["lexus"], label: "Lexus", accent: "#A8B4C0", svg: LogoLexus },
+  { key: ["jaguar"], label: "Jaguar", accent: "#5BA57E", svg: LogoJaguar },
+  { key: ["land"], label: "Land Rover", accent: "#6BA57E", svg: LogoLandRover },
 ];
 
 function brandOf(car: string) {
   const c = (car || "").toLowerCase();
-  return BRANDS.find((b) => c.includes(b.key)) || null;
+  return BRANDS.find((b) => b.key.some((k) => c.includes(k))) || null;
 }
 
 function BrandBadge({ car, size = 34 }: { car: string; size?: number }) {
@@ -71,16 +256,17 @@ function BrandBadge({ car, size = 34 }: { car: string; size?: number }) {
   }
   return (
     <div
-      style={{ width: size, height: size, borderColor: `${b.accent}66`, background: `${b.accent}1a` }}
-      className="rounded-md border flex items-center justify-center shrink-0"
+      style={{
+        width: size,
+        height: size,
+        borderColor: `${b.accent}55`,
+        background: `${b.accent}14`,
+        color: b.accent,
+      }}
+      className="rounded-md border flex items-center justify-center shrink-0 p-[5px]"
       title={b.label}
     >
-      <span
-        style={{ color: b.accent, fontSize: size * 0.34 }}
-        className="font-bold tracking-tighter leading-none"
-      >
-        {b.mono}
-      </span>
+      {b.svg}
     </div>
   );
 }
@@ -253,13 +439,13 @@ function TeamContent() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-[14px] font-semibold tracking-[-0.01em] text-white truncate">
-                          {m.name}
-                        </p>
-                        <BrandBadge car={m.car} size={19} />
+                      <p className="text-[14px] font-semibold tracking-[-0.01em] text-white truncate">
+                        {m.name}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <BrandBadge car={m.car} size={20} />
+                        <p className="text-[12.5px] text-[#b9c6d8] truncate">{m.car}</p>
                       </div>
-                      <p className="text-[12.5px] text-[#b9c6d8] truncate mt-0.5">{m.car}</p>
                       {m.spec && (
                         <p className="text-[11px] text-[#6b7d94] truncate font-mono tracking-tight">
                           {m.spec}
@@ -334,8 +520,9 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
                 background: `${b.accent}22`,
                 color: b.accent,
               }}
-              className="absolute top-3 left-3 px-2.5 py-1 rounded-md border text-[10.5px] font-bold tracking-wider uppercase backdrop-blur"
+              className="absolute top-3 left-3 flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-md border text-[10.5px] font-bold tracking-wider uppercase backdrop-blur"
             >
+              <span className="w-4 h-4 block">{b.svg}</span>
               {b.label}
             </span>
           )}
