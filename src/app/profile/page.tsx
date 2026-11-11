@@ -455,20 +455,6 @@ function ProfileContent() {
                   value={user?.carFeatures || "-"}
                   multiline
                 />
-                <div className="pt-3 border-t border-white/[0.06]">
-                  <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
-                  <div className="mt-2">
-                    <FileUpload
-                      value={removeAvatar ? null : avatarFile || user?.avatar || null}
-                      onChange={(file) => {
-                        setAvatarFile(file);
-                        setRemoveAvatar(file === null);
-                        setIsEditing(true);
-                      }}
-                      label="Yeni fotoğraf yüklemek için tıklayın"
-                    />
-                  </div>
-                </div>
               </div>
             )}
 
@@ -477,6 +463,45 @@ function ProfileContent() {
               onSubmit={handleProfileSubmit(onProfileSubmit)}
               className="space-y-5"
             >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
+                  {removeAvatar ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRemoveAvatar(false);
+                        setAvatarFile(null);
+                      }}
+                      className="text-[11px] text-[#60a5fa] hover:text-[#93c5fd]"
+                    >
+                      Geri al
+                    </button>
+                  ) : (
+                    user?.avatar && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAvatarFile(null);
+                          setRemoveAvatar(true);
+                        }}
+                        className="text-[11px] text-red-400 hover:text-red-300"
+                      >
+                        Fotoğrafı Kaldır
+                      </button>
+                    )
+                  )}
+                </div>
+                <FileUpload
+                  value={removeAvatar ? null : avatarFile || user?.avatar || null}
+                  onChange={(file) => {
+                    setAvatarFile(file);
+                    setRemoveAvatar(file === null);
+                  }}
+                  label="Yeni fotoğraf yüklemek için tıklayın"
+                />
+              </div>
+
               <Separator className="bg-[#0a1628]" />
 
               <div className="space-y-2">

@@ -108,8 +108,7 @@ function TeamContent() {
       if (!needle) return true;
       return (
         m.name.toLowerCase().includes(needle) ||
-        m.car.toLowerCase().includes(needle) ||
-        m.spec.toLowerCase().includes(needle)
+        m.car.toLowerCase().includes(needle)
       );
     });
   }, [all, q, brand]);
@@ -258,11 +257,7 @@ function TeamContent() {
                             .join(" · ")}
                         </p>
                       )}
-                      {!m.carYear && !m.carHp && m.spec && (
-                        <p className="text-[10.5px] text-white/45 truncate font-mono tracking-tight mt-0.5">
-                          {m.spec}
-                        </p>
-                      )}
+
 
                       <div className="flex items-center gap-3 mt-2 text-[10.5px] text-white/45">
                         <span className="flex items-center gap-1">
@@ -360,7 +355,6 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
         <div className="p-4 -mt-6 relative">
           <p className="text-[20px] font-semibold tracking-[-0.02em] text-white">{m.name}</p>
           <p className="text-[13px] text-[#b9c6d8] mt-0.5">{m.car}</p>
-          {m.spec && <p className="text-[11.5px] text-[#6b7d94] font-mono mt-0.5">{m.spec}</p>}
 
           {/* Ilce */}
           {(m.district || m.city) && (
