@@ -612,15 +612,8 @@ function MembersTab() {
   });
 
   const statsMutation = useMutation({
-    mutationFn: ({
-      id,
-      activeScore,
-      eventCount,
-    }: {
-      id: string;
-      activeScore?: number;
-      eventCount?: number;
-    }) => membersApi.updateStats(id, { activeScore, eventCount }),
+    mutationFn: ({ id, eventCount }: { id: string; eventCount?: number }) =>
+      membersApi.updateStats(id, { eventCount }),
     onSuccess: () => {
       toast.success("Üye istatistikleri güncellendi");
       queryClient.invalidateQueries({ queryKey: ["admin", "members"] });
@@ -784,22 +777,10 @@ function MembersTab() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min={0}
-                        max={10}
-                        defaultValue={(member as any).activeScore ?? 0}
-                        onBlur={(e) => {
-                          const v = Number(e.target.value);
-                          if (Number.isFinite(v) && v !== ((member as any).activeScore ?? 0)) {
-                            statsMutation.mutate({ id: member.id, activeScore: v });
-                          }
-                        }}
-                        className="w-14 rounded-md bg-gray-800/70 border border-gray-700 px-2 py-1 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
-                      />
-                      <span className="text-xs text-gray-500">/10</span>
-                    </div>
+                    <span className="text-sm text-gray-400 tabular-nums">
+                      {(member as any).activityScore ?? "-"}
+                      <span className="text-xs text-gray-600">/10</span>
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
