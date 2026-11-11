@@ -6,7 +6,7 @@ import { teamApi, type TeamMember } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, Trophy, Flag, X, Gauge, CalendarDays } from "lucide-react";
+import { Search, Flag, X, Gauge, CalendarDays, CalendarCheck } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -267,12 +267,12 @@ function TeamContent() {
                       )}
                       <div className="flex items-center gap-3 mt-1.5 text-[10.5px] text-[#4d5c70]">
                         <span className="flex items-center gap-1">
-                          <Flag className="w-2.5 h-2.5" />
-                          {m.rolls}
+                          <CalendarCheck className="w-2.5 h-2.5" />
+                          {m.events} etkinlik
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Trophy className="w-2.5 h-2.5" />
-                          {m.wins}
+                        <span className="flex items-center gap-1 text-[#3b82f6]/70">
+                          <Gauge className="w-2.5 h-2.5" />
+                          {m.score}/10
                         </span>
                         <span className="flex items-center gap-1">
                           <CalendarDays className="w-2.5 h-2.5" />
@@ -354,11 +354,10 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
           {m.spec && <p className="text-[11.5px] text-[#6b7d94] font-mono mt-0.5">{m.spec}</p>}
           {m.bio && <p className="text-[12.5px] text-[#7a8da4] mt-3 leading-relaxed">{m.bio}</p>}
 
-          <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-2 mt-4">
             {[
-              { v: m.rolls, l: "Roll", Icon: Flag },
-              { v: m.wins, l: "Galibiyet", Icon: Trophy },
-              { v: Math.max(0, m.rolls - m.wins), l: "Mağlubiyet", Icon: Gauge },
+              { v: `${m.events}`, l: "Katıldığı etkinlik", Icon: CalendarCheck },
+              { v: `${m.rolls}`, l: "Roll", Icon: Flag },
             ].map((s) => (
               <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2.5 text-center">
                 <s.Icon className="w-3 h-3 mx-auto text-[#3b82f6]/60 mb-1" />
@@ -366,6 +365,30 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
                 <span className="text-[10.5px] text-[#6b7d94]">{s.l}</span>
               </div>
             ))}
+          </div>
+
+          {/* Katılım puanı */}
+          <div className="mt-2.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] text-[#6b7d94] flex items-center gap-1.5">
+                <Gauge className="w-3 h-3 text-[#3b82f6]/70" />
+                Katılım puanı
+              </span>
+              <span className="text-[13px] font-semibold text-white tabular-nums">
+                {m.score}
+                <span className="text-[#5b6b80] font-normal">/10</span>
+              </span>
+            </div>
+            <div className="flex gap-[3px]">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`flex-1 h-[5px] rounded-full transition-colors duration-300 ${
+                    i < m.score ? "bg-[#3b82f6]" : "bg-[#162544]"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           <p className="text-[11px] text-[#4d5c70] mt-3 flex items-center gap-1.5">

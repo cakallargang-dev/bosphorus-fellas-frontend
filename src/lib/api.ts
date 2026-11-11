@@ -270,7 +270,8 @@ export interface TeamMember {
   car: string;
   spec: string;
   rolls: number;
-  wins: number;
+  events: number;
+  score: number;
   since: string;
 }
 
