@@ -526,7 +526,36 @@ function MeetingCard({
       <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#f97316] z-10" />
 
       {/* Harita / yer gorseli */}
-      {mapImg && (
+      {m.photoUrl && (
+        <div className="relative h-[150px] overflow-hidden bg-[#0a1628]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={m.photoUrl}
+            alt={m.place || m.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-[#0f1d32] via-transparent to-transparent pointer-events-none" />
+          <span className="absolute top-2 left-3 flex items-center gap-1 text-[10px] font-medium bg-black/55 backdrop-blur px-2 py-0.5 rounded-md text-white/90">
+            <MapPin className="w-2.5 h-2.5 text-[#f97316]" />
+            Mekan fotoğrafı
+          </span>
+          {m.mapUrl && (
+            <a
+              href={m.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-2 left-3 right-3 flex items-center gap-1 text-[10.5px] text-white/95 hover:text-[#fb923c]"
+            >
+              <MapPin className="w-3 h-3 text-[#f97316] shrink-0" />
+              <span className="truncate">{m.place}</span>
+            </a>
+          )}
+        </div>
+      )}
+
+      {!m.photoUrl && mapImg && (
         <div className="relative h-[130px] overflow-hidden bg-[#0a1628]">
           <iframe
             src={mapImg}

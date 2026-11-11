@@ -366,6 +366,7 @@ export interface Meeting {
     carBrand: string | null;
     carModel: string | null;
   };
+  photoUrl?: string | null;
   isMine: boolean;
   myResponse?: "going" | "not_going" | null;
   goingCount?: number;
