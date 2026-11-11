@@ -30,18 +30,28 @@ export function ScreenshotProtection() {
 
     // ── 2) Tespit: ekran goruntusu / app degistirme ──
     let timer: ReturnType<typeof setTimeout> | null = null;
+    let wasHidden = false;
 
-    const showShield = (ms = 1200) => {
+    // Ekran goruntusu sonrasi uzun sure logo perdesi: cekilen goruntu koyu cikar
+    const SHIELD_MS = 6000;
+    const showShield = (ms = SHIELD_MS) => {
       setShield(true);
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => setShield(false), ms);
     };
 
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") showShield(1500);
+      if (document.visibilityState === "hidden") {
+        wasHidden = true;
+        showShield();
+      }
     };
 
-    const onBlur = () => showShield(900);
+    const onBlur = () => showShield();
+
+    // iOS Safari: dokunma sonrasi kisa sure periyodik kontrol (gorsel/gizlilik
+    // sonrasi geri donuslerde de perde)
+    const onPageShow = () => showShield();
 
     const onKeyDownCapture = (e: KeyboardEvent) => {
       // PrintScreen / Win+Shift+S / Cmd+Shift+3-4-5
@@ -51,8 +61,7 @@ export function ScreenshotProtection() {
         (e.metaKey && e.shiftKey && ["3", "4", "5"].includes(k)) ||
         (e.metaKey && e.shiftKey && k === "s")
       ) {
-        e.preventDefault();
-        showShield(2000);
+        showShield();
       }
     };
 
@@ -88,6 +97,14 @@ export function ScreenshotProtection() {
 
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("blur", onBlur);
+    window.addEventListener("pageshow", onPageShow);
+    window.addEventListener("focus", () => {
+      // Odak geri geldiginde (ekran goruntusu ekrani / app degisimi) perde
+      if (wasHidden) {
+        wasHidden = false;
+        showShield();
+      }
+    });
     document.addEventListener("keydown", onKeyDownCapture, true);
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
