@@ -434,7 +434,9 @@ function DashboardContent() {
           onRespond={(id, status) => respondMeeting.mutate({ id, status })}
           onJoinEvent={(id) => joinEvent.mutate(id)}
           onLeaveEvent={(id) => leaveEvent.mutate(id)}
-          canDeleteMeeting={true}
+          canDeleteMeeting={Boolean(user?.role === 'admin')}
+          currentUserId={user?.id}
+          isAdmin={user?.role === 'admin'}
         />
       )}
 
@@ -495,12 +497,16 @@ function MeetingCard({
   onDelete,
   onRespond,
   canDelete,
+  currentUserId,
+  isAdmin,
 }: {
   m: Meeting;
   onOpen: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDelete: (id: string) => void;
   onRespond: (id: string, status: "going" | "not_going") => void;
   canDelete: boolean;
+  currentUserId?: string;
+  isAdmin?: boolean;
 }) {
   const d = new Date(m.dateIso || m.date);
   const dateLabel = !isNaN(d.getTime())
@@ -643,7 +649,7 @@ function MeetingCard({
             </span>
           </button>
 
-          {canDelete && (
+          {(isAdmin || m.isMine || (currentUserId && m.creatorId === currentUserId)) && (
             <button
               onClick={() => onDelete(m.id)}
               className="ml-auto flex items-center gap-1 rounded-lg border border-[#3a1c1c] px-2.5 py-1 text-[11px] text-red-400 hover:bg-red-500/10 transition-colors"
@@ -873,6 +879,8 @@ function DayModal({
   onOpenUser,
   onDeleteMeeting,
   onRespond,
+  currentUserId,
+  isAdmin,
   onJoinEvent,
   onLeaveEvent,
   canDeleteMeeting,
@@ -895,6 +903,8 @@ function DayModal({
   onOpenUser: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDeleteMeeting: (id: string) => void;
   onRespond: (id: string, status: "going" | "not_going") => void;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onJoinEvent: (id: string) => void;
   onLeaveEvent: (id: string) => void;
   canDeleteMeeting: boolean;
@@ -946,6 +956,8 @@ function DayModal({
                 onDelete={onDeleteMeeting}
                 onRespond={onRespond}
                 canDelete={canDeleteMeeting}
+                currentUserId={currentUserId}
+                isAdmin={isAdmin}
               />
             ))}
           </div>
