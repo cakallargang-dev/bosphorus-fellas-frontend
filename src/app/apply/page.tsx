@@ -20,7 +20,7 @@ import {
 } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BrandSelect } from "@/components/BrandSelect";
+import { BrandWheel } from "@/components/BrandWheel";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -57,27 +57,6 @@ import {
 
 // ─── Car Data ───────────────────────────────────────────────────────────────
 
-const CAR_BRANDS: Record<string, string[]> = {
-  "Alfa Romeo": ["Giulia", "Stelvio", "Tonale"],
-  "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "RS3", "RS4", "RS5", "RS6", "RS7", "R8", "TT", "e-tron GT"],
-  "BMW": ["1 Serisi", "2 Serisi", "3 Serisi", "4 Serisi", "5 Serisi", "6 Serisi", "7 Serisi", "X1", "X3", "X4", "X5", "X6", "X7", "M2", "M3", "M4", "M5", "M8", "Z4"],
-  "Mercedes": ["A Serisi", "C Serisi", "E Serisi", "S Serisi", "CLA", "CLS", "GLA", "GLB", "GLC", "GLE", "GLS", "AMG GT", "EQS"],
-  "Porsche": ["718 Cayman", "911 Carrera", "911 Turbo", "911 GT3", "Panamera", "Cayenne", "Macan", "Taycan"],
-  "Volkswagen": ["Golf", "Polo", "Passat", "Arteon", "Tiguan", "T-Roc", "Touareg", "Scirocco"],
-  "Toyota": ["Corolla", "Camry", "Yaris", "C-HR", "RAV4", "Land Cruiser", "Supra", "GR86", "GT86"],
-  "Honda": ["Civic", "Accord", "CR-V", "HR-V", "Jazz", "NSX", "S2000", "Type R"],
-  "Ford": ["Focus", "Fiesta", "Mondeo", "Kuga", "Puma", "Mustang", "Ranger"],
-  "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "370Z", "GT-R"],
-  "Mazda": ["Mazda3", "Mazda6", "CX-3", "CX-5", "CX-30", "MX-5"],
-  "Tesla": ["Model 3", "Model Y", "Model S", "Model X"],
-  "Ferrari": ["Roma", "F8 Tributo", "SF90 Stradale", "296 GTB", "812 Superfast"],
-  "Lamborghini": ["Huracan", "Aventador", "Urus", "Revuelto"],
-  "Subaru": ["Impreza", "WRX", "BRZ", "Forester", "Outback"],
-  "Volvo": ["S60", "S90", "V60", "V90", "XC40", "XC60", "XC90"],
-  "Hyundai": ["i10", "i20", "i30", "Bayon", "Kona", "Tucson", "IONIQ 5", "IONIQ 6"],
-  "Renault": ["Clio", "Megane", "Talisman", "Kadjar", "Captur", "Arkana"],
-  "Diğer": [],
-};
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -172,8 +151,6 @@ export default function ApplyPage() {
   });
 
   const selectedCarBrand = watch("carBrand");
-  const selectedCarModel = watch("carModel");
-  const isCustomBrand = selectedCarBrand === "Diğer";
 
   const fieldsPerStep: Record<number, (keyof ApplyFormData)[]> = {
     1: ["firstName", "lastName", "phone", "password", "confirmPassword", "birthDate", "district"],
@@ -727,11 +704,10 @@ export default function ApplyPage() {
                       <Label htmlFor="carBrand" className="text-[#b9c6d8]">
                         Marka <span className="text-red-400">*</span>
                       </Label>
-                      <BrandSelect
+                      <BrandWheel
                         value={selectedCarBrand}
                         onChange={(slug) => {
                           setValue("carBrand", slug, { shouldValidate: true });
-                          setValue("carModel", "", { shouldValidate: false });
                         }}
                         error={errors.carBrand?.message}
                       />
@@ -745,36 +721,12 @@ export default function ApplyPage() {
                       <Label htmlFor="carModel" className="text-[#b9c6d8]">
                         Model <span className="text-red-400">*</span>
                       </Label>
-                      {selectedCarBrand && !isCustomBrand ? (
-                        <Select
-                          value={selectedCarModel || ""}
-                          onValueChange={(value) => {
-                            setValue("carModel", value || "", { shouldValidate: true });
-                          }}
-                        >
-                          <SelectTrigger className="w-full bg-mancave-surface border-[#162544] text-white data-placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50">
-                            <SelectValue placeholder="Model seçiniz" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-mancave-card border-[#162544] text-white max-h-60">
-                            {(CAR_BRANDS[selectedCarBrand] || []).map((model) => (
-                              <SelectItem key={model} value={model}>
-                                {model}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <Input
-                          id="carModel"
-                          placeholder={isCustomBrand ? "Model giriniz" : "Önce marka seçiniz"}
-                          disabled={!isCustomBrand && !selectedCarBrand}
-                          className="bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 disabled:opacity-50"
-                          value={selectedCarModel || ""}
-                          onChange={(e) =>
-                            setValue("carModel", e.target.value, { shouldValidate: true })
-                          }
-                        />
-                      )}
+                      <Input
+                        id="carModel"
+                        placeholder="örn. M3 Competition"
+                        className="bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50"
+                        {...register("carModel")}
+                      />
                       {errors.carModel && (
                         <p className="text-red-400 text-xs">{errors.carModel.message}</p>
                       )}
