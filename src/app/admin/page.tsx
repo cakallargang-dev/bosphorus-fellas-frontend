@@ -2393,10 +2393,10 @@ function MediaTab() {
                     onClick={() => {
                       if (confirm("Bu fotoğraf silinsin mi?")) deleteMutation.mutate(p.id);
                     }}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-md bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Sil"
+                    className="absolute top-1 right-1 w-7 h-7 rounded-lg bg-red-500/90 backdrop-blur-sm flex items-center justify-center shadow-lg shadow-black/40 hover:bg-red-500 transition-colors active:scale-90"
+                    aria-label="Fotoğrafı sil"
                   >
-                    <Trash2 className="w-3 h-3 text-red-400" />
+                    <Trash2 className="w-3.5 h-3.5 text-white" />
                   </button>
                   {p.eventName && (
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pt-3 pb-0.5 text-[8.5px] text-white/80 truncate">
