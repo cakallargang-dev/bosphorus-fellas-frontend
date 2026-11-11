@@ -319,12 +319,12 @@ function DashboardContent() {
         <section className="mb-8">
           <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
             <Star className="w-4 h-4 text-[#3b82f6]" />
-            Sponsorlar
+            Anlaşmalı Noktalar
           </h2>
           {isLoading ? (
             <SkeletonCard className="h-20" />
           ) : sponsors.length === 0 ? (
-            <EmptyState icon={Star} title="Henüz sponsor yok" description="Sponsorlarımız burada listelenecek." compact />
+            <EmptyState icon={Star} title="Henüz sponsor yok" description="Anlaşmalı noktalarımız burada listelenecek." compact />
           ) : (
             <div className="space-y-3">
               {sponsors.map((s) => (
@@ -338,12 +338,12 @@ function DashboardContent() {
         <section>
           <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 text-[#3b82f6]" />
-            MANCAVE Market
+            Bosphorus Market
           </h2>
           {isLoading ? (
             <SkeletonCard className="h-40" />
           ) : products.length === 0 ? (
-            <EmptyState icon={ShoppingBag} title="Henüz ürün yok" description="Market ürünleri yakında burada." compact />
+            <EmptyState icon={ShoppingBag} title="Henüz ürün yok" description="Bosphorus Market ürünleri yakında burada." compact />
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {products.map((p) => (
