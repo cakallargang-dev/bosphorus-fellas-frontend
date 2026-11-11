@@ -307,121 +307,6 @@ function DashboardContent() {
           </div>
         </section>
 
-        {/* Yaklaşan etkinlikler */}
-        <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#3b82f6]" />
-            Yaklaşan etkinlikler
-          </h2>
-
-          {isLoading ? (
-            <SkeletonCard className="h-64" />
-          ) : events.length === 0 ? (
-            <EmptyState icon={Calendar} title="Etkinlik yok" description="Yaklaşan etkinlik bulunmuyor." />
-          ) : (
-            <div className="space-y-3.5">
-              {events.map((e) => {
-                const kind = e.kind || "Buluşma";
-                const joined = (e as { isJoined?: boolean }).isJoined;
-                const current = (e as { currentParticipants?: number }).currentParticipants ?? 0;
-                const max = e.maxParticipants || 0;
-                const pct = max ? Math.min(100, Math.round((current / max) * 100)) : 0;
-                const left = max ? max - current : 0;
-                const image = e.imageUrl ? `${API_BASE}${e.imageUrl}` : null;
-                return (
-                  <article
-                    key={e.id}
-                    className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
-                      e.featured ? "border-[#3b82f6]" : "border-gray-800"
-                    }`}
-                  >
-                    <div
-                      className="relative h-[190px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
-                      style={image ? { backgroundImage: `url('${image}')` } : undefined}
-                    >
-                      {!image &&
-                        (kind === "Yarış" ? (
-                          <Trophy className="w-11 h-11 text-gray-500" />
-                        ) : (
-                          <Car className="w-11 h-11 text-gray-500" />
-                        ))}
-                      <span
-                        className={`absolute top-2.5 left-2.5 text-[12px] px-2.5 py-0.5 rounded-lg ${
-                          kind === "Yarış"
-                            ? "bg-red-500/15 text-red-400"
-                            : kind === "Deneme"
-                            ? "bg-amber-500/15 text-amber-400"
-                            : "bg-[#3b82f6]/15 text-[#3b82f6]"
-                        }`}
-                      >
-                        {e.featured ? "Öne çıkan · " : ""}
-                        {kind}
-                      </span>
-                      <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-gray-900 border border-gray-800 px-2.5 py-0.5 rounded-lg text-gray-200">
-                        {countdown(e.date, e.time)}
-                      </span>
-                    </div>
-
-                    <div className="p-3.5">
-                      <p className="text-[17px] font-semibold text-white">{e.title}</p>
-                      {e.description && (
-                        <p className="text-[13px] text-mancave-muted mt-0.5">{e.description}</p>
-                      )}
-                      <div className="flex flex-col gap-1 text-[13px] text-mancave-muted mt-2.5">
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
-                          {new Date(e.date).toLocaleDateString("tr-TR", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                          {e.time ? ` · ${e.time}` : ""}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#3b82f6]" />
-                          {e.locationUrl ? (
-                            <a
-                              href={e.locationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#3b82f6] underline underline-offset-2"
-                            >
-                              {e.location || "Konum"}
-                            </a>
-                          ) : (
-                            e.location || "Konum belirtilmedi"
-                          )}
-                        </span>
-                      </div>
-
-                      <div className="h-1.5 rounded bg-gray-800 mt-3 overflow-hidden">
-                        <div className="h-full bg-[#3b82f6] transition-all" style={{ width: `${pct}%` }} />
-                      </div>
-                      <div className="flex justify-between text-[13px] text-mancave-muted mt-1.5">
-                        <span>
-                          {current} / {max || "∞"} katılımcı
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => (joined ? leaveEvent.mutate(e.id) : joinEvent.mutate(e.id))}
-                        disabled={joinEvent.isPending || leaveEvent.isPending}
-                        className={`w-full mt-3 rounded-lg border py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-                          joined
-                            ? "border-red-500 text-red-400 hover:bg-red-500/10"
-                            : "border-[#3b82f6] text-[#3b82f6] hover:bg-[#3b82f6]/10"
-                        }`}
-                      >
-                        {joined ? "Ayrıl" : "Katıl"}
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
         {/* Deneme talepleri */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
@@ -638,6 +523,128 @@ function RollCard({
   );
 }
 
+function EventCard({
+  e,
+  onJoin,
+  onLeave,
+  pending,
+}: {
+  e: {
+    id: string;
+    title: string;
+    description?: string;
+    date: string;
+    time?: string;
+    location?: string;
+    locationUrl?: string | null;
+    imageUrl?: string | null;
+    kind?: string;
+    featured?: boolean;
+    maxParticipants?: number;
+    currentParticipants?: number;
+    isJoined?: boolean;
+  };
+  onJoin: (id: string) => void;
+  onLeave: (id: string) => void;
+  pending: boolean;
+}) {
+  const kind = e.kind || "Buluşma";
+  const joined = e.isJoined;
+  const current = e.currentParticipants ?? 0;
+  const max = e.maxParticipants || 0;
+  const pct = max ? Math.min(100, Math.round((current / max) * 100)) : 0;
+  const image = e.imageUrl ? `${API_BASE}${e.imageUrl}` : null;
+  return (
+<article
+key={e.id}
+className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
+  e.featured ? "border-[#3b82f6]" : "border-gray-800"
+}`}
+      >
+<div
+  className="relative h-[190px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
+  style={image ? { backgroundImage: `url('${image}')` } : undefined}
+>
+  {!image &&
+    (kind === "Yarış" ? (
+      <Trophy className="w-11 h-11 text-gray-500" />
+    ) : (
+      <Car className="w-11 h-11 text-gray-500" />
+    ))}
+  <span
+    className={`absolute top-2.5 left-2.5 text-[12px] px-2.5 py-0.5 rounded-lg ${
+      kind === "Yarış"
+        ? "bg-red-500/15 text-red-400"
+        : kind === "Deneme"
+        ? "bg-amber-500/15 text-amber-400"
+        : "bg-[#3b82f6]/15 text-[#3b82f6]"
+    }`}
+  >
+    {e.featured ? "Öne çıkan · " : ""}
+    {kind}
+  </span>
+  <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-gray-900 border border-gray-800 px-2.5 py-0.5 rounded-lg text-gray-200">
+    {countdown(e.date, e.time)}
+  </span>
+</div>
+
+<div className="p-3.5">
+  <p className="text-[17px] font-semibold text-white">{e.title}</p>
+  {e.description && (
+    <p className="text-[13px] text-mancave-muted mt-0.5">{e.description}</p>
+  )}
+  <div className="flex flex-col gap-1 text-[13px] text-mancave-muted mt-2.5">
+    <span className="flex items-center gap-1.5">
+      <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
+      {new Date(e.date).toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })}
+      {e.time ? ` · ${e.time}` : ""}
+    </span>
+    <span className="flex items-center gap-1.5">
+      <MapPin className="w-3.5 h-3.5 text-[#3b82f6]" />
+      {e.locationUrl ? (
+        <a
+          href={e.locationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#3b82f6] underline underline-offset-2"
+        >
+          {e.location || "Konum"}
+        </a>
+      ) : (
+        e.location || "Konum belirtilmedi"
+      )}
+    </span>
+  </div>
+
+  <div className="h-1.5 rounded bg-gray-800 mt-3 overflow-hidden">
+    <div className="h-full bg-[#3b82f6] transition-all" style={{ width: `${pct}%` }} />
+  </div>
+  <div className="flex justify-between text-[13px] text-mancave-muted mt-1.5">
+    <span>
+      {current} / {max || "∞"} katılımcı
+    </span>
+  </div>
+
+  <button
+    onClick={() => (joined ? onLeave(e.id) : onJoin(e.id))}
+    disabled={pending}
+    className={`w-full mt-3 rounded-lg border py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+      joined
+        ? "border-red-500 text-red-400 hover:bg-red-500/10"
+        : "border-[#3b82f6] text-[#3b82f6] hover:bg-[#3b82f6]/10"
+    }`}
+  >
+    {joined ? "Ayrıl" : "Katıl"}
+  </button>
+</div>
+      </article>
+  );
+}
+
 function DayModal({
   label,
   events,
@@ -656,7 +663,7 @@ function DayModal({
     title: string;
     description?: string;
     time?: string;
-    date?: string;
+    date: string;
     location?: string;
     locationUrl?: string | null;
     imageUrl?: string | null;
@@ -696,74 +703,15 @@ function DayModal({
         )}
 
         {events.length > 0 && (
-          <div className="space-y-2.5 mb-3">
+          <div className="space-y-3.5 mb-3">
             {events.map((e) => (
-              <div key={e.id} className="bg-gray-800/70 rounded-[10px] overflow-hidden">
-                {e.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`${API_BASE}${e.imageUrl}`}
-                    alt={e.title}
-                    className="w-full h-[150px] object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-[90px] bg-[#3b82f6]/10 flex items-center justify-center">
-                    {e.kind === "Yarış" ? (
-                      <Trophy className="w-8 h-8 text-[#3b82f6]/60" />
-                    ) : (
-                      <Car className="w-8 h-8 text-[#3b82f6]/60" />
-                    )}
-                  </div>
-                )}
-                <div className="p-3">
-                <div className="flex items-start gap-2">
-                  <i className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: CAL_EVENT }} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-semibold text-white">{e.title}</p>
-                    <div className="flex flex-wrap gap-2.5 text-[12px] text-mancave-muted mt-1">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-[#3b82f6]" />
-                        {e.time || "Saat yok"}
-                      </span>
-                      {e.locationUrl ? (
-                        <a
-                          href={e.locationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-[#3b82f6] underline underline-offset-2"
-                        >
-                          <MapPin className="w-3 h-3" />
-                          {e.location || "Konum"}
-                        </a>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#3b82f6]" />
-                          {e.location || "Konum belirtilmedi"}
-                        </span>
-                      )}
-                    </div>
-                    {e.description && (
-                      <p className="text-[12px] text-mancave-muted mt-1.5 line-clamp-4">{e.description}</p>
-                    )}
-                    {e.date && !e.time && (
-                      <p className="text-[12px] text-mancave-muted mt-1">
-                        {new Date(e.date).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => (e.isJoined ? onLeaveEvent(e.id) : onJoinEvent(e.id))}
-                  className={`w-full mt-2.5 rounded-lg border py-1.5 text-[13px] font-medium ${
-                    e.isJoined
-                      ? "border-red-500 text-red-400 hover:bg-red-500/10"
-                      : "border-[#3b82f6] text-[#3b82f6] hover:bg-[#3b82f6]/10"
-                  }`}
-                >
-                  {e.isJoined ? "Ayrıl" : "Katıl"}
-                </button>
-                </div>
-              </div>
+              <EventCard
+                key={e.id}
+                e={e}
+                onJoin={onJoinEvent}
+                onLeave={onLeaveEvent}
+                pending={false}
+              />
             ))}
           </div>
         )}
