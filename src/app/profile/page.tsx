@@ -99,7 +99,7 @@ function ReferenceCodeCard() {
   const isExpired = expiresAt ? new Date(expiresAt) < new Date() : false;
 
   return (
-    <Card className="bg-[#0f1d32]/50 backdrop-blur border-[#162544] mb-6">
+    <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Share2 className="w-5 h-5 text-[#3b82f6]" />
@@ -150,7 +150,7 @@ function ReferenceCodeCard() {
               <Clock className="w-4 h-4" />
               <span>
                 Son kullanma:{" "}
-                <span className="text-[#b9c6d8]">
+                <span className="text-[#9fb0c4] text-[11.5px] font-medium">
                   {expiresAt ? formatExpiry(expiresAt) : "—"}
                 </span>
               </span>
@@ -296,53 +296,96 @@ function ProfileContent() {
     }
   };
 
+  const carText = [user?.carBrand, user?.carModel].filter(Boolean).join(" ") || "Araç eklenmedi";
+
+  const avatarPreview = avatarFile ? URL.createObjectURL(avatarFile) : null;
+
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-10 animate-fade-in">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <User className="w-6 h-6 text-[#3b82f6]" />
-            Profil Ayarları
-          </h1>
-          <p className="text-[#7a8da4] mt-1">
-            Profil bilgilerinizi güncelleyin ve şifrenizi değiştirin
-          </p>
-        </div>
+      <div className="max-w-[430px] mx-auto pb-28 animate-fade-in">
+        {/* ================= HERO ================= */}
+        <div className="relative -mt-4 mb-6 overflow-hidden">
+          <div className="absolute inset-0 bg-[#0a1628]">
+            {(avatarPreview || user?.avatar) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarPreview || `${apiBase}${user?.avatar}`}
+                alt={user?.firstName || "profil"}
+                className="w-full h-full object-cover opacity-30 scale-110"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050b16] via-[#050b16]/95 via-50% to-[#0a1628]/25" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#030711] via-transparent to-[#030711]/70" />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 82% 12%, rgba(59,130,246,0.24) 0%, transparent 60%)",
+              }}
+            />
+          </div>
 
-        {/* Profile Card */}
-        <Card className="bg-[#0f1d32]/50 backdrop-blur border-[#162544] mb-6">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="w-20 h-20 border-2 border-[#3b82f6]/30">
-                  <AvatarImage
-                    src={
-                      user?.avatar
-                        ? `${apiBase}${user.avatar}`
-                        : undefined
-                    }
-                    alt={user?.firstName}
-                  />
-                  <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-xl">
+          <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#3b82f6]/60 to-transparent z-10" />
+
+          <div className="relative z-10 px-5 pt-7 pb-5">
+            <p className="text-[9.5px] uppercase tracking-[0.24em] text-[#3b82f6]/80 mb-3">
+              Hesabım
+            </p>
+
+            <div className="flex items-end gap-4">
+              <div className="relative shrink-0">
+                <Avatar className="w-[68px] h-[68px] border border-[#3b82f6]/30 ring-1 ring-white/5">
+                  <AvatarImage src={avatarPreview || (user?.avatar ? `${apiBase}${user.avatar}` : undefined)} alt={user?.firstName} />
+                  <AvatarFallback className="bg-[#0f1d32] text-[#60a5fa] text-[18px] font-semibold tracking-wide">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#3b82f6] flex items-center justify-center">
-                  <Camera className="w-3 h-3 text-black" />
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#3b82f6] border-2 border-[#050b16] flex items-center justify-center">
+                  <Camera className="w-3 h-3 text-[#030711]" />
                 </div>
               </div>
-              <div>
-                <CardTitle className="text-white">
+
+              <div className="min-w-0 flex-1 pb-1">
+                <h1 className="text-[22px] leading-tight font-semibold tracking-[-0.03em] text-white truncate drop-shadow">
                   {user?.firstName} {user?.lastName}
-                </CardTitle>
-                <CardDescription className="text-[#7a8da4]">
+                </h1>
+                <p className="text-[12px] text-white/55 truncate mt-0.5 font-mono tracking-tight">
                   {user?.phone}
-                </CardDescription>
+                </p>
               </div>
             </div>
+
+            <div className="flex items-center gap-3 mt-4 pt-3.5 border-t border-white/[0.07] text-[10.5px] text-white/45">
+              <span className="flex items-center gap-1.5 min-w-0 truncate">
+                <Car className="w-3 h-3 text-[#3b82f6]/70 shrink-0" />
+                <span className="truncate">{carText}</span>
+              </span>
+              {user?.city && (
+                <span className="flex items-center gap-1.5 shrink-0">
+                  <MapPin className="w-3 h-3 text-[#3b82f6]/70" />
+                  {user.city}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4">
+        {/* Profile Card */}
+        <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
+          <CardHeader className="pb-4 border-b border-white/[0.06]">
+            <CardTitle className="text-white text-[14px] font-semibold flex items-center gap-2 tracking-tight">
+              <span className="w-6 h-6 rounded-md bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center">
+                <User className="w-3 h-3 text-[#3b82f6]" />
+              </span>
+              Profil Bilgileri
+            </CardTitle>
+            <CardDescription className="text-[#7a8da4] text-[11.5px]">
+              Bilgilerini güncel tut, ekip seni tanısın.
+            </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-5">
             <form
               onSubmit={handleProfileSubmit(onProfileSubmit)}
               className="space-y-5"
@@ -350,7 +393,7 @@ function ProfileContent() {
               {/* Avatar upload */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-[#b9c6d8]">Profil Fotoğrafı</Label>
+                  <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
                   {user?.avatar && (
                     <button type="button" onClick={() => { setAvatarFile(null); setRemoveAvatar(true); }} className="text-xs text-red-400 hover:text-red-300">Fotoğrafı Kaldır</button>
                   )}
@@ -364,14 +407,14 @@ function ProfileContent() {
 
               <Separator className="bg-[#0a1628]" />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[#b9c6d8]">
+                  <Label htmlFor="firstName" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Ad
                   </Label>
                   <Input
                     id="firstName"
-                    className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                     {...registerProfile("firstName")}
                   />
                   {profileErrors.firstName && (
@@ -381,12 +424,12 @@ function ProfileContent() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-[#b9c6d8]">
+                  <Label htmlFor="lastName" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Soyad
                   </Label>
                   <Input
                     id="lastName"
-                    className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                     {...registerProfile("lastName")}
                   />
                   {profileErrors.lastName && (
@@ -398,7 +441,7 @@ function ProfileContent() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[#b9c6d8]">
+                <Label htmlFor="phone" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Telefon
                 </Label>
                 <div className="relative">
@@ -415,9 +458,9 @@ function ProfileContent() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-[#b9c6d8]">
+                  <Label htmlFor="phone" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Telefon
                   </Label>
                   <div className="relative">
@@ -431,7 +474,7 @@ function ProfileContent() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-[#b9c6d8]">
+                  <Label htmlFor="city" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Şehir
                   </Label>
                   <div className="relative">
@@ -447,7 +490,7 @@ function ProfileContent() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="carBrand" className="text-[#b9c6d8]">
+                <Label htmlFor="carBrand" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Araç Markası
                 </Label>
                 <div className="relative">
@@ -461,58 +504,58 @@ function ProfileContent() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="carModel" className="text-[#b9c6d8]">
+                <Label htmlFor="carModel" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Araç Modeli
                 </Label>
                 <Input
                   id="carModel"
                   placeholder="M3"
-                  className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                   {...registerProfile("carModel")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="carHp" className="text-[#b9c6d8]">
+                <Label htmlFor="carHp" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   HP
                 </Label>
                 <Input
                   id="carHp"
                   inputMode="numeric"
                   placeholder="400"
-                  className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                   {...registerProfile("carHp")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="plateNumber" className="text-[#b9c6d8]">
+                <Label htmlFor="plateNumber" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Plaka
                 </Label>
                 <Input
                   id="plateNumber"
                   placeholder="34 ABC 123"
-                  className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                   {...registerProfile("plateNumber")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="about" className="text-[#b9c6d8]">
+                <Label htmlFor="about" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Hakkımda
                 </Label>
                 <Textarea
                   id="about"
                   placeholder="Kendinden kısaca bahset..."
                   rows={3}
-                  className="bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 resize-none"
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] resize-none transition-all duration-300"
                   {...registerProfile("about")}
                 />
               </div>
 
-              <div className="flex justify-end pt-2">
+              <div className="pt-1">
                 <Button
                   type="submit"
                   disabled={isSavingProfile || (!isProfileDirty && !avatarFile && !removeAvatar)}
-                  className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
+                  className="w-full bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
                 >
                   {isSavingProfile ? (
                     <span className="flex items-center gap-2">
@@ -535,14 +578,16 @@ function ProfileContent() {
         <ReferenceCodeCard />
 
         {/* Password Card */}
-        <Card className="bg-[#0f1d32]/50 backdrop-blur border-[#162544]">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#3b82f6]" />
+        <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
+          <CardHeader className="pb-4 border-b border-white/[0.06]">
+            <CardTitle className="text-white text-[14px] font-semibold flex items-center gap-2 tracking-tight">
+              <span className="w-6 h-6 rounded-md bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center">
+                <Lock className="w-3 h-3 text-[#3b82f6]" />
+              </span>
               Şifre Değiştir
             </CardTitle>
-            <CardDescription className="text-[#7a8da4]">
-              Hesap güvenliğiniz için güçlü bir şifre kullanın
+            <CardDescription className="text-[#7a8da4] text-[11.5px]">
+              Hesap güvenliğin için güçlü bir şifre kullan.
             </CardDescription>
           </CardHeader>
 
@@ -552,14 +597,14 @@ function ProfileContent() {
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" className="text-[#b9c6d8]">
+                <Label htmlFor="currentPassword" className="text-[#9fb0c4] text-[11.5px] font-medium">
                   Mevcut Şifre
                 </Label>
                 <Input
                   id="currentPassword"
                   type="password"
                   placeholder="••••••••"
-                  className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                   {...registerPassword("currentPassword")}
                 />
                 {passwordErrors.currentPassword && (
@@ -569,16 +614,16 @@ function ProfileContent() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="newPassword" className="text-[#b9c6d8]">
+                  <Label htmlFor="newPassword" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Yeni Şifre
                   </Label>
                   <Input
                     id="newPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                     {...registerPassword("newPassword")}
                   />
                   {passwordErrors.newPassword && (
@@ -588,14 +633,14 @@ function ProfileContent() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-[#b9c6d8]">
+                  <Label htmlFor="confirmPassword" className="text-[#9fb0c4] text-[11.5px] font-medium">
                     Yeni Şifre (Tekrar)
                   </Label>
                   <Input
                     id="confirmPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-mancave-surface border-[#162544] text-white focus:border-[#3b82f6]/50"
+                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
                     {...registerPassword("confirmPassword")}
                   />
                   {passwordErrors.confirmPassword && (
@@ -618,11 +663,11 @@ function ProfileContent() {
                 </div>
               )}
 
-              <div className="flex justify-end pt-2">
+              <div className="pt-1">
                 <Button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
+                  className="w-full bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
                 >
                   {isChangingPassword ? (
                     <span className="flex items-center gap-2">
@@ -642,19 +687,19 @@ function ProfileContent() {
         </Card>
 
         {/* Bildirimler */}
-        <Card className="bg-[#0f1d32]/50 backdrop-blur border-[#162544]">
-          <CardContent className="pt-6 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center shrink-0">
-                <Bell className="w-4 h-4 text-[#3b82f6]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">Bildirimler</p>
-                <p className="text-xs text-[#7a8da4] mt-0.5 leading-relaxed">
-                  Yeni etkinlik, etkinlik hatırlatması ve duyurular için push bildirimi al.
-                </p>
-              </div>
-            </div>
+        <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
+          <CardHeader className="pb-4 border-b border-white/[0.06]">
+            <CardTitle className="text-white text-[14px] font-semibold flex items-center gap-2 tracking-tight">
+              <span className="w-6 h-6 rounded-md bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center">
+                <Bell className="w-3 h-3 text-[#3b82f6]" />
+              </span>
+              Bildirimler
+            </CardTitle>
+            <CardDescription className="text-[#7a8da4] text-[11.5px]">
+              Yeni etkinlik, hatırlatma ve duyurular için push bildirimi al.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4 space-y-3">
 
             {push.status === "granted" ? (
               <div className="space-y-2">
@@ -695,18 +740,14 @@ function ProfileContent() {
         </Card>
 
         {/* Logout */}
-        <Card className="bg-[#0f1d32]/50 backdrop-blur border-red-500/20">
-          <CardContent className="pt-6">
-            <Button
-              onClick={logout}
-              variant="destructive"
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Çıkış Yap
-            </Button>
-          </CardContent>
-        </Card>
+        <button
+          onClick={logout}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl border border-red-500/20 bg-[#0f1d32]/50 py-3 text-[13px] font-medium text-red-400/90 hover:bg-red-500/10 hover:border-red-500/35 transition-all duration-300 press-scale"
+        >
+          <LogOut className="w-4 h-4" />
+          Çıkış Yap
+        </button>
+        </div>
       </div>
     </Layout>
   );
