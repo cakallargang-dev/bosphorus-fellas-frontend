@@ -21,7 +21,7 @@ export function LoadingSpinner({
         className="animate-spin text-mancave-blue"
         style={{ width: size, height: size }}
       />
-      {text && <p className="text-sm text-mancave-muted">{text}</p>}
+      {text && <p className="text-sm text-[#7a8da4]">{text}</p>}
     </div>
   );
 
@@ -41,7 +41,7 @@ export function PageLoading() {
     <div className="min-h-screen flex items-center justify-center bg-mancave-bg">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-mancave-blue/30 border-t-mancave-blue animate-spin" />
-        <p className="text-mancave-muted text-sm tracking-wider">YÜKLENİYOR</p>
+        <p className="text-[#7a8da4] text-sm tracking-wider">YÜKLENİYOR</p>
       </div>
     </div>
   );

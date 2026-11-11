@@ -11,23 +11,23 @@ export function Footer() {
               <span className="text-mancave-blue font-bold text-xs">BF</span>
             </div>
             <div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[#8f9fb4]">
                 Bosphorus Fellas © {new Date().getFullYear()}
               </p>
-              <p className="text-xs text-mancave-muted">Ham Güç. Arınmış Ruh.</p>
+              <p className="text-xs text-[#7a8da4]">Ham Güç. Arınmış Ruh.</p>
             </div>
           </div>
 
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="text-xs text-mancave-muted hover:text-gray-300 transition-colors"
+              className="text-xs text-[#7a8da4] hover:text-[#b9c6d8] transition-colors"
             >
               Dashboard
             </Link>
             <Link
               href="/apply"
-              className="text-xs text-mancave-muted hover:text-gray-300 transition-colors"
+              className="text-xs text-[#7a8da4] hover:text-[#b9c6d8] transition-colors"
             >
               Başvuru
             </Link>
@@ -36,21 +36,21 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <a
               href="#"
-              className="text-mancave-muted hover:text-mancave-blue transition-colors"
+              className="text-[#7a8da4] hover:text-mancave-blue transition-colors"
               aria-label="Instagram"
             >
               <Camera className="w-4 h-4" />
             </a>
             <a
               href="#"
-              className="text-mancave-muted hover:text-mancave-blue transition-colors"
+              className="text-[#7a8da4] hover:text-mancave-blue transition-colors"
               aria-label="Youtube"
             >
               <Film className="w-4 h-4" />
             </a>
             <a
               href="#"
-              className="text-mancave-muted hover:text-mancave-blue transition-colors"
+              className="text-[#7a8da4] hover:text-mancave-blue transition-colors"
               aria-label="X (Twitter)"
             >
               <X className="w-4 h-4" />

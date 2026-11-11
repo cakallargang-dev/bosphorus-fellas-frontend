@@ -37,17 +37,17 @@ export function NewsCard({ news }: NewsCardProps) {
             <h3 className="text-white font-medium text-sm leading-snug line-clamp-2">
               {news.title}
             </h3>
-            <p className="text-mancave-muted text-xs mt-1.5 line-clamp-3">
+            <p className="text-[#7a8da4] text-xs mt-1.5 line-clamp-3">
               {news.content}
             </p>
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-mancave-muted">
+              <span className="text-xs text-[#7a8da4]">
                 {format(new Date(news.createdAt || Date.now()), "d MMM yyyy", { locale: tr })}
               </span>
               {news.authorName && (
                 <>
-                  <span className="text-mancave-muted">·</span>
-                  <span className="text-xs text-mancave-muted">
+                  <span className="text-[#7a8da4]">·</span>
+                  <span className="text-xs text-[#7a8da4]">
                     {news.authorName}
                   </span>
                 </>

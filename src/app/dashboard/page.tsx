@@ -203,27 +203,27 @@ function DashboardContent() {
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h1 className="text-lg font-bold text-white truncate">Hoş geldin, {user?.firstName}</h1>
+              <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-white truncate">Hoş geldin, {user?.firstName}</h1>
               <Sparkles className="w-4 h-4 text-[#3b82f6] shrink-0" />
             </div>
-            <p className="text-xs text-mancave-muted">Toplulukta neler oluyor, bir göz at.</p>
+            <p className="text-xs text-[#7a8da4]">Toplulukta neler oluyor, bir göz at.</p>
           </div>
         </div>
 
         {/* Aylık takvim */}
         <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#b9c6d8] mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#3b82f6]" />
             Takvim
             <button
               onClick={() => setNewRoll(true)}
               disabled={createRoll.isPending}
-              className="flex items-center gap-1 text-[12px] border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200 hover:bg-gray-800/60 disabled:opacity-50"
+              className="flex items-center gap-1 text-[12px] border border-[#162544] rounded-lg px-2.5 py-1 text-gray-200 hover:bg-[#0a1628]/80 disabled:opacity-50"
             >
               <Plus className="w-3 h-3" />
               Talep aç
             </button>
-            <span className="ml-auto flex items-center gap-3 text-[11px] font-normal text-mancave-muted">
+            <span className="ml-auto flex items-center gap-3 text-[11px] font-normal text-[#7a8da4]">
               <span className="flex items-center gap-1">
                 <i className="w-2 h-2 rounded-full inline-block" style={{ background: CAL_EVENT }} />
                 Etkinlik
@@ -235,13 +235,13 @@ function DashboardContent() {
             </span>
           </h2>
 
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-3">
+          <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3">
             <div className="flex items-center justify-between mb-2.5">
               <button
                 onClick={() =>
                   setCalMonth(({ y, m }) => (m === 0 ? { y: y - 1, m: 11 } : { y, m: m - 1 }))
                 }
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800/60"
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#162544] text-[#b9c6d8] hover:bg-[#0a1628]/80"
                 aria-label="Önceki ay"
               >
                 ‹
@@ -253,7 +253,7 @@ function DashboardContent() {
                 onClick={() =>
                   setCalMonth(({ y, m }) => (m === 11 ? { y: y + 1, m: 0 } : { y, m: m + 1 }))
                 }
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800/60"
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#162544] text-[#b9c6d8] hover:bg-[#0a1628]/80"
                 aria-label="Sonraki ay"
               >
                 ›
@@ -262,7 +262,7 @@ function DashboardContent() {
 
             <div className="grid grid-cols-7 gap-1 mb-1">
               {TR_DAYS.map((d) => (
-                <span key={d} className="text-[11px] text-center text-mancave-muted">
+                <span key={d} className="text-[11px] text-center text-[#7a8da4]">
                   {d}
                 </span>
               ))}
@@ -285,10 +285,10 @@ function DashboardContent() {
                     disabled={!active}
                     className={`relative h-9 rounded-lg text-[12px] flex items-center justify-center border transition-colors ${
                       isPast
-                        ? "text-gray-600 border-transparent bg-gray-800/20"
+                        ? "text-[#4d5c70] border-transparent bg-[#0a1628]/40"
                         : active
-                        ? "border-gray-700 text-white hover:bg-gray-800/60"
-                        : "text-gray-400 border-transparent"
+                        ? "border-[#162544] text-white hover:bg-[#0a1628]/80"
+                        : "text-[#8f9fb4] border-transparent"
                     } ${isToday ? "ring-1 ring-[#3b82f6]" : ""}`}
                   >
                     {day.getDate()}
@@ -317,7 +317,7 @@ function DashboardContent() {
 
 {/* Sponsorlar */}
         <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#b9c6d8] mb-3 flex items-center gap-2">
             <Star className="w-4 h-4 text-[#3b82f6]" />
             Anlaşmalı Noktalar
           </h2>
@@ -336,7 +336,7 @@ function DashboardContent() {
 
         {/* MANCAVE Market */}
         <section>
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#b9c6d8] mb-3 flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 text-[#3b82f6]" />
             Bosphorus Market
           </h2>
@@ -402,7 +402,7 @@ function CarBox({
           onOpen(user);
         }
       }}
-      className="bg-gray-800/70 rounded-[10px] p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
+      className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
     >
       <div className="h-16 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center mb-1.5 overflow-hidden">
         {user.photo ? (
@@ -413,7 +413,7 @@ function CarBox({
         )}
       </div>
       <p className="text-[13px] font-semibold text-white truncate">{user.car}</p>
-      {user.spec && <p className="text-[12px] text-mancave-muted truncate">{user.spec}</p>}
+      {user.spec && <p className="text-[12px] text-[#7a8da4] truncate">{user.spec}</p>}
       <p className="text-[12px] text-[#3b82f6] truncate">
         {user.name}
         {isMe ? " (sen)" : ""} · Profil
@@ -437,9 +437,9 @@ function RollCard({
 }) {
   const matched = Boolean(r.opponent);
   return (
-  <article key={r.id} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3.5">
-          <p className="text-[17px] font-semibold text-white">{r.title}</p>
-          <div className="flex gap-3.5 flex-wrap text-[13px] text-mancave-muted mt-1">
+  <article key={r.id} className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3.5">
+          <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{r.title}</p>
+          <div className="flex gap-3.5 flex-wrap text-[13px] text-[#7a8da4] mt-1">
             <span>{r.date}</span>
             {r.mapUrl ? (
               <a
@@ -461,8 +461,8 @@ function RollCard({
             {r.opponent ? (
               <CarBox user={r.opponent} isMe={r.isJoined} onOpen={onOpen} />
             ) : (
-              <div className="rounded-[10px] border border-dashed border-gray-700 min-h-[150px] flex items-center justify-center p-2">
-                <p className="text-[12px] text-mancave-muted text-center">Rakip bekleniyor</p>
+              <div className="rounded-[10px] border border-dashed border-[#162544] min-h-[150px] flex items-center justify-center p-2">
+                <p className="text-[12px] text-[#7a8da4] text-center">Rakip bekleniyor</p>
               </div>
             )}
           </div>
@@ -470,7 +470,7 @@ function RollCard({
           {r.canDelete ? (
             <button
               onClick={() => onDelete(r.id)}
-              className="w-full mt-3 rounded-lg border border-gray-600 py-2 text-sm text-gray-200 hover:bg-gray-800/60"
+              className="w-full mt-3 rounded-lg border border-[#23365c] py-2 text-sm text-gray-200 hover:bg-[#0a1628]/80"
             >
               {r.isMine ? "Talebi sil" : "Sil (admin)"}
             </button>
@@ -482,7 +482,7 @@ function RollCard({
               Ayrıl
             </button>
           ) : matched ? (
-            <p className="text-center text-[12px] text-mancave-muted mt-3">Eşleşme tamamlandı</p>
+            <p className="text-center text-[12px] text-[#7a8da4] mt-3">Eşleşme tamamlandı</p>
           ) : (
             <button
               onClick={() => onJoin(r.id)}
@@ -529,19 +529,19 @@ function EventCard({
   return (
 <article
 key={e.id}
-className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
-  e.featured ? "border-[#3b82f6]" : "border-gray-800"
+className={`bg-[#0f1d32]/50 border rounded-xl overflow-hidden ${
+  e.featured ? "border-[#3b82f6]" : "border-[#162544]"
 }`}
       >
 <div
-  className="relative h-[190px] bg-gray-800 flex items-center justify-center bg-cover bg-center"
+  className="relative h-[190px] bg-[#0a1628] flex items-center justify-center bg-cover bg-center"
   style={image ? { backgroundImage: `url('${image}')` } : undefined}
 >
   {!image &&
     (kind === "Yarış" ? (
-      <Trophy className="w-11 h-11 text-gray-500" />
+      <Trophy className="w-11 h-11 text-[#6b7d94]" />
     ) : (
-      <Car className="w-11 h-11 text-gray-500" />
+      <Car className="w-11 h-11 text-[#6b7d94]" />
     ))}
   <span
     className={`absolute top-2.5 left-2.5 text-[12px] px-2.5 py-0.5 rounded-lg ${
@@ -555,17 +555,17 @@ className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
     {e.featured ? "Öne çıkan · " : ""}
     {kind}
   </span>
-  <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-gray-900 border border-gray-800 px-2.5 py-0.5 rounded-lg text-gray-200">
+  <span className="absolute top-2.5 right-2.5 text-[12px] font-semibold bg-[#0f1d32] border border-[#162544] px-2.5 py-0.5 rounded-lg text-gray-200">
     {countdown(e.date, e.time)}
   </span>
 </div>
 
 <div className="p-3.5">
-  <p className="text-[17px] font-semibold text-white">{e.title}</p>
+  <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{e.title}</p>
   {e.description && (
-    <p className="text-[13px] text-mancave-muted mt-0.5">{e.description}</p>
+    <p className="text-[13px] text-[#7a8da4] mt-0.5">{e.description}</p>
   )}
-  <div className="flex flex-col gap-1 text-[13px] text-mancave-muted mt-2.5">
+  <div className="flex flex-col gap-1 text-[13px] text-[#7a8da4] mt-2.5">
     <span className="flex items-center gap-1.5">
       <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
       {new Date(e.date).toLocaleDateString("tr-TR", {
@@ -592,10 +592,10 @@ className={`bg-gray-900/50 border rounded-xl overflow-hidden ${
     </span>
   </div>
 
-  <div className="h-1.5 rounded bg-gray-800 mt-3 overflow-hidden">
+  <div className="h-1.5 rounded bg-[#0a1628] mt-3 overflow-hidden">
     <div className="h-full bg-[#3b82f6] transition-all" style={{ width: `${pct}%` }} />
   </div>
-  <div className="flex justify-between text-[13px] text-mancave-muted mt-1.5">
+  <div className="flex justify-between text-[13px] text-[#7a8da4] mt-1.5">
     <span>
       {current} / {max || "∞"} katılımcı
     </span>
@@ -658,12 +658,12 @@ function DayModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[17px] font-semibold text-white">{label}</p>
+          <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{label}</p>
           <button
             onClick={onClose}
-            className="flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+            className="flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
           >
             <X className="w-3.5 h-3.5" />
             Kapat
@@ -671,7 +671,7 @@ function DayModal({
         </div>
 
         {events.length === 0 && rolls.length === 0 && (
-          <p className="text-[13px] text-mancave-muted">Bu gün için kayıt yok.</p>
+          <p className="text-[13px] text-[#7a8da4]">Bu gün için kayıt yok.</p>
         )}
 
         {events.length > 0 && (
@@ -725,7 +725,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         if (e.key === "Escape") onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
             {user.photo ? (
@@ -736,30 +736,30 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[17px] font-semibold text-white truncate">{user.name}</p>
-            <p className="text-[13px] text-mancave-muted">Üyelik: {user.since}</p>
+            <p className="text-[16px] font-semibold tracking-[-0.01em] text-white truncate">{user.name}</p>
+            <p className="text-[13px] text-[#7a8da4]">Üyelik: {user.since}</p>
           </div>
           <button
             onClick={onClose}
-            className="ml-auto flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+            className="ml-auto flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
           >
             <X className="w-3.5 h-3.5" />
             Kapat
           </button>
         </div>
 
-        <div className="h-[150px] rounded-xl bg-gray-800 flex items-center justify-center my-4 overflow-hidden">
+        <div className="h-[150px] rounded-xl bg-[#0a1628] flex items-center justify-center my-4 overflow-hidden">
           {user.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={`${API_BASE}${user.photo}`} alt={user.car} className="w-full h-full object-cover" />
           ) : (
-            <Car className="w-12 h-12 text-gray-500" />
+            <Car className="w-12 h-12 text-[#6b7d94]" />
           )}
         </div>
 
         <p className="text-base font-semibold text-white">{user.car}</p>
-        {user.spec && <p className="text-[12px] text-mancave-muted">{user.spec}</p>}
-        {user.bio && <p className="text-[13px] text-mancave-muted mt-2.5">{user.bio}</p>}
+        {user.spec && <p className="text-[12px] text-[#7a8da4]">{user.spec}</p>}
+        {user.bio && <p className="text-[13px] text-[#7a8da4] mt-2.5">{user.bio}</p>}
 
         <div className="grid grid-cols-3 gap-2 mt-3.5">
           {[
@@ -767,9 +767,9 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
             { v: user.wins, l: "Galibiyet" },
             { v: losses, l: "Mağlubiyet" },
           ].map((s) => (
-            <div key={s.l} className="bg-gray-800/70 rounded-[10px] p-2.5 text-center">
+            <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2.5 text-center">
               <b className="block text-lg text-white">{s.v}</b>
-              <span className="text-[12px] text-mancave-muted">{s.l}</span>
+              <span className="text-[12px] text-[#7a8da4]">{s.l}</span>
             </div>
           ))}
         </div>
@@ -791,15 +791,15 @@ function EmptyState({
 }) {
   return (
     <div
-      className={`bg-gray-900/50 border border-gray-800 rounded-xl flex flex-col items-center justify-center text-center ${
+      className={`bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow flex flex-col items-center justify-center text-center ${
         compact ? "p-6 gap-2" : "p-10 gap-3"
       }`}
     >
       <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
         <Icon className="w-6 h-6 text-[#3b82f6]/60" />
       </div>
-      <h3 className="text-gray-400 font-medium text-sm">{title}</h3>
-      <p className="text-mancave-muted text-xs max-w-xs">{description}</p>
+      <h3 className="text-[#8f9fb4] font-medium text-sm">{title}</h3>
+      <p className="text-[#7a8da4] text-xs max-w-xs">{description}</p>
     </div>
   );
 }
@@ -840,7 +840,7 @@ function NewRollSheet({
   };
 
   const inputCls =
-    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
+    "block w-full min-w-0 max-w-full appearance-none rounded-lg bg-[#0a1628]/90 border border-[#162544] px-3 py-2 text-sm text-white placeholder:text-[#6b7d94] focus:outline-none focus:border-[#3b82f6] [color-scheme:dark]";
 
   return (
     <div
@@ -849,32 +849,32 @@ function NewRollSheet({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-[400px] p-4">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] p-4">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[17px] font-semibold text-white">Talep aç</p>
+          <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">Talep aç</p>
           <button
             onClick={onClose}
-            className="text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60"
+            className="text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
           >
             Kapat
           </button>
         </div>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Deneme türü</label>
+        <label className="block text-[13px] text-[#7a8da4] mb-1">Deneme türü</label>
         <select
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className={`${inputCls} mb-3`}
         >
           {OPTIONS.map((o) => (
-            <option key={o} value={o} className="bg-gray-900">
+            <option key={o} value={o} className="bg-[#0f1d32]">
               {o}
             </option>
           ))}
         </select>
 
         <div className="mb-3">
-          <label className="block text-[13px] text-mancave-muted mb-1">Tarih</label>
+          <label className="block text-[13px] text-[#7a8da4] mb-1">Tarih</label>
           <input
             type="date"
             value={date}
@@ -884,7 +884,7 @@ function NewRollSheet({
         </div>
 
         <div className="mb-3">
-          <label className="block text-[13px] text-mancave-muted mb-1">Saat</label>
+          <label className="block text-[13px] text-[#7a8da4] mb-1">Saat</label>
           <input
             type="time"
             value={time}
@@ -893,7 +893,7 @@ function NewRollSheet({
           />
         </div>
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Konum</label>
+        <label className="block text-[13px] text-[#7a8da4] mb-1">Konum</label>
         <input
           value={place}
           onChange={(e) => setPlace(e.target.value)}
@@ -901,7 +901,7 @@ function NewRollSheet({
           className={`${inputCls} mb-3`}
         />
 
-        <label className="block text-[13px] text-mancave-muted mb-1">Google Maps linki</label>
+        <label className="block text-[13px] text-[#7a8da4] mb-1">Google Maps linki</label>
         <input
           value={mapUrl}
           onChange={(e) => setMapUrl(e.target.value)}

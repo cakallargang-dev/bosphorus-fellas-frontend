@@ -38,7 +38,7 @@ export function AdminGuard({ children, fallback }: AdminGuardProps) {
           <h2 className="text-xl text-white font-semibold">
             Erişim Reddedildi
           </h2>
-          <p className="text-mancave-muted">
+          <p className="text-[#7a8da4]">
             Bu sayfaya erişmek için yönetici yetkisine sahip olmalısınız.
           </p>
           <button

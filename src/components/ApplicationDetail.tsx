@@ -97,7 +97,7 @@ export function ApplicationDetail({
               {status.label}
             </Badge>
           </div>
-          <DialogDescription className="text-mancave-muted">
+          <DialogDescription className="text-[#7a8da4]">
             Başvuru detayları
           </DialogDescription>
         </DialogHeader>
@@ -125,7 +125,7 @@ export function ApplicationDetail({
                   <field.icon className="w-4 h-4 text-mancave-blue" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-mancave-muted">{field.label}</p>
+                  <p className="text-xs text-[#7a8da4]">{field.label}</p>
                   <p className="text-sm text-white truncate">{field.value}</p>
                 </div>
               </div>
@@ -134,11 +134,11 @@ export function ApplicationDetail({
 
           {/* About */}
           <div>
-            <h4 className="text-sm text-gray-400 mb-2 flex items-center gap-2">
+            <h4 className="text-sm text-[#8f9fb4] mb-2 flex items-center gap-2">
               <FileText className="w-4 h-4 text-mancave-blue" />
               Hakkında
             </h4>
-            <p className="text-sm text-gray-300 bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
+            <p className="text-sm text-[#b9c6d8] bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
               {application.about}
             </p>
           </div>
@@ -146,11 +146,11 @@ export function ApplicationDetail({
           {/* Expectation */}
           {application.expectation && (
             <div>
-              <h4 className="text-sm text-gray-400 mb-2 flex items-center gap-2">
+              <h4 className="text-sm text-[#8f9fb4] mb-2 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-mancave-blue" />
                 Beklenti
               </h4>
-              <p className="text-sm text-gray-300 bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
+              <p className="text-sm text-[#b9c6d8] bg-mancave-surface rounded-lg p-3 border border-mancave-border whitespace-pre-wrap">
                 {application.expectation}
               </p>
             </div>
@@ -169,7 +169,7 @@ export function ApplicationDetail({
           )}
 
           {/* Meta */}
-          <div className="flex items-center gap-4 text-xs text-mancave-muted pt-2 border-t border-mancave-border">
+          <div className="flex items-center gap-4 text-xs text-[#7a8da4] pt-2 border-t border-mancave-border">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               Başvuru:{" "}

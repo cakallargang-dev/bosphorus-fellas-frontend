@@ -116,13 +116,13 @@ export default function LoginPage() {
         </div>
       </Link>
 
-      <Card className="w-full max-w-md bg-gray-900/50 backdrop-blur border-gray-800">
+      <Card className="w-full max-w-md bg-[#0f1d32]/50 backdrop-blur border-[#162544]">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-3">
             <LogIn className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <CardTitle className="text-white text-xl">Giriş Yap</CardTitle>
-          <CardDescription className="text-mancave-muted">
+          <CardDescription className="text-[#7a8da4]">
             Bosphorus Fellas topluluğuna hoş geldiniz
           </CardDescription>
         </CardHeader>
@@ -131,17 +131,17 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Telefon */}
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-gray-300">
+              <Label htmlFor="phone" className="text-[#b9c6d8]">
                 Telefon
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                 <Input
                   id="phone"
                   type="tel"
                   inputMode="tel"
                   placeholder="05XX XXX XX XX"
-                  className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
+                  className="pl-10 bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
                   {...register("phone")}
                 />
               </div>
@@ -152,16 +152,16 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-300">
+              <Label htmlFor="password" className="text-[#b9c6d8]">
                 Şifre
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10 bg-mancave-surface border-gray-800 text-white placeholder:text-mancave-muted focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
+                  className="pl-10 bg-mancave-surface border-[#162544] text-white placeholder:text-[#7a8da4] focus:border-[#3b82f6]/50 focus:ring-[#3b82f6]/20"
                   {...register("password")}
                 />
               </div>
@@ -173,7 +173,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between text-xs -mt-1">
-              <Link href="/sifremi-unuttum" className="text-mancave-muted hover:text-white">
+              <Link href="/sifremi-unuttum" className="text-[#7a8da4] hover:text-white">
                 Şifremi unuttum
               </Link>
               <Link href="/kayit" className="text-[#3b82f6] hover:underline">
@@ -204,17 +204,17 @@ export default function LoginPage() {
               <>
                 <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-800" />
+                    <span className="w-full border-t border-[#162544]" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-mancave-bg px-2 text-gray-600">veya</span>
+                    <span className="bg-mancave-bg px-2 text-[#4d5c70]">veya</span>
                   </div>
                 </div>
                 <Button
                   type="button"
                   onClick={handleBiometricLogin}
                   disabled={bioLogging}
-                  className="w-full bg-white/5 text-white border border-gray-700 hover:bg-white/10 font-medium"
+                  className="w-full bg-white/5 text-white border border-[#162544] hover:bg-white/10 font-medium"
                 >
                   {bioLogging ? (
                     <span className="flex items-center gap-2">
@@ -232,8 +232,8 @@ export default function LoginPage() {
             )}
           </form>
 
-          <div className="mt-6 pt-4 border-t border-gray-800 text-center">
-            <p className="text-sm text-mancave-muted">
+          <div className="mt-6 pt-4 border-t border-[#162544] text-center">
+            <p className="text-sm text-[#7a8da4]">
               Henüz üye değil misiniz?{" "}
               <Link
                 href="/apply"

@@ -20,7 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   return (
-    <Card className="bg-mancave-surface border border-gray-800 overflow-hidden hover:border-[#3b82f6]/30 transition-all duration-300 group">
+    <Card className="bg-mancave-surface border border-[#162544] overflow-hidden hover:border-[#3b82f6]/30 transition-all duration-300 group">
       {/* Image - square aspect ratio */}
       <a
         href={product.shopifyUrl}
@@ -40,7 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <ShoppingBag className="w-12 h-12 text-mancave-muted" />
+            <ShoppingBag className="w-12 h-12 text-[#7a8da4]" />
           </div>
         )}
         {/* Shopify badge */}
@@ -54,7 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
         <div className="flex items-center justify-between mt-1">
-          <span className="text-[10px] text-mancave-muted uppercase tracking-wider">
+          <span className="text-[10px] text-[#7a8da4] uppercase tracking-wider">
             {CATEGORY_LABELS[product.category] || product.category}
           </span>
           {product.price && (
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
         {product.description && (
-          <p className="text-mancave-muted text-xs mt-1.5 line-clamp-2">
+          <p className="text-[#7a8da4] text-xs mt-1.5 line-clamp-2">
             {product.description}
           </p>
         )}

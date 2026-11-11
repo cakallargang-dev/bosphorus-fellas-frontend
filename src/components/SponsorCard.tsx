@@ -21,7 +21,7 @@ const tierStyles: Record<string, { label: string; className: string }> = {
   },
   silver: {
     label: "Gümüş",
-    className: "bg-gray-400/20 text-gray-400 border-gray-400/30",
+    className: "bg-gray-400/20 text-[#8f9fb4] border-gray-400/30",
   },
   bronze: {
     label: "Bronz",
@@ -68,13 +68,13 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
               </Badge>
             </div>
             {sponsor.description && (
-              <p className="text-mancave-muted text-xs line-clamp-2">
+              <p className="text-[#7a8da4] text-xs line-clamp-2">
                 {sponsor.description}
               </p>
             )}
           </div>
           {(sponsor.websiteUrl || sponsor.website) && (
-            <ExternalLink className="w-4 h-4 text-mancave-muted group-hover:text-mancave-blue transition-colors shrink-0" />
+            <ExternalLink className="w-4 h-4 text-[#7a8da4] group-hover:text-mancave-blue transition-colors shrink-0" />
           )}
         </div>
       </CardContent>

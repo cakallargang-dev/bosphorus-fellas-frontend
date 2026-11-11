@@ -65,7 +65,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-gray-400 hover:text-white hover:bg-mancave-surface"
+                  className="text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                 >
                   <link.icon className="w-4 h-4 mr-2" />
                   {link.label}
@@ -93,7 +93,7 @@ export function Navbar() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-gray-300 max-w-[120px] truncate">
+                    <span className="text-sm text-[#b9c6d8] max-w-[120px] truncate">
                       {user?.firstName}
                     </span>
                   </Button>
@@ -106,21 +106,21 @@ export function Navbar() {
                     <p className="text-sm text-white font-medium truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-mancave-muted truncate">
+                    <p className="text-xs text-[#7a8da4] truncate">
                       {user?.phone}
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-mancave-border" />
-                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="text-[#b9c6d8] focus:text-white focus:bg-mancave-surface cursor-pointer">
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     Panel
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/profile")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                  <DropdownMenuItem onClick={() => router.push("/profile")} className="text-[#b9c6d8] focus:text-white focus:bg-mancave-surface cursor-pointer">
                     <User className="w-4 h-4 mr-2" />
                     Profil
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem onClick={() => router.push("/admin")} className="text-gray-300 focus:text-white focus:bg-mancave-surface cursor-pointer">
+                    <DropdownMenuItem onClick={() => router.push("/admin")} className="text-[#b9c6d8] focus:text-white focus:bg-mancave-surface cursor-pointer">
                       <Shield className="w-4 h-4 mr-2" />
                       Yönetim
                     </DropdownMenuItem>
@@ -141,7 +141,7 @@ export function Navbar() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-gray-400 hover:text-white hover:bg-mancave-surface"
+                    className="text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                   >
                     Giriş Yap
                   </Button>
@@ -162,7 +162,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden text-gray-400 hover:text-white hover:bg-mancave-surface"
+            className="md:hidden text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? (
@@ -180,7 +180,7 @@ export function Navbar() {
               <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-gray-400 hover:text-white hover:bg-mancave-surface"
+                  className="w-full justify-start text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                 >
                   <link.icon className="w-4 h-4 mr-2" />
                   {link.label}
@@ -203,13 +203,13 @@ export function Navbar() {
                       <p className="text-sm text-white font-medium">
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className="text-xs text-mancave-muted">{user?.phone}</p>
+                      <p className="text-xs text-[#7a8da4]">{user?.phone}</p>
                     </div>
                   </div>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-gray-400 hover:text-white hover:bg-mancave-surface"
+                      className="w-full justify-start text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                     >
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Panel
@@ -218,7 +218,7 @@ export function Navbar() {
                   <Link href="/profile" onClick={() => setMobileOpen(false)}>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-gray-400 hover:text-white hover:bg-mancave-surface"
+                      className="w-full justify-start text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                     >
                       <User className="w-4 h-4 mr-2" />
                       Profil
@@ -228,7 +228,7 @@ export function Navbar() {
                     <Link href="/admin" onClick={() => setMobileOpen(false)}>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-gray-400 hover:text-white hover:bg-mancave-surface"
+                        className="w-full justify-start text-[#8f9fb4] hover:text-white hover:bg-mancave-surface"
                       >
                         <Shield className="w-4 h-4 mr-2" />
                         Yönetim
@@ -252,7 +252,7 @@ export function Navbar() {
                   <Link href="/login" onClick={() => setMobileOpen(false)}>
                     <Button
                       variant="outline"
-                      className="w-full border-mancave-border text-gray-300 hover:bg-mancave-surface"
+                      className="w-full border-mancave-border text-[#b9c6d8] hover:bg-mancave-surface"
                     >
                       Giriş Yap
                     </Button>

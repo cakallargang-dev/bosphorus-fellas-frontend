@@ -77,11 +77,11 @@ export default function Home() {
             <span className="text-mancave-blue">FELLAS</span>
           </h1>
 
-          <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto font-light">
+          <p className="text-xl sm:text-2xl text-[#8f9fb4] max-w-2xl mx-auto font-light">
             Ham Güç. Arınmış Ruh.
           </p>
 
-          <p className="text-base text-mancave-muted max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-[#7a8da4] max-w-xl mx-auto leading-relaxed">
             Premium otomotiv tutkunları için özel bir topluluk. Bosphorus
             Fellas; gücü, estetiği ve kardeşliği bir araya getirir.
           </p>
@@ -100,7 +100,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-mancave-border text-gray-300 hover:bg-mancave-surface hover:text-white px-8 py-6 text-base"
+                className="border-mancave-border text-[#b9c6d8] hover:bg-mancave-surface hover:text-white px-8 py-6 text-base"
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 Dashboard
@@ -162,7 +162,7 @@ export default function Home() {
               <Link href="/dashboard">
                 <Button
                   variant="ghost"
-                  className="text-gray-400 hover:text-white"
+                  className="text-[#8f9fb4] hover:text-white"
                 >
                   Tümü <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -200,7 +200,7 @@ export default function Home() {
             Sen de Aramıza{" "}
             <span className="text-mancave-blue">Katıl</span>
           </h2>
-          <p className="text-gray-400 max-w-lg mx-auto">
+          <p className="text-[#8f9fb4] max-w-lg mx-auto">
             Premium otomotiv topluluğumuzda yerini al. Etkinliklere katıl, özel
             içeriklere eriş, kardeşliğin bir parçası ol.
           </p>

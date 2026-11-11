@@ -28,7 +28,7 @@ export function StatsCard({
   return (
     <div className="bg-mancave-card border border-mancave-border rounded-lg p-5 hover:border-mancave-blue/30 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-mancave-muted uppercase tracking-wider">
+        <span className="text-sm text-[#7a8da4] uppercase tracking-wider">
           {title}
         </span>
         <div className="text-mancave-blue/60">

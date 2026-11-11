@@ -25,22 +25,22 @@ export function BottomNav() {
   const links = isAuthenticated ? memberLinks : guestLinks;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-mancave-border bg-mancave-bg/95 backdrop-blur-xl safe-area-inset-bottom">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-3 left-0 right-0 z-50 mx-auto w-[calc(100%-1.5rem)] max-w-[406px] rounded-2xl border border-[#162544] bg-[#0a1628]/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)] safe-area-inset-bottom">
+      <div className="flex items-center justify-around h-[60px] px-1">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex flex-col items-center justify-center gap-1 px-2 py-2 min-w-0 flex-1 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 min-w-0 flex-1 rounded-xl transition-all duration-300 ${
                 isActive
                   ? "text-mancave-blue"
-                  : "text-mancave-muted hover:text-gray-300"
+                  : "text-[#7a8da4] hover:text-[#b9c6d8]"
               }`}
             >
-              <link.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium truncate">{link.label}</span>
+              <link.icon className="w-[19px] h-[19px]" strokeWidth={isActive ? 2.2 : 1.8} />
+              <span className="text-[9.5px] font-medium tracking-[0.02em] truncate">{link.label}</span>
             </Link>
           );
         })}

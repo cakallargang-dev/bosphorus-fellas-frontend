@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <span className="text-red-500 text-2xl">!</span>
             </div>
             <h1 className="text-xl font-semibold text-white">Bir hata oluştu</h1>
-            <p className="text-sm text-gray-400 break-all font-mono bg-gray-900 p-3 rounded">
+            <p className="text-sm text-[#8f9fb4] break-all font-mono bg-[#0f1d32] p-3 rounded">
               {this.state.error?.message || "Bilinmeyen hata"}
             </p>
             <div className="flex gap-3 justify-center pt-4">
@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
               <Link
                 href="/"
-                className="px-6 py-2 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors"
+                className="px-6 py-2 border border-[#162544] text-[#b9c6d8] rounded-lg hover:bg-[#0a1628] transition-colors"
               >
                 Ana Sayfa
               </Link>

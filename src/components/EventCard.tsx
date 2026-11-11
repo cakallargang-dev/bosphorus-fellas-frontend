@@ -92,23 +92,23 @@ export function EventCard({
         </div>
 
         {event.description && (
-          <p className="text-mancave-muted text-sm mt-2 line-clamp-2">
+          <p className="text-[#7a8da4] text-sm mt-2 line-clamp-2">
             {event.description}
           </p>
         )}
 
         <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-[#8f9fb4]">
             <Calendar className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <span>
               {eventDate && !isInvalidDate ? format(eventDate, "d MMMM yyyy", { locale: tr }) : "-"}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-[#8f9fb4]">
             <Clock className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <span>{event.time}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-[#8f9fb4]">
             <MapPin className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <a
               href={event.locationUrl || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
@@ -120,7 +120,7 @@ export function EventCard({
               {event.location}
             </a>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-[#8f9fb4]">
             <Users className="w-4 h-4 text-mancave-blue/60 shrink-0" />
             <button
               onClick={() => setShowParticipants(!showParticipants)}
@@ -158,11 +158,11 @@ export function EventCard({
                         {p.userName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-xs text-gray-400">{p.userName}</span>
+                    <span className="text-xs text-[#8f9fb4]">{p.userName}</span>
                   </div>
                 ))}
                 {event.currentParticipants > participants.length && (
-                  <span className="text-xs text-mancave-muted self-center">
+                  <span className="text-xs text-[#7a8da4] self-center">
                     +{event.currentParticipants - participants.length} kişi daha
                   </span>
                 )}

@@ -103,17 +103,17 @@ export function FileUpload({
       {uploading ? (
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="w-8 h-8 text-mancave-blue animate-spin" />
-          <p className="text-sm text-gray-400">Yükleniyor...</p>
+          <p className="text-sm text-[#8f9fb4]">Yükleniyor...</p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
           {isDragActive ? (
             <Upload className="w-8 h-8 text-mancave-blue" />
           ) : (
-            <FileImage className="w-8 h-8 text-mancave-muted" />
+            <FileImage className="w-8 h-8 text-[#7a8da4]" />
           )}
-          <p className="text-sm text-gray-400">{label}</p>
-          <p className="text-xs text-mancave-muted">
+          <p className="text-sm text-[#8f9fb4]">{label}</p>
+          <p className="text-xs text-[#7a8da4]">
             PNG, JPG veya WebP (max {Math.round(maxSize / 1024 / 1024)}MB)
           </p>
         </div>

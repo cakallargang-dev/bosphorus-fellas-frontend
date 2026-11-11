@@ -105,10 +105,10 @@ export default function SifremiUnuttumPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg">
-      <Card className="w-full max-w-md bg-mancave-surface border-gray-800">
+      <Card className="w-full max-w-md bg-mancave-surface border-[#162544]">
         <CardHeader>
           <CardTitle className="text-white text-xl">Şifremi Unuttum</CardTitle>
-          <CardDescription className="text-mancave-muted">
+          <CardDescription className="text-[#7a8da4]">
             {step === "phone" && "Telefon numaranı gir, doğrulama kodu gönderelim."}
             {step === "code" && "Telefonuna gelen 6 haneli kodu gir."}
             {step === "password" && "Yeni şifreni belirle."}
@@ -118,9 +118,9 @@ export default function SifremiUnuttumPage() {
           {step === "phone" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-300">Cep Telefonu</Label>
+                <Label htmlFor="phone" className="text-[#b9c6d8]">Cep Telefonu</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                   <Input
                     id="phone"
                     type="tel"
@@ -128,7 +128,7 @@ export default function SifremiUnuttumPage() {
                     placeholder="05XX XXX XX XX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                    className="pl-10 bg-mancave-bg border-[#162544] text-white placeholder:text-[#7a8da4]"
                   />
                 </div>
               </div>
@@ -141,9 +141,9 @@ export default function SifremiUnuttumPage() {
           {step === "code" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="code" className="text-gray-300">SMS / WhatsApp Kodu</Label>
+                <Label htmlFor="code" className="text-[#b9c6d8]">SMS / WhatsApp Kodu</Label>
                 <div className="relative">
-                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                   <Input
                     id="code"
                     inputMode="numeric"
@@ -151,7 +151,7 @@ export default function SifremiUnuttumPage() {
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="pl-10 bg-mancave-bg border-gray-800 text-white tracking-widest placeholder:text-mancave-muted"
+                    className="pl-10 bg-mancave-bg border-[#162544] text-white tracking-widest placeholder:text-[#7a8da4]"
                   />
                 </div>
               </div>
@@ -161,13 +161,13 @@ export default function SifremiUnuttumPage() {
               <button
                 onClick={sendCode}
                 disabled={loading || cooldown > 0}
-                className="text-xs text-mancave-muted hover:text-white disabled:opacity-50"
+                className="text-xs text-[#7a8da4] hover:text-white disabled:opacity-50"
               >
                 {cooldown > 0 ? `Kodu tekrar gönder (${cooldown}s)` : "Kodu tekrar gönder"}
               </button>
               <button
                 onClick={() => setStep("phone")}
-                className="text-xs text-mancave-muted hover:text-white flex items-center gap-1"
+                className="text-xs text-[#7a8da4] hover:text-white flex items-center gap-1"
               >
                 <ArrowLeft className="w-3 h-3" /> Numarayı değiştir
               </button>
@@ -177,30 +177,30 @@ export default function SifremiUnuttumPage() {
           {step === "password" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">Yeni Şifre</Label>
+                <Label htmlFor="password" className="text-[#b9c6d8]">Yeni Şifre</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="En az 6 karakter"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                    className="pl-10 bg-mancave-bg border-[#162544] text-white placeholder:text-[#7a8da4]"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password2" className="text-gray-300">Yeni Şifre Tekrar</Label>
+                <Label htmlFor="password2" className="text-[#b9c6d8]">Yeni Şifre Tekrar</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mancave-muted" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                   <Input
                     id="password2"
                     type="password"
                     placeholder="Şifreyi tekrar giriniz"
                     value={password2}
                     onChange={(e) => setPassword2(e.target.value)}
-                    className="pl-10 bg-mancave-bg border-gray-800 text-white placeholder:text-mancave-muted"
+                    className="pl-10 bg-mancave-bg border-[#162544] text-white placeholder:text-[#7a8da4]"
                   />
                 </div>
               </div>
@@ -210,7 +210,7 @@ export default function SifremiUnuttumPage() {
             </>
           )}
 
-          <div className="pt-2 border-t border-gray-800 text-center text-sm text-mancave-muted">
+          <div className="pt-2 border-t border-[#162544] text-center text-sm text-[#7a8da4]">
             <Link href="/login" className="hover:text-white">Girişe dön</Link>
           </div>
         </CardContent>
