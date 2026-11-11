@@ -64,7 +64,7 @@ export default function Home() {
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
-          style={{ backgroundImage: "url('/brand-bg-wide.png')" }}
+          style={{ backgroundImage: "url('/brand-bg-wide.webp')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/40 via-mancave-bg/70 to-mancave-bg" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_70%)]" />
@@ -72,7 +72,7 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand-mark-hero.png"
+            src="/brand-mark-hero.webp"
             alt="Bosphorus Fellas"
             className="w-[132px] h-[132px] object-contain mx-auto mb-6 drop-shadow-[0_0_60px_rgba(59,130,246,0.3)]"
           />
@@ -80,7 +80,7 @@ export default function Home() {
           <h1 className="sr-only">Bosphorus Fellas</h1>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand-wordmark.png"
+            src="/brand-wordmark.webp"
             alt="Bosphorus Fellas"
             className="w-[300px] sm:w-[420px] max-w-full h-auto mx-auto"
           />

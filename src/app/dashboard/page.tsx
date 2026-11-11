@@ -280,7 +280,7 @@ function DashboardContent() {
           <div className="pointer-events-none absolute -inset-x-2 -top-3 bottom-0 rounded-3xl overflow-hidden -z-10">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.22]"
-              style={{ backgroundImage: "url('/brand-bg-square.png')" }}
+              style={{ backgroundImage: "url('/brand-bg-square.webp')" }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/40 via-[#030711]/25 to-[#030711]" />
           </div>

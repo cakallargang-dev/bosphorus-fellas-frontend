@@ -16,7 +16,7 @@ export function Layout({ children, hideFooter }: LayoutProps) {
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-[0.16]"
-          style={{ backgroundImage: "url('/brand-bg-wide.png')" }}
+          style={{ backgroundImage: "url('/brand-bg-wide.webp')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/80 via-[#030711]/65 to-[#030711]" />
       </div>

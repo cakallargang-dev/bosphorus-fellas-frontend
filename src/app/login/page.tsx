@@ -105,7 +105,7 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-25"
-          style={{ backgroundImage: "url('/brand-bg-square.png')" }}
+          style={{ backgroundImage: "url('/brand-bg-square.webp')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/70 via-[#030711]/50 to-[#030711]" />
       </div>
@@ -114,7 +114,7 @@ export default function LoginPage() {
       <Link href="/" className="mb-9 group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/brand-mark-hero.png"
+          src="/brand-mark-hero.webp"
           alt="Bosphorus Fellas"
           className="w-[104px] h-[104px] object-contain drop-shadow-[0_0_40px_rgba(59,130,246,0.28)] transition-transform duration-500 group-hover:scale-105"
         />

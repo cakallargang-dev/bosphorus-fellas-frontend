@@ -347,7 +347,7 @@ function TeamContent() {
         <div className="relative mb-5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand-wordmark.png"
+            src="/brand-wordmark.webp"
             alt="Bosphorus Fellas"
             className="h-[26px] w-auto object-contain mb-4 opacity-90"
           />

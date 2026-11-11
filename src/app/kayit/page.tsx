@@ -117,7 +117,7 @@ export default function KayitPage() {
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/brand-bg-square.png')" }}
+          style={{ backgroundImage: "url('/brand-bg-square.webp')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/70 via-[#030711]/50 to-[#030711]" />
       </div>
