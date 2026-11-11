@@ -1034,7 +1034,6 @@ function NewMeetingSheet({
     description: string;
     date: string;
     time: string;
-    place: string;
     mapUrl: string;
   }) => void;
   pending: boolean;
@@ -1044,7 +1043,6 @@ function NewMeetingSheet({
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [mapUrl, setMapUrl] = useState("");
-  const [place, setPlace] = useState("");
   const [err, setErr] = useState<string | null>(null);
 
   const submit = () => {
@@ -1056,7 +1054,6 @@ function NewMeetingSheet({
       description: description.trim(),
       date,
       time,
-      place: place.trim(),
       mapUrl: mapUrl.trim(),
     });
   };
@@ -1134,18 +1131,6 @@ function NewMeetingSheet({
             <p className="text-[10px] text-[#5b6b80]">
               Mekanın fotoğrafı otomatik gösterilir
             </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[11.5px] text-[#9fb0c4]">
-              Mekan adı <span className="text-[#5b6b80]">(opsiyonel)</span>
-            </label>
-            <input
-              value={place}
-              onChange={(e) => setPlace(e.target.value)}
-              placeholder="Boş bırakırsan haritadan alınır"
-              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
-            />
           </div>
 
           <div className="space-y-1.5">
