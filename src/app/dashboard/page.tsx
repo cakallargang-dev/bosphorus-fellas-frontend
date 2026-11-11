@@ -215,6 +215,14 @@ function DashboardContent() {
           <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#3b82f6]" />
             Takvim
+            <button
+              onClick={() => setNewRoll(true)}
+              disabled={createRoll.isPending}
+              className="flex items-center gap-1 text-[12px] border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200 hover:bg-gray-800/60 disabled:opacity-50"
+            >
+              <Plus className="w-3 h-3" />
+              Talep aç
+            </button>
             <span className="ml-auto flex items-center gap-3 text-[11px] font-normal text-mancave-muted">
               <span className="flex items-center gap-1">
                 <i className="w-2 h-2 rounded-full inline-block" style={{ background: CAL_EVENT }} />
@@ -307,79 +315,6 @@ function DashboardContent() {
           </div>
         </section>
 
-        {/* Deneme talepleri */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[15px] font-semibold text-white">Deneme talepleri</h2>
-            <button
-              onClick={() => setNewRoll(true)}
-              disabled={createRoll.isPending}
-              className="flex items-center gap-1 text-[13px] border border-gray-700 rounded-lg px-3 py-1.5 text-gray-200 hover:bg-gray-800/60 disabled:opacity-50"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Talep aç
-            </button>
-          </div>
-
-          {rollRequests.length === 0 ? (
-            <EmptyState
-              icon={Car}
-              title="Henüz talep yok"
-              description="İlk roll talebini sen aç, rakip beklemeye başlasın."
-            />
-          ) : (
-            <div className="space-y-3.5">
-              {rollRequests.map((r) => (
-                <RollCard
-                  key={r.id}
-                  r={r}
-                  onOpen={setSheet}
-                  onDelete={(id) => deleteRoll.mutate(id)}
-                  onJoin={(id) => joinRoll.mutate(id)}
-                  onLeave={(id) => leaveRoll.mutate(id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Sponsorlar */}
-        <section className="mb-8">
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
-            <Star className="w-4 h-4 text-[#3b82f6]" />
-            Sponsorlar
-          </h2>
-          {isLoading ? (
-            <SkeletonCard className="h-20" />
-          ) : sponsors.length === 0 ? (
-            <EmptyState icon={Star} title="Henüz sponsor yok" description="Sponsorlarımız burada listelenecek." compact />
-          ) : (
-            <div className="space-y-3">
-              {sponsors.map((s) => (
-                <SponsorCard key={s.id} sponsor={s} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* MANCAVE Market */}
-        <section>
-          <h2 className="text-[15px] font-semibold text-white mb-3 flex items-center gap-2">
-            <ShoppingBag className="w-4 h-4 text-[#3b82f6]" />
-            MANCAVE Market
-          </h2>
-          {isLoading ? (
-            <SkeletonCard className="h-40" />
-          ) : products.length === 0 ? (
-            <EmptyState icon={ShoppingBag} title="Henüz ürün yok" description="Market ürünleri yakında burada." compact />
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-          )}
-        </section>
       </div>
 
       {sheet && <ProfileSheet user={sheet} onClose={() => setSheet(null)} />}
