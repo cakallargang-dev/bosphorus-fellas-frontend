@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LogIn, Phone, Lock, Car, ScanFace } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 const loginSchema = z.object({
   phone: z
@@ -249,6 +250,8 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Footer />
     </div>
   );
 }

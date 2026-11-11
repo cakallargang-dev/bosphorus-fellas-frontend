@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 type Step = "phone" | "code" | "password";
 
@@ -222,6 +223,8 @@ export default function SifremiUnuttumPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Footer />
     </div>
   );
 }
