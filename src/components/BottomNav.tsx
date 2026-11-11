@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Home, UserPlus, LogIn, LayoutDashboard, Shield, MessageCircle, User } from "lucide-react";
+import { Home, UserPlus, LogIn, LayoutDashboard, Shield, Users, User } from "lucide-react";
 
 export function BottomNav() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -18,7 +18,7 @@ export function BottomNav() {
   const memberLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     ...(isAdmin ? [{ href: "/admin", label: "Panel", icon: Shield }] : []),
-    { href: "/chat", label: "Sohbet", icon: MessageCircle },
+    { href: "/ekip", label: "Ekip", icon: Users },
     { href: "/profile", label: "Profil", icon: User },
   ];
 

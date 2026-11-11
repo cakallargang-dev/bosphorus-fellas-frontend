@@ -260,6 +260,25 @@ export const applicationsApi = {
 // Members
 // ============================================================
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  initials: string;
+  phone: string | null;
+  bio: string;
+  photo: string | null;
+  car: string;
+  spec: string;
+  rolls: number;
+  wins: number;
+  since: string;
+}
+
+export const teamApi = {
+  list: (q?: string) =>
+    request<ApiResponse<TeamMember[]>>(`/api/members/directory${q ? `?q=${encodeURIComponent(q)}` : ""}`),
+};
+
 export const membersApi = {
   list: (params?: {
     status?: string;
