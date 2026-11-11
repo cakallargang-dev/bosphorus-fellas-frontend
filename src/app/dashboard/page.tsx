@@ -205,7 +205,7 @@ function DashboardContent() {
             {user?.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`imgUrl(user.avatar)`}
+                src={imgUrl(user.avatar)}
                 alt={user?.firstName || "profil"}
                 className="w-full h-full object-cover opacity-[0.35] scale-105"
               />
@@ -233,7 +233,7 @@ function DashboardContent() {
               <div className="relative shrink-0">
                 <Avatar className="w-[54px] h-[54px] border border-[#3b82f6]/30 ring-1 ring-white/5">
                   <AvatarImage
-                    src={user?.avatar ? `imgUrl(user.avatar)` : undefined}
+                    src={user?.avatar ? imgUrl(user.avatar) : undefined}
                     alt={user?.firstName}
                   />
                   <AvatarFallback className="bg-[#0f1d32] text-[#60a5fa] text-[15px] font-semibold tracking-wide">
@@ -471,7 +471,7 @@ function CarBox({
       <div className="h-16 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center mb-1.5 overflow-hidden">
         {user.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={`imgUrl(user.photo)`} alt={user.car} className="w-full h-full object-cover" />
+          <img src={imgUrl(user.photo)} alt={user.car} className="w-full h-full object-cover" />
         ) : (
           <Car className="w-7 h-7 text-[#3b82f6]" />
         )}
@@ -589,7 +589,7 @@ function EventCard({
   const current = e.currentParticipants ?? 0;
   const max = e.maxParticipants || 0;
   const pct = max ? Math.min(100, Math.round((current / max) * 100)) : 0;
-  const image = e.imageUrl ? `imgUrl(e.imageUrl)` : null;
+  const image = e.imageUrl ? imgUrl(e.imageUrl) : null;
   return (
 <article
 key={e.id}
@@ -794,7 +794,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
           <div className="w-14 h-14 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
             {user.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={`imgUrl(user.photo)`} alt={user.name} className="w-full h-full object-cover" />
+              <img src={imgUrl(user.photo)} alt={user.name} className="w-full h-full object-cover" />
             ) : (
               initials
             )}
@@ -815,7 +815,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         <div className="h-[150px] rounded-xl bg-[#0a1628] flex items-center justify-center my-4 overflow-hidden">
           {user.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={`imgUrl(user.photo)`} alt={user.car} className="w-full h-full object-cover" />
+            <img src={imgUrl(user.photo)} alt={user.car} className="w-full h-full object-cover" />
           ) : (
             <Car className="w-12 h-12 text-[#6b7d94]" />
           )}
