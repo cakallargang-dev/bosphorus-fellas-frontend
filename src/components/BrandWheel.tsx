@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useState } from "react";
-import { X, Check, Search } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { CAR_BRANDS, brandLogo, findBrand } from "@/lib/brands";
 
 const ITEM_H = 46;
@@ -20,20 +20,11 @@ export function BrandWheel({
   error?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return CAR_BRANDS;
-    return CAR_BRANDS.filter(
-      (b) =>
-        b.label.toLowerCase().includes(q) ||
-        b.slug.toLowerCase().includes(q)
-    );
-  }, [query]);
+  const list = CAR_BRANDS;
 
   const selected = findBrand(value);
 
@@ -126,19 +117,6 @@ export function BrandWheel({
               </button>
             </div>
 
-            {/* Arama */}
-            <div className="px-4 py-2 border-b border-[#162544]">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5b6b80]" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Marka ara"
-                  className="w-full h-9 pl-8 pr-3 rounded-lg bg-[#0a1628] border border-[#162544] text-[12.5px] text-white placeholder:text-[#5b6b80] outline-none"
-                />
-              </div>
-            </div>
-
             {/* Tekerlek */}
             <div className="relative h-[230px] select-none">
               {/* orta secim bandi */}
@@ -195,11 +173,6 @@ export function BrandWheel({
                   );
                 })}
 
-                {list.length === 0 && (
-                  <p className="text-center text-[12.5px] text-[#7a8da4] py-6">
-                    Sonuç yok
-                  </p>
-                )}
               </div>
             </div>
 
