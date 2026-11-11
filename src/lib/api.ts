@@ -449,6 +449,18 @@ export const eventsApi = {
       method: "DELETE",
     }),
 
+  respond: (id: string, status: "going" | "not_going") =>
+    request<ApiResponse<{
+      myResponse: string;
+      goingCount: number;
+      notGoingCount: number;
+      going: { id: string; firstName: string; lastName: string; avatar: string | null }[];
+      notGoing: { id: string; firstName: string; lastName: string; avatar: string | null }[];
+    }>>(`/api/events/${id}/respond`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+
   join: (id: string) =>
     request<ApiResponse<{ message: string }>>(`/api/events/${id}/join`, {
       method: "POST",

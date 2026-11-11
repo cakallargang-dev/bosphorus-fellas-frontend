@@ -110,6 +110,17 @@ function DashboardContent() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Katılım başarısız"),
   });
 
+  const respondEvent = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "going" | "not_going" }) =>
+      eventsApi.respond(id, status),
+    onSuccess: (res) => {
+      toast.success(res.message || "Yanıtın kaydedildi");
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Kaydedilemedi"),
+  });
+
   const leaveEvent = useMutation({
     mutationFn: (id: string) => eventsApi.leave(id),
     onSuccess: () => {
@@ -432,6 +443,7 @@ function DashboardContent() {
           onOpenUser={(u) => setSheet({ id: u.id, name: `${u.firstName} ${u.lastName}`, car: [u.carBrand, u.carModel].filter(Boolean).join(" "), spec: "", photo: u.avatar, bio: "", rolls: 0, wins: 0, since: "" })}
           onDeleteMeeting={(id) => deleteMeeting.mutate(id)}
           onRespond={(id, status) => respondMeeting.mutate({ id, status })}
+          onRespondEvent={(id, status) => respondEvent.mutate({ id, status })}
           onJoinEvent={(id) => joinEvent.mutate(id)}
           onLeaveEvent={(id) => leaveEvent.mutate(id)}
           canDeleteMeeting={Boolean(user?.role === 'admin')}
@@ -727,6 +739,7 @@ function EventCard({
   e,
   onJoin,
   onLeave,
+  onRespond,
   pending,
 }: {
   e: {
@@ -743,6 +756,13 @@ function EventCard({
     maxParticipants?: number;
     currentParticipants?: number;
     isJoined?: boolean;
+    myResponse?: "going" | "not_going" | null;
+    notGoingCount?: number;
+    notGoing?: {
+      id: string;
+      userName: string;
+      userAvatar: string | null;
+    }[];
     participants?: {
       id: string;
       userId: string;
@@ -752,6 +772,7 @@ function EventCard({
   };
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
+  onRespond?: (id: string, status: "going" | "not_going") => void;
   pending: boolean;
 }) {
   const kind = e.kind && e.kind.trim() ? e.kind : "Etkinlik";
@@ -825,32 +846,13 @@ function EventCard({
           </span>
         </div>
 
-        {/* Katilimci cubugu */}
-        <div className="h-1.5 rounded-full bg-[#0a1628] mt-3 overflow-hidden">
-          <div
-            className={`h-full transition-all duration-500 ${
-              full ? "bg-red-500" : "bg-[#3b82f6]"
-            }`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between text-[11.5px] mt-1.5">
-          <span className="text-[#7a8da4]">
-            <span className="text-white font-medium">{current}</span>
-            {max > 0 ? ` / ${max}` : ""} katılımcı
-          </span>
-          {max > 0 && (
-            <span className={full ? "text-red-400" : "text-[#5b6b80]"}>{pct}%</span>
-          )}
-        </div>
-
         {/* Katilim */}
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
-            onClick={() => (joined ? undefined : onJoin(e.id))}
-            disabled={pending || (full && !joined)}
+            onClick={() => (onRespond ? onRespond(e.id, "going") : onJoin(e.id))}
+            disabled={pending || (full && e.myResponse !== "going")}
             className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
-              joined
+              e.myResponse === "going"
                 ? "border-[#22c55e] bg-[#22c55e]/15 text-[#4ade80]"
                 : "border-[#162544] text-[#8b9bb0] hover:border-[#22c55e]/50 hover:text-[#4ade80]"
             }`}
@@ -861,16 +863,19 @@ function EventCard({
           </button>
 
           <button
-            onClick={() => (joined ? onLeave(e.id) : undefined)}
-            disabled={pending || !joined}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-40 ${
-              joined
+            onClick={() => (onRespond ? onRespond(e.id, "not_going") : onLeave(e.id))}
+            disabled={pending}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
+              e.myResponse === "not_going"
                 ? "border-[#ef4444] bg-[#ef4444]/15 text-[#f87171]"
-                : "border-[#162544] text-[#8b9bb0]"
+                : "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
             }`}
           >
             <X className="w-3.5 h-3.5" />
             Katılmıyorum
+            {!!e.notGoingCount && (
+              <span className="ml-0.5 text-[10px] opacity-70">{e.notGoingCount}</span>
+            )}
           </button>
         </div>
 
@@ -892,6 +897,16 @@ function EventCard({
                 +{e.participants!.length - 10}
               </span>
             )}
+            {e.notGoing?.slice(0, 6).map((p) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`n-${p.id}`}
+                src={p.userAvatar ? imgUrl(p.userAvatar) : "/brand-mark-white.png"}
+                alt={p.userName}
+                title={`${p.userName} · katılamıyor`}
+                className="w-6 h-6 rounded-full object-cover ring-2 ring-[#ef4444]/40 grayscale opacity-60"
+              />
+            ))}
           </div>
         )}
       </div>
@@ -907,6 +922,7 @@ function DayModal({
   onOpenUser,
   onDeleteMeeting,
   onRespond,
+  onRespondEvent,
   currentUserId,
   isAdmin,
   onJoinEvent,
@@ -933,6 +949,7 @@ function DayModal({
   onRespond: (id: string, status: "going" | "not_going") => void;
   currentUserId?: string;
   isAdmin?: boolean;
+  onRespondEvent?: (id: string, status: "going" | "not_going") => void;
   onJoinEvent: (id: string) => void;
   onLeaveEvent: (id: string) => void;
   canDeleteMeeting: boolean;
@@ -968,6 +985,7 @@ function DayModal({
                 e={e}
                 onJoin={onJoinEvent}
                 onLeave={onLeaveEvent}
+                onRespond={onRespondEvent}
                 pending={false}
               />
             ))}
