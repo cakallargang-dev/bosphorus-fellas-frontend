@@ -11,7 +11,7 @@ import { authApi, referansApi, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
-import { BrandSelect } from "@/components/BrandSelect";
+import { BrandWheel } from "@/components/BrandWheel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -545,7 +545,7 @@ function ProfileContent() {
 
               <div className="space-y-2">
                 <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Araç Markası</Label>
-                <BrandSelect
+                <BrandWheel
                   value={watchProfile("carBrand")}
                   onChange={(slug) =>
                     setValueProfile("carBrand", slug, { shouldDirty: true })
