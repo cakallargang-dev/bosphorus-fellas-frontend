@@ -7,7 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useWebPush } from "@/lib/useWebPush";
-import { authApi, referansApi } from "@/lib/api";
+import { authApi, referansApi, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
@@ -310,7 +310,7 @@ function ProfileContent() {
             {(avatarPreview || user?.avatar) && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={avatarPreview || `${apiBase}${user?.avatar}`}
+                src={avatarPreview || imgUrl(user?.avatar)}
                 alt={user?.firstName || "profil"}
                 className="w-full h-full object-cover opacity-30 scale-110"
               />
@@ -336,7 +336,7 @@ function ProfileContent() {
             <div className="flex items-end gap-4">
               <div className="relative shrink-0">
                 <Avatar className="w-[68px] h-[68px] border border-[#3b82f6]/30 ring-1 ring-white/5">
-                  <AvatarImage src={avatarPreview || (user?.avatar ? `${apiBase}${user.avatar}` : undefined)} alt={user?.firstName} />
+                  <AvatarImage src={avatarPreview || imgUrl(user?.avatar)} alt={user?.firstName} />
                   <AvatarFallback className="bg-[#0f1d32] text-[#60a5fa] text-[18px] font-semibold tracking-wide">
                     {initials}
                   </AvatarFallback>

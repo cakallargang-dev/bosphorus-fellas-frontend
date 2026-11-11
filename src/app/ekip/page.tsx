@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { teamApi, type TeamMember } from "@/lib/api";
+import { teamApi, type TeamMember, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
@@ -422,7 +422,7 @@ function TeamContent() {
                     {m.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={`${API_BASE}${m.photo}`}
+                        src={`imgUrl(m.photo)`}
                         alt={m.car}
                         className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.06]"
                       />
@@ -536,7 +536,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
         <div className="relative h-[210px] bg-[#0a1628] flex items-center justify-center overflow-hidden">
           {m.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={`${API_BASE}${m.photo}`} alt={m.car} className="w-full h-full object-cover" />
+            <img src={`imgUrl(m.photo)`} alt={m.car} className="w-full h-full object-cover" />
           ) : (
             <span className="text-[52px] font-semibold text-[#3b82f6]/50 tracking-tight">{m.initials}</span>
           )}

@@ -617,3 +617,16 @@ export const chatApi = {
   getSupportUnread: () =>
     request<ApiResponse<{ count: number }>>("/api/chat/support/unread"),
 };
+
+/**
+ * Gorsel URL'sini cozer.
+ * Cloudinary tam URL dondurur (https://...), eski kayitlar ise /uploads/... yolu tutar.
+ */
+export function imgUrl(pathOrUrl: string | null | undefined): string | undefined {
+  if (!pathOrUrl) return undefined;
+  if (/^https?:\/\//i.test(pathOrUrl) || pathOrUrl.startsWith("data:") || pathOrUrl.startsWith("blob:")) {
+    return pathOrUrl;
+  }
+  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+  return `${base}${pathOrUrl.startsWith("/") ? "" : "/"}${pathOrUrl}`;
+}
