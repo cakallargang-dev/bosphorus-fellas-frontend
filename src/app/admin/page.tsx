@@ -12,6 +12,7 @@ import {
   dashboardApi,
   applicationsApi,
   membersApi,
+  notificationsApi,
   eventsApi,
   sponsorsApi,
   productsApi,
@@ -58,6 +59,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Bell,
   LayoutDashboard,
   FileText,
   Users,
@@ -207,10 +209,18 @@ function AdminContent() {
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">Market</span>
             </TabsTrigger>
+            <TabsTrigger value="notifications" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+              <Bell className="w-4 h-4" />
+              <span className="hidden sm:inline">Bildirimler</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
             <DashboardTab />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <NotificationsTab />
           </TabsContent>
 
           <TabsContent value="applications">
@@ -552,6 +562,142 @@ function ApplicationsTab() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+
+// ============================================================
+// Notifications Tab
+// ============================================================
+
+const NOTIFICATION_TYPES = [
+  {
+    type: "new_event" as const,
+    title: "Yeni bir etkinlik var",
+    desc: "Takvime eklenen yeni etkinliği tüm üyelere duyurur.",
+  },
+  {
+    type: "event_soon" as const,
+    title: "Etkinliğe az kaldı",
+    desc: "Yaklaşan etkinlik için katılım durumunu belirtmelerini hatırlatır.",
+  },
+  {
+    type: "new_announcement" as const,
+    title: "Yeni bir duyuru var",
+    desc: "Topluluk duyurusunu tüm üyelere iletir.",
+  },
+];
+
+function NotificationsTab() {
+  const [sending, setSending] = useState<string | null>(null);
+  const [customOpen, setCustomOpen] = useState<string | null>(null);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customBody, setCustomBody] = useState("");
+
+  const sendMutation = useMutation({
+    mutationFn: (d: {
+      type: "new_event" | "event_soon" | "new_announcement";
+      title?: string;
+      body?: string;
+    }) => notificationsApi.broadcast(d),
+    onSuccess: (res: any) => {
+      toast.success(res?.message || "Bildirim gönderildi", {
+        description: res?.data?.total
+          ? `${res.data.sent}/${res.data.total} cihaz`
+          : "Kayıtlı cihaz yok",
+      });
+      setSending(null);
+      setCustomOpen(null);
+      setCustomTitle("");
+      setCustomBody("");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Gönderilemedi");
+      setSending(null);
+    },
+  });
+
+  return (
+    <div className="max-w-3xl space-y-4">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Bell className="w-4 h-4 text-[#3b82f6]" />
+          Push bildirim gönder
+        </h3>
+        <p className="text-sm text-gray-400 mt-1">
+          Seçilen bildirim, cihaz kaydı olan tüm üyelere anında gönderilir.
+        </p>
+      </div>
+
+      {NOTIFICATION_TYPES.map((n) => (
+        <div
+          key={n.type}
+          className="bg-gray-900/50 border border-gray-800 rounded-xl p-4"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-white font-medium text-sm">{n.title}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{n.desc}</p>
+            </div>
+            <div className="flex gap-1.5 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setCustomOpen(customOpen === n.type ? null : n.type);
+                  setCustomTitle(n.title);
+                  setCustomBody(n.desc);
+                }}
+                className="border-gray-700 text-gray-300 hover:bg-gray-800 text-xs"
+              >
+                Düzenle
+              </Button>
+              <Button
+                size="sm"
+                disabled={sendMutation.isPending}
+                onClick={() => sendMutation.mutate({ type: n.type })}
+                className="bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs"
+              >
+                {sendMutation.isPending && sending === n.type ? "Gönderiliyor" : "Gönder"}
+              </Button>
+            </div>
+          </div>
+
+          {customOpen === n.type && (
+            <div className="mt-3 space-y-2 border-t border-gray-800 pt-3">
+              <input
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Başlık"
+                className="w-full rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
+              />
+              <textarea
+                value={customBody}
+                onChange={(e) => setCustomBody(e.target.value)}
+                rows={2}
+                placeholder="Mesaj"
+                className="w-full rounded-lg bg-gray-800/70 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-[#3b82f6]"
+              />
+              <Button
+                size="sm"
+                disabled={sendMutation.isPending}
+                onClick={() => {
+                  setSending(n.type);
+                  sendMutation.mutate({
+                    type: n.type,
+                    title: customTitle.trim() || undefined,
+                    body: customBody.trim() || undefined,
+                  });
+                }}
+                className="bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs"
+              >
+                Özel metinle gönder
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

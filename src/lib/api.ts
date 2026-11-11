@@ -562,6 +562,12 @@ export const productsApi = {
 // ============================================================
 
 export const notificationsApi = {
+  broadcast: (data: { type: "new_event" | "event_soon" | "new_announcement"; title?: string; body?: string }) =>
+    request<ApiResponse<{ message: string; sent: number; total: number; failed: number; title: string; body: string }>>(
+      "/api/notifications/broadcast",
+      { method: "POST", body: JSON.stringify(data) }
+    ),
+
   registerToken: (token: string, platform: string) =>
     request<ApiResponse<{ message: string }>>("/api/notifications/register", {
       method: "POST",
