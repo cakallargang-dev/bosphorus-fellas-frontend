@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin } from "lucide-react";
+import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 const DAY = 86400000;
@@ -180,6 +180,9 @@ function DashboardContent() {
     return map;
   }, [events, rollRequests]);
 
+  const upcomingCount = events.filter((e) => new Date(e.date) >= new Date()).length;
+  const monthLabel = new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
+
   const calCells = useMemo(() => monthGrid(calMonth.y, calMonth.m), [calMonth]);
   const todayKey = dayKey(new Date());
   const calEventList = calDay ? events.filter((e) => dayKey(new Date(e.date)) === calDay) : [];
@@ -195,18 +198,79 @@ function DashboardContent() {
   return (
     <Layout>
       <div className="max-w-[430px] mx-auto px-4 pb-10 animate-fade-in">
-        {/* Hoş geldin */}
-        <div className="flex items-center gap-3 mt-2 mb-6 p-4 rounded-xl bg-gradient-to-br from-[#3b82f6]/10 via-transparent to-transparent border border-[#3b82f6]/10">
-          <Avatar className="w-12 h-12 border-2 border-[#3b82f6]/30">
-            <AvatarImage src={user?.avatar ? `${API_BASE}${user.avatar}` : undefined} alt={user?.firstName} />
-            <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-sm">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-white truncate">Hoş geldin, {user?.firstName}</h1>
-              <Sparkles className="w-4 h-4 text-[#3b82f6] shrink-0" />
+        {/* Hoş geldin — üst tarafla bütünleşik hero */}
+        <div className="relative -mx-4 -mt-4 mb-7 overflow-hidden">
+          {/* Zemin katmanı */}
+          <div className="absolute inset-0 bg-[#0a1628]">
+            {user?.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`${API_BASE}${user.avatar}`}
+                alt={user?.firstName || "profil"}
+                className="w-full h-full object-cover opacity-[0.35] scale-105"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050b16] via-[#050b16]/94 via-50% to-[#0a1628]/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#030711] via-transparent to-[#030711]/60" />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 85% 15%, rgba(59,130,246,0.22) 0%, transparent 58%)",
+              }}
+            />
+          </div>
+
+          {/* Üst accent çizgi */}
+          <span className="absolute left-0 right-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#3b82f6]/60 to-transparent z-10" />
+
+          <div className="relative z-10 px-5 pt-7 pb-6">
+            <p className="text-[9.5px] uppercase tracking-[0.24em] text-[#3b82f6]/80 mb-2">
+              Bosphorus Fellas
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className="relative shrink-0">
+                <Avatar className="w-[54px] h-[54px] border border-[#3b82f6]/30 ring-1 ring-white/5">
+                  <AvatarImage
+                    src={user?.avatar ? `${API_BASE}${user.avatar}` : undefined}
+                    alt={user?.firstName}
+                  />
+                  <AvatarFallback className="bg-[#0f1d32] text-[#60a5fa] text-[15px] font-semibold tracking-wide">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#25D366] border-2 border-[#050b16]" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline gap-1.5">
+                  <h1 className="text-[21px] leading-tight font-semibold tracking-[-0.03em] text-white truncate drop-shadow">
+                    {user?.firstName}
+                  </h1>
+                  <Sparkles className="w-3.5 h-3.5 text-[#3b82f6] shrink-0 mb-0.5" />
+                </div>
+                <p className="text-[11.5px] text-white/50 truncate">
+                  Toplulukta neler oluyor, bir göz at.
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-[#7a8da4]">Toplulukta neler oluyor, bir göz at.</p>
+
+            {/* Alt bilgi şeridi */}
+            <div className="flex items-center gap-4 mt-4 pt-3.5 border-t border-white/[0.07] text-[10.5px] text-white/45">
+              <span className="flex items-center gap-1.5">
+                <CalendarCheck className="w-3 h-3 text-[#3b82f6]/70" />
+                {upcomingCount} yaklaşan
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Flame className="w-3 h-3 text-[#3b82f6]/70" />
+                {(user as any)?.score ? `${(user as any).score}/10` : "0/10"} aktiflik
+              </span>
+              <span className="ml-auto flex items-center gap-1.5 text-white/30">
+                <CalendarDays className="w-3 h-3" />
+                {monthLabel}
+              </span>
+            </div>
           </div>
         </div>
 
