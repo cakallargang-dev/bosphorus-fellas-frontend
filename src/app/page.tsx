@@ -10,6 +10,7 @@ import { EventCard } from "@/components/EventCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { useAuth } from "@/lib/auth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ScreenshotProtection } from "@/components/ScreenshotProtection";
 import { landingApi } from "@/lib/api";
 import type { LandingPageStats, Event, Sponsor } from "@/types";
 import {
@@ -59,6 +60,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-mancave-bg animate-fade-in">
+      <ScreenshotProtection />
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">

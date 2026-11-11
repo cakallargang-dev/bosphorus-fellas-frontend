@@ -1,94 +1,100 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * Prevents casual screenshotting and content copying.
- * Not 100% foolproof (nothing is on the web), but adds significant friction.
+ * Ekran goruntusu / video kaydi korumasi.
+ *
+ * Katmanlar:
+ *  1) FLAG_SECURE    — Android WebView'da gercek ekran goruntusunu engeller (Capacitor)
+ *  2) Visibility/Blur — ekran goruntusu veya app degistirme aninda logo perdesi
+ *  3) Keyboard/CSS   — kopyalama, sag tik, kaydetme ve uzun basma engeli
+ *
+ * Not: Web'de (Safari/Chrome) ekran goruntusu alinmasini teknik olarak engellemek
+ * mumkun degildir; bu katmanlar caydirici ve tespit edicidir.
  */
 export function ScreenshotProtection() {
+  const [shield, setShield] = useState(false);
+
   useEffect(() => {
-    // ── Disable right-click ──
+    // ── 1) Android: native FLAG_SECURE ──
+    const win = window as unknown as {
+      Capacitor?: {
+        isNativePlatform?: () => boolean;
+        Plugins?: Record<string, { setSecure?: (o: { secure: boolean }) => Promise<void> }>;
+      };
+    };
+    if (win.Capacitor?.isNativePlatform?.() === true) {
+      win.Capacitor?.Plugins?.Screenshot?.setSecure?.({ secure: true }).catch(() => {});
+    }
+
+    // ── 2) Tespit: ekran goruntusu / app degistirme ──
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const showShield = (ms = 1200) => {
+      setShield(true);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => setShield(false), ms);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") showShield(1500);
+    };
+
+    const onBlur = () => showShield(900);
+
+    const onKeyDownCapture = (e: KeyboardEvent) => {
+      // PrintScreen / Win+Shift+S / Cmd+Shift+3-4-5
+      const k = e.key.toLowerCase();
+      if (
+        k === "printscreen" ||
+        (e.metaKey && e.shiftKey && ["3", "4", "5"].includes(k)) ||
+        (e.metaKey && e.shiftKey && k === "s")
+      ) {
+        e.preventDefault();
+        showShield(2000);
+      }
+    };
+
+    // ── 3) Kopyalama / kaydetme engelleri ──
     const onContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // ── Disable drag (prevents image save) ──
     const onDragStart = (e: DragEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // ── Block common save/inspect shortcuts ──
+    const onCopy = (e: ClipboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      const tag = t?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
+      e.preventDefault();
+    };
+
     const onKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+S / Cmd+S — Save page
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+Shift+I / Cmd+Option+I — DevTools
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "i" || e.key === "I")) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+Shift+C / Cmd+Option+C — Element picker
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "c" || e.key === "C")) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+Shift+J / Cmd+Option+J — Console
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "j" || e.key === "J")) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+U / Cmd+U — View source
-      if ((e.ctrlKey || e.metaKey) && (e.key === "u" || e.key === "U")) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+P / Cmd+P — Print
-      if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) {
-        e.preventDefault();
-        return false;
-      }
-      // F12 — DevTools
-      if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-      }
-    };
-
-    // ── Detect DevTools via size delta (blur removed per user request) ──
-    // Kept disabled — uncomment the block below to re-enable.
-    /*
-    let devToolsWarned = false;
-    const detectDevTools = () => {
-      const threshold = 160;
+      const k = e.key.toLowerCase();
       if (
-        window.outerWidth - window.innerWidth > threshold ||
-        window.outerHeight - window.innerHeight > threshold
+        ((e.ctrlKey || e.metaKey) && ["s", "u", "p", "c"].includes(k)) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "c", "j"].includes(k)) ||
+        k === "f12"
       ) {
-        if (!devToolsWarned) {
-          devToolsWarned = true;
-          document.body.style.filter = "blur(8px)";
-          document.body.style.pointerEvents = "none";
-          setTimeout(() => {
-            document.body.style.filter = "";
-            document.body.style.pointerEvents = "";
-            devToolsWarned = false;
-          }, 500);
-        }
+        e.preventDefault();
+        return false;
       }
     };
-    const dtInterval = setInterval(detectDevTools, 2000);
-    */
 
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("keydown", onKeyDownCapture, true);
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
+    document.addEventListener("copy", onCopy);
     document.addEventListener("keydown", onKeyDown);
 
-    // ── CSS: disable text selection & iOS callout ──
+    // ── CSS: secim ve uzun basma engeli ──
     const style = document.createElement("style");
     style.id = "screenshot-protection";
     style.textContent = `
@@ -107,24 +113,44 @@ export function ScreenshotProtection() {
         -o-user-drag: none !important;
         user-drag: none !important;
       }
-      /* Re-enable selection for inputs and textareas */
       input, textarea, [contenteditable="true"] {
         -webkit-user-select: text !important;
         -moz-user-select: text !important;
         -ms-user-select: text !important;
         user-select: text !important;
       }
+      @media print {
+        body { display: none !important; }
+      }
     `;
     document.head.appendChild(style);
 
     return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("keydown", onKeyDownCapture, true);
       document.removeEventListener("contextmenu", onContextMenu);
       document.removeEventListener("dragstart", onDragStart);
+      document.removeEventListener("copy", onCopy);
       document.removeEventListener("keydown", onKeyDown);
-      const el = document.getElementById("screenshot-protection");
-      if (el) el.remove();
+      document.getElementById("screenshot-protection")?.remove();
+      if (timer) clearTimeout(timer);
     };
   }, []);
 
-  return null;
+  if (!shield) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#030711]"
+      aria-hidden="true"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand-mark-hero.webp"
+        alt=""
+        className="w-[110px] h-[110px] object-contain opacity-90"
+      />
+    </div>
+  );
 }
