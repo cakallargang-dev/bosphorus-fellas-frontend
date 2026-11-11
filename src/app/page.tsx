@@ -62,20 +62,28 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-mancave-blue/5 via-transparent to-mancave-bg" />
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
+          style={{ backgroundImage: "url('/brand-bg-wide.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/40 via-mancave-bg/70 to-mancave-bg" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_70%)]" />
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-16 h-16 rounded-xl border-2 border-mancave-blue flex items-center justify-center bg-mancave-blue/10">
-              <Shield className="w-8 h-8 text-mancave-blue" />
-            </div>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand-mark-hero.png"
+            alt="Bosphorus Fellas"
+            className="w-[132px] h-[132px] object-contain mx-auto mb-6 drop-shadow-[0_0_60px_rgba(59,130,246,0.3)]"
+          />
 
-          <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">
-            <span className="text-white">BOSPHORUS</span>{" "}
-            <span className="text-mancave-blue">FELLAS</span>
-          </h1>
+          <h1 className="sr-only">Bosphorus Fellas</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand-wordmark.png"
+            alt="Bosphorus Fellas"
+            className="w-[300px] sm:w-[420px] max-w-full h-auto mx-auto"
+          />
 
           <p className="text-xl sm:text-2xl text-[#8f9fb4] max-w-2xl mx-auto font-light">
             Ham Güç. Arınmış Ruh.

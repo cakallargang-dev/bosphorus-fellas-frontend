@@ -100,20 +100,24 @@ export default function LoginPage() {
   if (isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4 animate-fade-in">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-mancave-bg px-4 animate-fade-in overflow-hidden">
+      {/* Marka arka plani */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-25"
+          style={{ backgroundImage: "url('/brand-bg-square.png')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/70 via-[#030711]/50 to-[#030711]" />
+      </div>
+
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-3 mb-8 group">
-        <div className="w-12 h-12 rounded border border-[#3b82f6] flex items-center justify-center group-hover:bg-[#3b82f6]/10 transition-colors">
-          <Car className="w-6 h-6 text-[#3b82f6]" />
-        </div>
-        <div>
-          <div className="text-white font-semibold text-lg tracking-wider leading-tight">
-            BOSPHORUS
-          </div>
-          <div className="text-[#3b82f6] text-sm tracking-[0.2em] leading-tight">
-            FELLAS
-          </div>
-        </div>
+      <Link href="/" className="mb-9 group">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand-mark-hero.png"
+          alt="Bosphorus Fellas"
+          className="w-[104px] h-[104px] object-contain drop-shadow-[0_0_40px_rgba(59,130,246,0.28)] transition-transform duration-500 group-hover:scale-105"
+        />
       </Link>
 
       <Card className="w-full max-w-md bg-[#0f1d32]/50 backdrop-blur border-[#162544]">

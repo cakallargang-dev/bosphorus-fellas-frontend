@@ -345,6 +345,12 @@ function TeamContent() {
     <Layout>
       <div className="max-w-[430px] mx-auto px-4 pt-4 pb-28 animate-fade-in">
         <div className="relative mb-5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand-wordmark.png"
+            alt="Bosphorus Fellas"
+            className="h-[26px] w-auto object-contain mb-4 opacity-90"
+          />
           <p className="text-[10.5px] font-medium uppercase tracking-[0.22em] text-[#3b82f6]/80">
             Topluluk
           </p>

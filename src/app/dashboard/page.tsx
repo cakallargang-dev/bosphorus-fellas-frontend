@@ -275,7 +275,15 @@ function DashboardContent() {
         </div>
 
         {/* Aylık takvim */}
-        <section className="mb-8">
+        <section className="relative mb-8">
+          {/* Takvim arkasinda marka zemini */}
+          <div className="pointer-events-none absolute -inset-x-2 -top-3 bottom-0 rounded-3xl overflow-hidden -z-10">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-[0.22]"
+              style={{ backgroundImage: "url('/brand-bg-square.png')" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/40 via-[#030711]/25 to-[#030711]" />
+          </div>
           <h2 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#b9c6d8] mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#3b82f6]" />
             Takvim
