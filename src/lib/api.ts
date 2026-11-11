@@ -82,7 +82,12 @@ async function request<T>(
 
 function appendFormData(formData: FormData, data: object): void {
   Object.entries(data).forEach(([key, value]) => {
-    if (value === undefined || value === null) return;
+    if (value === undefined) return;
+    // null => alani temizle (backend "" -> null yapiyor)
+    if (value === null) {
+      formData.append(key, "");
+      return;
+    }
     if (value instanceof File || value instanceof Blob) {
       formData.append(key, value);
     } else {
@@ -92,7 +97,9 @@ function appendFormData(formData: FormData, data: object): void {
 }
 
 function hasFile(data: object): boolean {
-  return Object.values(data).some((v) => v instanceof File || v instanceof Blob);
+  return Object.values(data).some(
+    (v) => v instanceof File || v instanceof Blob || v === null
+  );
 }
 
 function buildBody(data: object): BodyInit {

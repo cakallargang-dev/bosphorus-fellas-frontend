@@ -255,7 +255,8 @@ function ProfileContent() {
         carModel: data.carModel || undefined,
         carSpec: data.carHp ? `HP: ${data.carHp.replace(/\D/g, "")}` : undefined,
         plateNumber: data.plateNumber || undefined,
-        avatar: removeAvatar ? (null as unknown as File) : avatarFile || undefined,
+        bio: data.about || undefined,
+        avatar: removeAvatar ? null : avatarFile || undefined,
       });
       await refreshProfile();
       setAvatarFile(null);
@@ -298,7 +299,7 @@ function ProfileContent() {
 
   const carText = [user?.carBrand, user?.carModel].filter(Boolean).join(" ") || "Araç eklenmedi";
 
-  const avatarPreview = avatarFile ? URL.createObjectURL(avatarFile) : null;
+  const avatarPreview = removeAvatar ? null : avatarFile ? URL.createObjectURL(avatarFile) : null;
 
   return (
     <Layout>
@@ -394,13 +395,38 @@ function ProfileContent() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Profil Fotoğrafı</Label>
-                  {user?.avatar && (
-                    <button type="button" onClick={() => { setAvatarFile(null); setRemoveAvatar(true); }} className="text-xs text-red-400 hover:text-red-300">Fotoğrafı Kaldır</button>
+                  {removeAvatar ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRemoveAvatar(false);
+                        setAvatarFile(null);
+                      }}
+                      className="text-xs text-[#60a5fa] hover:text-[#93c5fd]"
+                    >
+                      Geri al
+                    </button>
+                  ) : (
+                    user?.avatar && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAvatarFile(null);
+                          setRemoveAvatar(true);
+                        }}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Fotoğrafı Kaldır
+                      </button>
+                    )
                   )}
                 </div>
                 <FileUpload
-                  value={avatarFile || user?.avatar || null}
-                  onChange={setAvatarFile}
+                  value={removeAvatar ? null : avatarFile || user?.avatar || null}
+                  onChange={(file) => {
+                    setAvatarFile(file);
+                    setRemoveAvatar(file === null);
+                  }}
                   label="Yeni fotoğraf yüklemek için tıklayın"
                 />
               </div>

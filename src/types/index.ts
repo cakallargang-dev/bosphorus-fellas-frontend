@@ -265,8 +265,9 @@ export interface ProfileUpdateData {
   birthDate?: string;
   occupation?: string;
   about?: string;
+  bio?: string;
   instagram?: string;
-  avatar?: File;
+  avatar?: File | null;
   carBrand?: string;
   carModel?: string;
   carSpec?: string;
