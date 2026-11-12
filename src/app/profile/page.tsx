@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -149,11 +149,20 @@ function CarSheet({
   const [plate, setPlate] = useState(initial?.plateNumber ?? "");
   const [err, setErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // Yeni secilen fotograflar — kaydet ile birlikte yuklenir
+  const [newPhotos, setNewPhotos] = useState<File[]>([]);
+  const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
+  const coverPhoto = initial?.coverPhoto ?? photos[0] ?? null;
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const submit = async () => {
     if (!brand) return setErr("Marka seçin");
     if (!model.trim()) return setErr("Model girin");
-    if (plate.trim().length < 5) return setErr("Geçerli bir plaka girin");
+    // TR plaka: 2 hane il + 1-3 harf + 2-4 rakam (34 ABC 123 / 06 A 1234)
+    const plateClean = plate.trim().toUpperCase().replace(/\s+/g, " ");
+    if (!/^\d{2}\s?[A-ZÇĞİÖŞÜ]{1,3}\s?\d{2,4}$/.test(plateClean)) {
+      return setErr("Geçerli bir plaka girin (örn. 34 ABC 123)");
+    }
 
     setSaving(true);
     setErr(null);
@@ -163,16 +172,24 @@ function CarSheet({
         model: model.trim(),
         year: year ? Number(year) : null,
         hp: hp ? Number(hp) : null,
-        plateNumber: plate.trim().toUpperCase(),
+        plateNumber: plate.trim().toUpperCase().replace(/\s+/g, " "),
         features: initial?.features ?? null,
       };
+      let carId = initial?.id ?? null;
+
       if (initial) {
         await carsApi.update(initial.id, payload);
-        toast.success("Araç güncellendi");
       } else {
-        await carsApi.create(payload);
-        toast.success("Araç eklendi");
+        const created = await carsApi.create(payload);
+        carId = created.data.id;
       }
+
+      // Fotograflar araç olustuktan sonra yuklenir (id gerekli)
+      if (carId && newPhotos.length > 0) {
+        await carsApi.uploadPhotos(carId, newPhotos);
+      }
+
+      toast.success(initial ? "Araç güncellendi" : "Araç eklendi");
       onSaved();
       onClose();
     } catch (e) {
@@ -188,19 +205,101 @@ function CarSheet({
         <div className="flex flex-col gap-2.5">
           <div className="flex justify-between text-[14px] font-bold text-white">
             <span>Fotoğraflar</span>
-            <span className="font-semibold text-[#9fb0c4]">0/5</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => toast.info("Araç fotoğrafı henüz desteklenmiyor")}
-            className="flex h-[84px] flex-col items-center justify-center gap-1 rounded-[24px] border-[1.5px] border-dashed border-[#162544] bg-[#0f1d32] text-[13.5px] font-semibold text-[#9fb0c4]"
-          >
-            <Camera className="mb-0.5 h-5 w-5 text-[#60a5fa]" />
-            Fotoğraf ekle
-            <span className="text-[12px] font-medium text-[#9fb0c4]/70">
-              İlk fotoğraf kapak olur
+            <span className="font-numeric font-semibold text-[#9fb0c4]">
+              {photos.length + newPhotos.length}/5
             </span>
-          </button>
+          </div>
+
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              e.target.value = "";
+              if (files.length === 0) return;
+
+              const total = photos.length + newPhotos.length;
+              const room = 5 - total;
+              if (room <= 0) {
+                setErr("En fazla 5 fotoğraf ekleyebilirsiniz");
+                return;
+              }
+              const tooBig = files.find((f) => f.size > 5 * 1024 * 1024);
+              if (tooBig) {
+                setErr(`${tooBig.name} 5MB'dan büyük`);
+                return;
+              }
+              setErr(null);
+              setNewPhotos((prev) => [...prev, ...files.slice(0, room)]);
+            }}
+          />
+
+          {/* Yuklenmis + yeni secilen fotograflar */}
+          {(photos.length > 0 || newPhotos.length > 0) && (
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((url) => (
+                <div key={url} className="relative aspect-square overflow-hidden rounded-[16px] border border-[#162544]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={imgUrl(url)} alt="" className="h-full w-full object-cover" />
+                  {coverPhoto === url && (
+                    <span className="absolute left-1 top-1 rounded-[6px] bg-[#3b82f6] px-1.5 py-0.5 text-[9px] font-bold text-[#030711]">
+                      KAPAK
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    aria-label="Fotoğrafı sil"
+                    onClick={async () => {
+                      if (!initial) return;
+                      try {
+                        await carsApi.removePhoto(initial.id, url);
+                        setPhotos((prev) => prev.filter((u) => u !== url));
+                      } catch {
+                        setErr("Fotoğraf silinemedi");
+                      }
+                    }}
+                    className="tap absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#030711]/80 text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {newPhotos.map((file, i) => (
+                <div
+                  key={`${file.name}-${i}`}
+                  className="relative aspect-square overflow-hidden rounded-[16px] border border-[#3b82f6]/40"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={URL.createObjectURL(file)} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    aria-label="Seçimi kaldır"
+                    onClick={() => setNewPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="tap absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#030711]/80 text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {photos.length + newPhotos.length < 5 && (
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              className="tap flex h-[84px] flex-col items-center justify-center gap-1 rounded-[24px] border-[1.5px] border-dashed border-[#162544] bg-[#0f1d32] text-[13.5px] font-semibold text-[#9fb0c4] hover:border-[#3b82f6]/45"
+            >
+              <Camera className="mb-0.5 h-5 w-5 text-[#60a5fa]" />
+              Fotoğraf ekle
+              <span className="text-[12px] font-medium text-[#9fb0c4]/70">
+                İlk fotoğraf kapak olur
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-[7px]">
@@ -819,16 +918,29 @@ function ProfileContent() {
                     "radial-gradient(260px 200px at 80% 0%,rgba(59,130,246,.38),transparent 70%),linear-gradient(180deg,#0f1d32,#050b16)",
                 }}
               >
-                {/* Izgara zemin */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-[210px]"
-                  style={{
-                    background:
-                      "repeating-linear-gradient(90deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px),repeating-linear-gradient(0deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px)",
-                    WebkitMaskImage: "linear-gradient(180deg,transparent,#000)",
-                    maskImage: "linear-gradient(180deg,transparent,#000)",
-                  }}
-                />
+                {/* Kapak fotoğrafı — varsa zeminin üstüne oturur */}
+                {active?.coverPhoto ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imgUrl(active.coverPhoto)}
+                      alt={`${active.brand} ${active.model}`}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    {/* Okunabilirlik için alt gradyan */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050b16] via-[#050b16]/45 to-transparent" />
+                  </>
+                ) : (
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-[210px]"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(90deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px),repeating-linear-gradient(0deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px)",
+                      WebkitMaskImage: "linear-gradient(180deg,transparent,#000)",
+                      maskImage: "linear-gradient(180deg,transparent,#000)",
+                    }}
+                  />
+                )}
 
                 {/* Üst bar */}
                 <div className="absolute left-4 right-4 top-4 flex flex-col gap-3">

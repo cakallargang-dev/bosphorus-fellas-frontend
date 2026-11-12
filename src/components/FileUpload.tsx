@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, FileImage, Loader2 } from "lucide-react";
+import { Upload, FileImage, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { imgUrl } from "@/lib/api";
 
@@ -29,6 +29,15 @@ export function FileUpload({
     typeof value === "string" ? value : null
   );
   const [uploading, setUploading] = useState(false);
+
+  // value disaridan temizlenince (ornegin "Kaldir") onizlemeyi de temizle
+  useEffect(() => {
+    if (value === null || value === undefined) {
+      setPreviewUrl(null);
+    } else if (typeof value === "string") {
+      setPreviewUrl(value);
+    }
+  }, [value]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -63,25 +72,12 @@ export function FileUpload({
   const displayedPreview =
     previewUrl || (typeof value === "string" && value ? imgUrl(value) : null);
 
+  // Önizleme varsa yalnızca görsel döner; "Kaldır" butonu çağıran bileşende.
+  // (Eskiden burada da bir X vardı → profilde iki ayrı kaldırma kontrolü çakışıyordu.)
   if (displayedPreview && preview) {
     return (
-      <div className="relative inline-block">
-        <img
-          src={displayedPreview}
-          alt="Preview"
-          className="w-32 h-32 rounded-lg object-cover border border-mancave-border"
-        />
-        {!disabled && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full"
-            onClick={handleRemove}
-          >
-            <X className="w-3 h-3" />
-          </Button>
-        )}
+      <div className="relative inline-flex h-16 w-16 shrink-0 overflow-hidden rounded-full border border-[#162544]">
+        <img src={displayedPreview} alt="Önizleme" className="h-full w-full object-cover" />
       </div>
     );
   }

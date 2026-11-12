@@ -281,6 +281,7 @@ export interface TeamMember {
   carYear: number | null;
   carHp: number | null;
   carFeatures: string | null;
+  carPhoto: string | null;
   plateNumber: string | null;
   city: string | null;
   district: string | null;
@@ -763,6 +764,8 @@ export interface CarItem {
   hp: number | null;
   plateNumber: string;
   features: string | null;
+  photos: string[];
+  coverPhoto: string | null;
   isPrimary: boolean;
   createdAt: string;
 }
@@ -801,6 +804,28 @@ export const carsApi = {
 
   setPrimary: (id: string) =>
     request<ApiResponse<unknown>>(`/api/cars/${id}/primary`, { method: "POST" }),
+
+  /** Arac fotografi yukle (max 5 toplam). Sunucu fazlasini kirpar. */
+  uploadPhotos: (id: string, files: File[]) => {
+    const fd = new FormData();
+    files.forEach((f) => fd.append("files", f));
+    return request<ApiResponse<CarItem>>(`/api/cars/${id}/photos`, {
+      method: "POST",
+      body: fd,
+    });
+  },
+
+  removePhoto: (id: string, url: string) =>
+    request<ApiResponse<CarItem>>(
+      `/api/cars/${id}/photos?url=${encodeURIComponent(url)}`,
+      { method: "DELETE" }
+    ),
+
+  setCover: (id: string, url: string) =>
+    request<ApiResponse<CarItem>>(`/api/cars/${id}/cover`, {
+      method: "PUT",
+      body: JSON.stringify({ url }),
+    }),
 
   remove: (id: string) =>
     request<ApiResponse<unknown>>(`/api/cars/${id}`, { method: "DELETE" }),

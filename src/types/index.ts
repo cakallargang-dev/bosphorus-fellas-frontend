@@ -21,6 +21,8 @@ export interface User {
   carFeatures?: string;
   district?: string;
   plateNumber?: string;
+  /** Ana aracin kapak fotografi — profil vitrin kartinda gosterilir */
+  carPhoto?: string;
   activeScore?: number;
   /** Katıldığı etkinlik sayısı (backend GET /me döndürür) */
   eventCount?: number;
