@@ -324,3 +324,9 @@
 @utility section-divider {
   border-top: 1px solid rgba(59, 130, 246, 0.06);
 }
+
+/* Profil / Garaj tipografisi — Space Grotesk baslik, JetBrains Mono sayisal */
+@theme inline {
+  --font-display: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
+  --font-numeric: var(--font-jetbrains-mono), ui-monospace, monospace;
+}

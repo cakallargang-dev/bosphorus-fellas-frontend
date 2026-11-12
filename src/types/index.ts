@@ -22,6 +22,8 @@ export interface User {
   district?: string;
   plateNumber?: string;
   activeScore?: number;
+  /** Katıldığı etkinlik sayısı (backend GET /me döndürür) */
+  eventCount?: number;
   createdAt: string;
 }
 
