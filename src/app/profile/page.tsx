@@ -40,6 +40,31 @@ import {
   Wrench,
 } from "lucide-react";
 
+function StatBox({
+  label,
+  value,
+  small,
+}: {
+  label: string;
+  value: string;
+  small?: boolean;
+}) {
+  return (
+    <div className="py-2.5 text-center">
+      <p
+        className={`font-semibold text-white tabular-nums leading-none ${
+          small ? "text-[11px]" : "text-[15px]"
+        }`}
+      >
+        {value}
+      </p>
+      <p className="mt-1 text-[8.5px] uppercase tracking-[0.16em] text-[#6b7d94]">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 function SummaryRow({
   icon: Icon,
   label,
@@ -340,6 +365,11 @@ function ProfileContent() {
 
   const carText = [user?.carBrand, user?.carModel].filter(Boolean).join(" ") || "Araç eklenmedi";
 
+  const eventsCount = String((user as any)?.eventCount ?? (user as any)?.stats?.events ?? 0);
+  const sinceText = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("tr-TR", { month: "short", year: "2-digit" })
+    : "—";
+
   const avatarPreview = removeAvatar ? null : avatarFile ? URL.createObjectURL(avatarFile) : null;
 
   return (
@@ -413,6 +443,148 @@ function ProfileContent() {
         </div>
 
         <div className="px-4">
+        {/* ===== OYUNCU KARTI ===== */}
+        {!isEditing && (
+          <div className="relative mb-4">
+            <div className="relative rounded-[22px] overflow-hidden border border-[#1d3557] bg-gradient-to-br from-[#0d1b2e] via-[#0a1526] to-[#060d18] premium-shadow">
+              {/* teknolojik izgara */}
+              <div
+                className="absolute inset-0 opacity-[0.13] pointer-events-none"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(59,130,246,.55) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,.55) 1px, transparent 1px)",
+                  backgroundSize: "26px 26px",
+                  maskImage:
+                    "radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%)",
+                  WebkitMaskImage:
+                    "radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%)",
+                }}
+              />
+              {/* köşe çizgileri */}
+              <span className="absolute top-2.5 left-2.5 w-5 h-5 border-t-2 border-l-2 border-[#3b82f6]/45 rounded-tl" />
+              <span className="absolute top-2.5 right-2.5 w-5 h-5 border-t-2 border-r-2 border-[#3b82f6]/45 rounded-tr" />
+              <span className="absolute bottom-2.5 left-2.5 w-5 h-5 border-b-2 border-l-2 border-[#3b82f6]/25 rounded-bl" />
+              <span className="absolute bottom-2.5 right-2.5 w-5 h-5 border-b-2 border-r-2 border-[#3b82f6]/25 rounded-br" />
+              <span className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent" />
+
+              <div className="relative z-10">
+                {/* ÜST: avatar + kimlik + OVR */}
+                <div className="flex items-start gap-3.5 px-4 pt-6 pb-4">
+                  <div className="relative shrink-0">
+                    <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-br from-[#3b82f6] via-[#60a5fa]/40 to-transparent opacity-70" />
+                    <Avatar className="relative w-[76px] h-[76px] rounded-2xl border border-[#3b82f6]/40">
+                      <AvatarImage
+                        src={imgUrl(user?.avatar)}
+                        alt={user?.firstName}
+                        className="rounded-2xl object-cover"
+                      />
+                      <AvatarFallback className="rounded-2xl bg-[#0b1626] text-[#60a5fa] text-[22px] font-bold tracking-wide">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[#3b82f6] px-2 py-[2px] text-[8.5px] font-bold uppercase tracking-[0.12em] text-[#030711]">
+                      {user?.role === "admin" ? "YÖNETİCİ" : "ÜYE"}
+                    </span>
+                  </div>
+
+                  <div className="min-w-0 flex-1 pt-1">
+                    <p className="text-[9px] uppercase tracking-[0.26em] text-[#3b82f6]/75">
+                      Bosphorus Fellas
+                    </p>
+                    <h1 className="mt-1 text-[19px] leading-[1.15] font-semibold tracking-[-0.02em] text-white">
+                      {user?.firstName}
+                      <br />
+                      <span className="text-[#93c5fd]">{user?.lastName}</span>
+                    </h1>
+                    <p className="mt-1.5 text-[10.5px] text-white/40 font-mono tracking-tight">
+                      {user?.phone}
+                    </p>
+                  </div>
+
+                  {/* OVR rozet */}
+                  <div className="shrink-0 flex flex-col items-center justify-center w-[54px] h-[62px] rounded-xl border border-[#3b82f6]/35 bg-gradient-to-b from-[#3b82f6]/18 to-transparent">
+                    <span className="text-[24px] leading-none font-bold text-white tabular-nums">
+                      {user?.activeScore ?? 0}
+                    </span>
+                    <span className="mt-1 text-[7.5px] uppercase tracking-[0.14em] text-[#60a5fa]/80">
+                      OVR
+                    </span>
+                  </div>
+                </div>
+
+                {/* ORTA: araç vitrini */}
+                <div className="mx-4 mb-3 rounded-xl border border-white/[0.07] bg-[#060d18]/70 backdrop-blur px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.18em] text-[#6b7d94]">
+                      <Car className="w-3 h-3 text-[#3b82f6]" />
+                      Araç
+                    </span>
+                    {user?.plateNumber && (
+                      <span className="rounded border border-white/15 bg-white/[0.06] px-1.5 py-[1px] text-[9.5px] font-mono tracking-[0.12em] text-white/80">
+                        {user.plateNumber}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-[14.5px] font-semibold tracking-[-0.01em] text-white">
+                    {[user?.carBrand, user?.carModel].filter(Boolean).join(" ") || "—"}
+                  </p>
+                  <div className="mt-2 flex items-center gap-3 text-[10px] text-white/45">
+                    {user?.carYear && (
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-2.5 h-2.5" />
+                        {user.carYear}
+                      </span>
+                    )}
+                    {user?.carHp && (
+                      <span className="flex items-center gap-1 text-[#60a5fa]">
+                        <Gauge className="w-2.5 h-2.5" />
+                        {user.carHp} HP
+                      </span>
+                    )}
+                    {user?.district && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-2.5 h-2.5" />
+                        {user.district}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* ALT: istatistik şeridi */}
+                <div className="grid grid-cols-3 divide-x divide-white/[0.07] border-t border-white/[0.07] bg-black/25">
+                  <StatBox label="Etkinlik" value={eventsCount} />
+                  <StatBox label="Katılım" value={`${user?.activeScore ?? 0}/10`} />
+                  <StatBox label="Üyelik" value={sinceText} small />
+                </div>
+
+                {/* Araç özellikleri */}
+                {user?.carFeatures && (
+                  <div className="px-4 py-3 border-t border-white/[0.07]">
+                    <p className="text-[9px] uppercase tracking-[0.18em] text-[#6b7d94] mb-1.5">
+                      Araç Özellikleri
+                    </p>
+                    <p className="text-[11.5px] leading-relaxed text-[#b9c6d8] whitespace-pre-wrap">
+                      {user.carFeatures}
+                    </p>
+                  </div>
+                )}
+
+                {/* Düzenle */}
+                <div className="p-3 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-[#3b82f6]/35 bg-[#3b82f6]/10 py-2.5 text-[12px] font-semibold text-[#60a5fa] hover:bg-[#3b82f6]/20 active:scale-[0.98] transition-all"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Kartı Düzenle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Profile Card */}
         <Card className="bg-[#0f1d32]/70 border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
           <CardHeader className="pb-4 border-b border-white/[0.06] relative">
@@ -425,39 +597,9 @@ function ProfileContent() {
             <CardDescription className="text-[#7a8da4] text-[11.5px]">
               Bilgilerini güncel tut, ekip seni tanısın.
             </CardDescription>
-            {!isEditing && (
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="absolute right-4 top-4 flex items-center gap-1.5 rounded-lg border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-3 py-1.5 text-[11.5px] font-medium text-[#60a5fa] hover:bg-[#3b82f6]/20 transition-colors"
-              >
-                <Pencil className="w-3 h-3" />
-                Düzenle
-              </button>
-            )}
           </CardHeader>
 
           <CardContent className="pt-5">
-            {!isEditing && (
-              <div className="space-y-3.5">
-                <SummaryRow icon={User} label="İsim Soyisim" value={`${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim()} />
-                <SummaryRow icon={Phone} label="Telefon" value={user?.phone ?? "-"} />
-                <SummaryRow icon={MapPin} label="İlçe" value={user?.district || "-"} />
-                <Separator className="bg-[#0a1628]" />
-                <SummaryRow icon={Car} label="Araç Markası" value={user?.carBrand || "-"} />
-                <SummaryRow icon={Car} label="Araç Modeli" value={user?.carModel || "-"} />
-                <SummaryRow icon={Calendar} label="Araç Yılı" value={user?.carYear ? String(user.carYear) : "-"} />
-                <SummaryRow icon={Gauge} label="Beygir Gücü" value={user?.carHp ? `${user.carHp} HP` : "-"} />
-                <SummaryRow icon={Hash} label="Plaka" value={user?.plateNumber || "-"} />
-                <SummaryRow
-                  icon={Wrench}
-                  label="Araç Özellikleri"
-                  value={user?.carFeatures || "-"}
-                  multiline
-                />
-              </div>
-            )}
-
             <form
               style={{ display: isEditing ? undefined : "none" }}
               onSubmit={handleProfileSubmit(onProfileSubmit)}

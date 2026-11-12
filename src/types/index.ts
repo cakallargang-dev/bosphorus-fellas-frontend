@@ -21,6 +21,7 @@ export interface User {
   carFeatures?: string;
   district?: string;
   plateNumber?: string;
+  activeScore?: number;
   createdAt: string;
 }
 
