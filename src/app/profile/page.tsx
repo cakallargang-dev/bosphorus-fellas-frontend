@@ -16,6 +16,7 @@ import { BrandWheel } from "@/components/BrandWheel";
 import {
   Camera,
   Car,
+  ChevronLeft,
   ChevronRight,
   Copy,
   LogOut,
@@ -740,6 +741,7 @@ function ProfileContent() {
   const [carOpen, setCarOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<CarItem | null>(null);
   const [carIndex, setCarIndex] = useState(0);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { data: carsData } = useQuery({
@@ -761,6 +763,34 @@ function ProfileContent() {
   useEffect(() => {
     if (carIndex > ordered.length - 1) setCarIndex(0);
   }, [ordered.length, carIndex]);
+
+  // Aktif aracın fotoğrafları — kapak önce, sonra kalanlar
+  const activePhotos = useMemo(() => {
+    if (!active) return [] as string[];
+    const list = active.photos ?? [];
+    return active.coverPhoto
+      ? [active.coverPhoto, ...list.filter((p) => p !== active.coverPhoto)]
+      : list;
+  }, [active]);
+
+  const safePhoto = Math.min(photoIndex, Math.max(0, activePhotos.length - 1));
+
+  useEffect(() => {
+    setPhotoIndex(0);
+  }, [safeIndex, active?.id]);
+
+  useEffect(() => {
+    if (photoIndex > activePhotos.length - 1) setPhotoIndex(0);
+  }, [activePhotos.length, photoIndex]);
+
+  const goPhoto = (dir: 1 | -1) =>
+    setPhotoIndex((i) => {
+      const n = activePhotos.length;
+      if (n === 0) return 0;
+      return (i + dir + n) % n;
+    });
+
+  const swipe = useRef<{ x: number; y: number; t: number } | null>(null);
 
   const refreshCars = () => {
     queryClient.invalidateQueries({ queryKey: ["cars"] });
@@ -912,19 +942,34 @@ function ProfileContent() {
               </button>
             ) : (
               <div
-                className="relative h-[330px] shrink-0 overflow-hidden rounded-[30px] border border-[#1d3157]"
+                onPointerDown={(e) => {
+                  swipe.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+                }}
+                onPointerUp={(e) => {
+                  const s = swipe.current;
+                  swipe.current = null;
+                  if (!s) return;
+                  if (Date.now() - s.t > 1200) return;
+                  const dx = e.clientX - s.x;
+                  const dy = e.clientY - s.y;
+                  if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+                  // Gövdede kaydır → aracın fotoğrafları arasında
+                  goPhoto(dx > 0 ? -1 : 1);
+                }}
+                className="relative h-[330px] shrink-0 touch-pan-y select-none overflow-hidden rounded-[30px] border border-[#1d3157]"
                 style={{
                   background:
                     "radial-gradient(260px 200px at 80% 0%,rgba(59,130,246,.38),transparent 70%),linear-gradient(180deg,#0f1d32,#050b16)",
                 }}
               >
                 {/* Kapak fotoğrafı — varsa zeminin üstüne oturur */}
-                {active?.coverPhoto ? (
+                {activePhotos.length > 0 ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={imgUrl(active.coverPhoto)}
-                      alt={`${active.brand} ${active.model}`}
+                      key={activePhotos[safePhoto]}
+                      src={imgUrl(activePhotos[safePhoto])}
+                      alt={`${active?.brand} ${active?.model} ${safePhoto + 1}`}
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                     {/* Okunabilirlik için alt gradyan */}
@@ -956,30 +1001,98 @@ function ProfileContent() {
                       {active?.isPrimary ? "Ana araç" : "Araç"}
                     </span>
                     <span className="font-numeric text-[12px] font-bold text-[#9fb0c4]">
-                      {safeIndex + 1}/{Math.max(ordered.length, 5)}
+                      {safeIndex + 1}/{ordered.length}
                     </span>
                   </div>
 
-                  {/* Carousel göstergesi */}
-                  <div className="flex gap-[5px]">
-                    {ordered.map((c, i) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setCarIndex(i)}
-                        aria-label={`${c.brand} ${c.model}`}
-                        className={`block h-[3px] flex-1 rounded-[2px] transition-colors ${
-                          i === safeIndex ? "bg-[#60a5fa]" : "bg-[#162544]"
-                        }`}
-                      />
-                    ))}
-                  </div>
+                  {/* Araç seçici — sadece birden fazla araç varsa */}
+                  {ordered.length > 1 && (
+                    <div className="flex gap-[5px]">
+                      {ordered.map((c, i) => (
+                        <button
+                          key={c.id}
+                          onClick={() => setCarIndex(i)}
+                          aria-label={`${c.brand} ${c.model}`}
+                          className={`block h-[3px] flex-1 rounded-[2px] transition-colors ${
+                            i === safeIndex ? "bg-[#60a5fa]" : "bg-[#162544]"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Orta: foto alanı */}
-                <div className="absolute left-0 right-0 top-[104px] flex flex-col items-center gap-2 text-[12.5px] text-[#7a8da4]">
-                  <Car className="h-8 w-8" strokeWidth={1.4} />
-                  Araç fotoğrafı
-                </div>
+                {/* Foto gezinme okları */}
+                {activePhotos.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => goPhoto(-1)}
+                      aria-label="Önceki fotoğraf"
+                      className="absolute left-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#1d3157] bg-[#030711]/60 text-white backdrop-blur-md transition hover:bg-[#030711]/85 active:scale-95"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => goPhoto(1)}
+                      aria-label="Sonraki fotoğraf"
+                      className="absolute right-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#1d3157] bg-[#030711]/60 text-white backdrop-blur-md transition hover:bg-[#030711]/85 active:scale-95"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+
+                    {/* Foto noktaları */}
+                    <div className="absolute left-0 right-0 top-[68px] z-10 flex justify-center gap-1.5">
+                      {activePhotos.map((p, i) => (
+                        <button
+                          key={p + i}
+                          onClick={() => setPhotoIndex(i)}
+                          aria-label={`Fotoğraf ${i + 1}`}
+                          className={`h-1.5 rounded-full transition-all ${
+                            i === safePhoto
+                              ? "w-4 bg-[#60a5fa]"
+                              : "w-1.5 bg-white/45 hover:bg-white/70"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    <span className="absolute right-3.5 top-[92px] z-10 rounded-full bg-[#030711]/65 px-2 py-0.5 font-numeric text-[10.5px] font-bold text-[#dbe6f4] backdrop-blur-md">
+                      {safePhoto + 1}/{activePhotos.length}
+                    </span>
+                  </>
+                )}
+
+                {/* Orta: foto alanı — sadece fotoğraf yoksa */}
+                {activePhotos.length === 0 && (
+                  <div className="absolute left-0 right-0 top-[104px] flex flex-col items-center gap-2 text-[12.5px] text-[#7a8da4]">
+                    <Car className="h-8 w-8" strokeWidth={1.4} />
+                    Araç fotoğrafı
+                  </div>
+                )}
+
+                {/* Araç değiştirme okları — birden çok araç varsa */}
+                {ordered.length > 1 && (
+                  <div className="absolute bottom-[104px] left-0 right-0 z-10 flex items-center justify-between px-3.5">
+                    <button
+                      onClick={() =>
+                        setCarIndex((safeIndex - 1 + ordered.length) % ordered.length)
+                      }
+                      aria-label="Önceki araç"
+                      className="flex h-8 items-center gap-1 rounded-full border border-[#1d3157] bg-[#030711]/60 px-2.5 text-[11.5px] font-semibold text-[#9fb0c4] backdrop-blur-md transition hover:text-[#60a5fa] active:scale-95"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      Araç
+                    </button>
+                    <button
+                      onClick={() => setCarIndex((safeIndex + 1) % ordered.length)}
+                      aria-label="Sonraki araç"
+                      className="flex h-8 items-center gap-1 rounded-full border border-[#1d3157] bg-[#030711]/60 px-2.5 text-[11.5px] font-semibold text-[#9fb0c4] backdrop-blur-md transition hover:text-[#60a5fa] active:scale-95"
+                    >
+                      Araç
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
 
                 {/* Alt cam panel */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 rounded-[22px] border border-[#1d3157] bg-[#030711]/[0.62] px-4 py-3.5 backdrop-blur-md">
