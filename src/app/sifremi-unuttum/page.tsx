@@ -219,7 +219,7 @@ export default function SifremiUnuttumPage() {
           )}
 
           <div className="pt-2 border-t border-[#162544] text-center text-sm text-[#7a8da4]">
-            <Link href="/login" className="hover:text-white">Girişe dön</Link>
+            <Link href="/login" className="tap hover:text-white">Girişe dön</Link>
           </div>
         </CardContent>
       </Card>

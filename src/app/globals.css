@@ -145,6 +145,21 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* Başlıklar site genelinde Space Grotesk */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  /* Sayısal veri: tablo/telefon/plaka — mono ve hizalı */
+  .tabular-nums,
+  time,
+  [data-numeric] {
+    font-family: var(--font-numeric);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* Scrollbar styling */
@@ -329,4 +344,321 @@
 @theme inline {
   --font-display: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
   --font-numeric: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* ============================================================
+   SITE GENEL TASARIM DILI — "Profil / Garaj" referansı
+   Panel #0f1d32→#0a1628 gradyan, 22px köşe, mavi glow,
+   Space Grotesk başlık, JetBrains Mono sayısal.
+   ============================================================ */
+
+/* Ana panel: üstten alta hafif gradyan + 1px koyu kenar */
+@utility panel {
+  background: linear-gradient(180deg, rgba(15, 29, 50, 0.85), rgba(10, 22, 40, 0.85));
+  border: 1px solid #162544;
+  border-radius: 22px;
+}
+
+/* Büyük kart: profildeki vitrin kartı köşesi (30px) */
+@utility panel-lg {
+  background: linear-gradient(180deg, rgba(15, 29, 50, 0.85), rgba(10, 22, 40, 0.85));
+  border: 1px solid #1d3157;
+  border-radius: 30px;
+}
+
+/* Cam panel: blur'lu yarı saydam katman */
+@utility panel-glass {
+  background: rgba(3, 7, 17, 0.62);
+  border: 1px solid #1d3157;
+  border-radius: 22px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Mavi radial glow — kart zemininde spotlight */
+@utility glow-radial {
+  background-image:
+    radial-gradient(260px 200px at 80% 0%, rgba(59, 130, 246, 0.38), transparent 70%),
+    linear-gradient(180deg, #0f1d32, #050b16);
+}
+
+/* Izgara zemin — alt kısımda kaybolan perspektif dokusu */
+@utility grid-floor {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(96, 165, 250, 0.14) 0 1px, transparent 1px 36px),
+    repeating-linear-gradient(0deg, rgba(96, 165, 250, 0.14) 0 1px, transparent 1px 36px);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000);
+  mask-image: linear-gradient(180deg, transparent, #000);
+}
+
+/* Birincil CTA: mavi gradyan + glow, koyu metin */
+@utility btn-gradient {
+  background-image: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: #030711;
+  font-weight: 700;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+}
+.btn-gradient:hover {
+  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.55);
+}
+.btn-gradient:active {
+  transform: scale(0.985);
+}
+
+/* İkincil buton: şeffaf zemin + ince kenar (profil "Düzenle") */
+@utility btn-soft {
+  background: linear-gradient(180deg, rgba(15, 29, 50, 0.85), rgba(10, 22, 40, 0.85));
+  border: 1px solid #162544;
+  border-radius: 20px;
+  color: #f1f5f9;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.btn-soft:hover {
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+/* Form alanı: 52px, 16px köşe, koyu zemin */
+@utility field {
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid #162544;
+  background-color: #0f1d32;
+  padding: 0 16px;
+  font-size: 15px;
+  color: #f1f5f9;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.field:focus {
+  border-color: rgba(59, 130, 246, 0.6);
+}
+.field::placeholder {
+  color: #7a8da4;
+}
+
+/* Küçük rozet: sayaç / etiket */
+@utility badge-glow {
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  background-color: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+  border-radius: 10px;
+}
+
+/* Bölüm başlığı: Space Grotesk 22px */
+@utility heading-display {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+/* Etiket: geniş harf aralıklı küçük büyük harf */
+@utility label-eyebrow {
+  font-family: var(--font-numeric);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #9fb0c4;
+  text-transform: uppercase;
+}
+
+/* Üst çizgi vurgusu — panelin tepesinde ince mavi hat */
+@utility top-hairline {
+  position: relative;
+}
+.top-hairline::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+}
+
+/* ============================================================
+   ETKİLEŞİM KATMANI — tıklanabilir her öğe geri bildirim verir
+   ============================================================ */
+
+/* Tıklanabilir her öğe için animasyon sınıfı.
+   NOT: @utility içinde :active/:hover desteklenmediği için düz CSS sınıfı —
+   özgüllük için body altına yazıldı, Tailwind utility'lerini ezmez. */
+.tap {
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.25s ease,
+    box-shadow 0.28s ease,
+    background-color 0.25s ease,
+    filter 0.2s ease,
+    color 0.2s ease;
+}
+.tap:not(:disabled):hover {
+  filter: brightness(1.07);
+}
+.tap:not(:disabled):active {
+  transform: scale(0.968);
+  filter: brightness(0.95);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap,
+  .tap:active {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
+
+/* Basış: hafif küçülme + parlaklık. Tüm buton/link/karta uygulanır. */
+@layer base {
+  button,
+  a,
+  [role="button"],
+  [role="switch"],
+  [role="tab"],
+  summary {
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease,
+      box-shadow 0.25s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+  button:not(:disabled):active,
+  a:active,
+  [role="button"]:not([aria-disabled="true"]):active,
+  [role="switch"]:active,
+  [role="tab"]:active {
+    transform: scale(0.965);
+    filter: brightness(0.94);
+  }
+  /* Klavye erişilebilirliği: odak halkası */
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.65);
+    outline-offset: 2px;
+  }
+  /* Hareket azaltma tercihi olan kullanıcıya saygı */
+  @media (prefers-reduced-motion: reduce) {
+    button,
+    a,
+    [role="button"],
+    [role="switch"],
+    [role="tab"],
+    .cursor-pointer {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+    button:active,
+    a:active,
+    .cursor-pointer:active {
+      transform: none !important;
+    }
+  }
+}
+
+/* Tıklanabilir kart: hover'da yükselir + mavi kenar + iç parlama */
+@utility interactive-card {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.3s ease,
+    background-color 0.25s ease;
+}
+.interactive-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.42);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(59, 130, 246, 0.14),
+    0 0 32px rgba(59, 130, 246, 0.14);
+}
+.interactive-card:active {
+  transform: translateY(-1px) scale(0.985);
+  transition-duration: 0.1s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .interactive-card:hover {
+    transform: none;
+  }
+}
+
+/* Okunabilir dokunma alanı + mavi ışıma */
+@utility tap-glow {
+  position: relative;
+  isolation: isolate;
+}
+.tap-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(96, 165, 250, 0.28), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.tap-glow:hover::after {
+  opacity: 1;
+}
+
+/* Buton basış dalgası — basılınca merkezden yayılan halka */
+@keyframes tap-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(96, 165, 250, 0);
+  }
+}
+@utility tap-ripple {
+  animation: tap-ripple 0.45s ease-out;
+}
+
+/* Yumuşak giriş — liste öğeleri için kademeli */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@utility animate-rise {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Navbar/sekmeler: aktif öğede hafif nefes alan ışıma */
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50% { box-shadow: 0 0 14px 0 rgba(59, 130, 246, 0.35); }
+}
+@utility animate-pulse-soft {
+  animation: pulse-soft 2.6s ease-in-out infinite;
+}
+
+/* Link alt çizgisi: soldan sağa açılan gradient */
+@utility link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1.5px;
+  width: 0;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover::after {
+  width: 100%;
 }

@@ -119,7 +119,7 @@ function Sheet({
             <button
               onClick={onClose}
               aria-label="Kapat"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f1d32] text-[#9fb0c4] transition-colors hover:text-white"
+              className="tap flex h-11 w-11 items-center justify-center rounded-full bg-[#0f1d32] text-[#9fb0c4] transition-colors hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
@@ -521,7 +521,7 @@ function EditProfileSheet({
         <button
           type="button"
           onClick={onOpenPassword}
-          className="flex h-[52px] items-center justify-between rounded-2xl border-[1.5px] border-[#162544] bg-[#0a1628] px-4 text-[15px] font-semibold text-white"
+          className="tap flex h-[52px] items-center justify-between rounded-2xl border-[1.5px] border-[#162544] bg-[#0a1628] px-4 text-[15px] font-semibold text-white"
         >
           Şifreyi değiştir
           <ChevronRight className="h-4 w-4 text-[#7a8da4]" />
@@ -601,7 +601,7 @@ function ReferenceRow() {
         ) : (
           <button
             onClick={fetchCode}
-            className="self-start text-[13.5px] font-semibold text-[#60a5fa]"
+            className="tap self-start text-[13.5px] font-semibold text-[#60a5fa]"
           >
             Yeni kod oluştur
           </button>
@@ -611,7 +611,7 @@ function ReferenceRow() {
       {code && !isExpired && (
         <button
           onClick={copy}
-          className="flex h-11 shrink-0 items-center gap-2 rounded-[14px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] px-[18px] text-[14px] font-bold text-[#030711] shadow-[0_6px_18px_rgba(59,130,246,.35)]"
+          className="tap flex h-11 shrink-0 items-center gap-2 rounded-[14px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] px-[18px] text-[14px] font-bold text-[#030711] shadow-[0_6px_18px_rgba(59,130,246,.35)]"
         >
           <Copy className="h-4 w-4" />
           Kopyala
@@ -1016,7 +1016,7 @@ function ProfileContent() {
           {/* ===== ÇIKIŞ ===== */}
           <button
             onClick={logout}
-            className="flex h-[52px] items-center justify-center gap-2 rounded-[18px] border border-[#5b1f2a] bg-[#7f1d1d]/[0.12] text-[15px] font-bold text-[#f87171]"
+            className="tap flex h-[52px] items-center justify-center gap-2 rounded-[18px] border border-[#5b1f2a] bg-[#7f1d1d]/[0.12] text-[15px] font-bold text-[#f87171]"
           >
             <LogOut className="h-4 w-4" />
             Çıkış Yap

@@ -46,7 +46,7 @@ export function EventCard({
   const isInvalidDate = eventDate && isNaN(eventDate.getTime());
 
   return (
-    <Card className="bg-mancave-card border-mancave-border overflow-hidden hover:border-mancave-blue/30 transition-all duration-300 group">
+    <Card className="interactive-card group overflow-hidden hover:border-[#3b82f6]/40">
       {event.imageUrl && (
         <div className="relative h-40 overflow-hidden">
           <img
@@ -115,7 +115,7 @@ export function EventCard({
               href={event.locationUrl || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="truncate text-mancave-blue hover:underline"
+              className="tap truncate text-mancave-blue hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               {event.location}

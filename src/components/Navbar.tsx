@@ -44,7 +44,7 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-3 group shrink-0"
+            className="tap flex items-center gap-3 group shrink-0"
           >
             <div className="w-9 h-9 rounded border border-mancave-blue flex items-center justify-center group-hover:bg-mancave-blue/10 transition-colors">
               <span className="text-mancave-blue font-bold text-sm">BF</span>

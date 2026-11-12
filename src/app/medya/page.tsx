@@ -90,7 +90,7 @@ function MediaContent() {
                 href="https://youtube.com/@bosphorus.fellas"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10.5px] text-[#3b82f6]/80 hover:text-[#60a5fa] flex items-center gap-0.5"
+                className="tap text-[10.5px] text-[#3b82f6]/80 hover:text-[#60a5fa] flex items-center gap-0.5"
               >
                 Kanal <ChevronRight className="w-3 h-3" />
               </a>
@@ -102,7 +102,7 @@ function MediaContent() {
                 <SkeletonCard className="h-20" />
               </div>
             ) : videos.length === 0 ? (
-              <div className="rounded-2xl border border-[#162544] bg-[#0f1d32]/70 p-8 text-center">
+              <div className="rounded-[22px] border border-[#162544] bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 p-8 text-center">
                 <p className="text-[12.5px] text-[#7a8da4]">
                   Henüz video yok. Admin panelinden yenile.
                 </p>
@@ -112,7 +112,7 @@ function MediaContent() {
                 {/* Öne çıkan video */}
                 <button
                   onClick={() => setVideo(videos[0])}
-                  className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[#162544] press-scale"
+                  className="group relative w-full aspect-video rounded-[22px] overflow-hidden border border-[#162544] press-scale"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -147,7 +147,7 @@ function MediaContent() {
                       <button
                         key={v.videoId}
                         onClick={() => setVideo(v)}
-                        className="group w-full flex gap-3 rounded-xl border border-[#162544] bg-[#0f1d32]/70 p-2 text-left hover:border-[#23365c] transition-colors press-scale"
+                        className="group w-full flex gap-3 rounded-[16px] border border-[#162544] bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 p-2 text-left hover:border-[#23365c] transition-colors press-scale"
                       >
                         <div className="relative w-[104px] aspect-video shrink-0 rounded-lg overflow-hidden bg-[#0a1628]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -185,7 +185,7 @@ function MediaContent() {
           {/* ================= GALERI ================= */}
           <section>
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-[3px] h-4 rounded-full bg-[#3b82f6]" />
+              <span className="w-[3px] h-4 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]" />
               <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b9c6d8]">
                 Galeri
               </h2>
@@ -201,7 +201,7 @@ function MediaContent() {
                 ))}
               </div>
             ) : photos.length === 0 ? (
-              <div className="rounded-2xl border border-[#162544] bg-[#0f1d32]/70 p-8 text-center">
+              <div className="rounded-[22px] border border-[#162544] bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 p-8 text-center">
                 <p className="text-[12.5px] text-[#7a8da4]">
                   Henüz fotoğraf yok. Admin panelinden ekle.
                 </p>
@@ -248,7 +248,7 @@ function VideoModal({ video, onClose }: { video: YouTubeVideoItem; onClose: () =
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="w-full max-w-[430px]">
-        <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
+        <div className="relative aspect-video rounded-[16px] overflow-hidden bg-black">
           <iframe
             src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0`}
             title={video.title}
@@ -278,7 +278,7 @@ function VideoModal({ video, onClose }: { video: YouTubeVideoItem; onClose: () =
           <button
             onClick={onClose}
             aria-label="Kapat"
-            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0 hover:bg-white/20 transition-colors"
+            className="tap w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white shrink-0 hover:bg-white/20 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -288,7 +288,7 @@ function VideoModal({ video, onClose }: { video: YouTubeVideoItem; onClose: () =
           href={video.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-[#f04444] py-2.5 text-[12.5px] font-semibold text-white hover:bg-[#d93a3a] transition-colors press-scale"
+          className="tap mt-3 flex items-center justify-center gap-1.5 rounded-[16px] bg-[#f04444] py-2.5 text-[12.5px] font-semibold text-white hover:bg-[#d93a3a] transition-colors press-scale"
         >
           <Play className="w-3.5 h-3.5 fill-white" />
           YouTube'da aç
@@ -308,7 +308,7 @@ function PhotoModal({ photo, onClose }: { photo: GalleryImageItem; onClose: () =
       <button
         onClick={onClose}
         aria-label="Kapat"
-        className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-10"
+        className="tap absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors z-10"
       >
         <X className="w-4 h-4" />
       </button>
@@ -318,7 +318,7 @@ function PhotoModal({ photo, onClose }: { photo: GalleryImageItem; onClose: () =
         <img
           src={imgUrl(photo.url)}
           alt={photo.caption || "Etkinlik fotoğrafı"}
-          className="w-full h-auto max-h-[70vh] object-contain rounded-xl"
+          className="w-full h-auto max-h-[70vh] object-contain rounded-[16px]"
         />
         {(photo.eventName || photo.caption) && (
           <div className="mt-3 text-center">
@@ -404,7 +404,7 @@ function DownloadButtons({ photo }: { photo: GalleryImageItem }) {
       <button
         onClick={handleDownload}
         disabled={state === "busy"}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] py-3 text-[13px] font-semibold text-black hover:bg-[#60a5fa] transition-colors press-scale disabled:opacity-70"
+        className="tap w-full flex items-center justify-center gap-2 rounded-[16px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] py-3 text-[13px] font-semibold text-black hover:bg-[#60a5fa] transition-colors press-scale disabled:opacity-70"
       >
         {state === "busy" ? (
           <>

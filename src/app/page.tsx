@@ -67,7 +67,9 @@ export default function Home() {
           style={{ backgroundImage: "url('/brand-bg-wide.webp')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/40 via-mancave-bg/70 to-mancave-bg" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_70%)]" />
+        <div className="glow-radial absolute inset-0 opacity-70" />
+        <div className="grid-floor absolute bottom-0 left-0 right-0 h-[280px] opacity-60" />
+        <span className="top-hairline absolute inset-0" />
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -85,8 +87,8 @@ export default function Home() {
             className="w-[300px] sm:w-[420px] max-w-full h-auto mx-auto"
           />
 
-          <p className="text-xl sm:text-2xl text-[#8f9fb4] max-w-2xl mx-auto font-light">
-            Ham Güç. Arınmış Ruh.
+          <p className="font-display text-2xl sm:text-3xl text-[#c3cfdd] max-w-2xl mx-auto font-bold tracking-[-0.02em]">
+            Ham Güç. <span className="text-gradient">Arınmış Ruh.</span>
           </p>
 
           <p className="text-base text-[#7a8da4] max-w-xl mx-auto leading-relaxed">
@@ -98,7 +100,7 @@ export default function Home() {
             <Link href="/apply">
               <Button
                 size="lg"
-                className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-semibold px-8 py-6 text-base"
+                className="btn-gradient px-8 py-6 text-base"
               >
                 <Car className="w-5 h-5 mr-2" />
                 Aramıza Katıl
@@ -108,7 +110,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-mancave-border text-[#b9c6d8] hover:bg-mancave-surface hover:text-white px-8 py-6 text-base"
+                className="btn-soft px-8 py-6 text-base"
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 Dashboard
@@ -129,9 +131,9 @@ export default function Home() {
       {isAuthenticated && stats && !error && (
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-12">
+            <h2 className="heading-display text-center mb-12">
               Rakamlarla{" "}
-              <span className="text-mancave-blue">Bosphorus Fellas</span>
+              <span className="text-[#60a5fa]">Bosphorus Fellas</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StatsCard
@@ -164,8 +166,8 @@ export default function Home() {
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-10">
-              <h2 className="text-2xl font-bold text-white">
-                Yaklaşan <span className="text-mancave-blue">Etkinlikler</span>
+              <h2 className="heading-display">
+                Yaklaşan <span className="text-[#60a5fa]">Etkinlikler</span>
               </h2>
               <Link href="/dashboard">
                 <Button
@@ -189,8 +191,8 @@ export default function Home() {
       {isAuthenticated && sponsors.length > 0 && (
         <section className="py-20 px-4 border-t border-mancave-border">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-white text-center mb-12">
-              <span className="text-mancave-blue">Sponsorlarımız</span>
+            <h2 className="heading-display text-center mb-12">
+              <span className="text-[#60a5fa]">Sponsorlarımız</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {sponsors.map((sponsor) => (
@@ -202,11 +204,12 @@ export default function Home() {
       )}
 
       {/* CTA Section */}
-      <section className="py-24 px-4 border-t border-mancave-border">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold text-white">
+      <section className="relative overflow-hidden py-24 px-4 border-t border-mancave-border">
+        <div className="glow-radial absolute inset-0 opacity-40" />
+        <div className="relative max-w-3xl mx-auto text-center space-y-6">
+          <h2 className="heading-display text-[30px]">
             Sen de Aramıza{" "}
-            <span className="text-mancave-blue">Katıl</span>
+            <span className="text-[#60a5fa]">Katıl</span>
           </h2>
           <p className="text-[#8f9fb4] max-w-lg mx-auto">
             Premium otomotiv topluluğumuzda yerini al. Etkinliklere katıl, özel
@@ -215,7 +218,7 @@ export default function Home() {
           <Link href="/apply">
             <Button
               size="lg"
-              className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-semibold px-10 py-6 text-base mt-4"
+              className="btn-gradient px-10 py-6 text-base mt-4"
             >
               <Shield className="w-5 h-5 mr-2" />
               Başvuru Yap

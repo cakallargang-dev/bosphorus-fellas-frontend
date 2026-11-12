@@ -177,7 +177,7 @@ function AdminContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center">
             <Shield className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <div>
@@ -189,32 +189,32 @@ function AdminContent() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8 bg-mancave-surface border border-gray-800 p-1 w-full flex overflow-x-auto gap-1 h-auto rounded-xl">
-            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+          <TabsList className="mb-8 bg-mancave-surface border border-gray-800 p-1 w-full flex overflow-x-auto gap-1 h-auto rounded-[16px]">
+            <TabsTrigger value="dashboard" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="members" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="members" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Üyeler</span>
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="events" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">Etkinlikler</span>
             </TabsTrigger>
-            <TabsTrigger value="content" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="content" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Star className="w-4 h-4" />
               <span className="hidden sm:inline">Sponsorlar</span>
             </TabsTrigger>
-            <TabsTrigger value="market" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="market" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">Market</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="notifications" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Bell className="w-4 h-4" />
               <span className="hidden sm:inline">Bildirimler</span>
             </TabsTrigger>
-            <TabsTrigger value="media" className="text-gray-400 data-active:bg-[#3b82f6] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+            <TabsTrigger value="media" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
               <Film className="w-4 h-4" />
               <span className="hidden sm:inline">Medya</span>
             </TabsTrigger>
@@ -276,7 +276,7 @@ function DashboardTab() {
 
   if (isError) {
     return (
-      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
         <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
         <p className="text-gray-400">İstatistikler yüklenemedi</p>
       </div>
@@ -364,7 +364,7 @@ function NotificationsTab() {
 
   return (
     <div className="max-w-3xl space-y-4">
-      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-5">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Bell className="w-4 h-4 text-[#3b82f6]" />
           Push bildirim gönder
@@ -377,7 +377,7 @@ function NotificationsTab() {
       {NOTIFICATION_TYPES.map((n) => (
         <div
           key={n.type}
-          className="bg-gray-900/50 border border-gray-800 rounded-xl p-4"
+          className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-4"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -401,7 +401,7 @@ function NotificationsTab() {
                 size="sm"
                 disabled={sendMutation.isPending}
                 onClick={() => sendMutation.mutate({ type: n.type })}
-                className="bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs"
+                className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] hover:brightness-110 text-[#030711] font-bold text-xs"
               >
                 {sendMutation.isPending && sending === n.type ? "Gönderiliyor" : "Gönder"}
               </Button>
@@ -434,7 +434,7 @@ function NotificationsTab() {
                     body: customBody.trim() || undefined,
                   });
                 }}
-                className="bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs"
+                className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] hover:brightness-110 text-[#030711] font-bold text-xs"
               >
                 Özel metinle gönder
               </Button>
@@ -552,16 +552,16 @@ function MembersTab() {
       {isLoading ? (
         <SkeletonTable rows={5} />
       ) : isError ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <p className="text-gray-400">Üyeler yüklenemedi</p>
         </div>
       ) : members.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <Users className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
           <p className="text-mancave-muted">Henüz üye bulunmuyor</p>
         </div>
       ) : (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-gray-800 hover:bg-transparent">
@@ -588,7 +588,7 @@ function MembersTab() {
                               : undefined
                           }
                         />
-                        <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-xs">
+                        <AvatarFallback className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-[#3b82f6] text-xs">
                           {member.firstName?.[0]}
                           {member.lastName?.[0]}
                         </AvatarFallback>
@@ -609,7 +609,7 @@ function MembersTab() {
                       variant="outline"
                       className={`text-xs ${
                         member.role === "admin"
-                          ? "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30"
+                          ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6] border-[#3b82f6]/30"
                           : "bg-gray-700/20 text-gray-400 border-gray-700/30"
                       }`}
                     >
@@ -689,7 +689,7 @@ function MembersTab() {
                               }
                             }}
                             disabled={resetPasswordMutation.isPending}
-                            className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-[#3b82f6]/10 text-xs"
+                            className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-xs"
                           >
                             <KeyRound className="w-3.5 h-3.5" />
                           </Button>
@@ -842,7 +842,7 @@ function EventsTab() {
         <span className="text-sm text-mancave-muted">{events.length} etkinlik</span>
         <Button
           onClick={handleCreate}
-          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Yeni Etkinlik
@@ -852,16 +852,16 @@ function EventsTab() {
       {isLoading ? (
         <SkeletonTable rows={5} />
       ) : isError ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <p className="text-gray-400">Etkinlikler yüklenemedi</p>
         </div>
       ) : events.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <Calendar className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
           <p className="text-mancave-muted">Henüz etkinlik yok</p>
         </div>
       ) : (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-gray-800 hover:bg-transparent">
@@ -907,7 +907,7 @@ function EventsTab() {
                       variant="outline"
                       className={`text-xs ${
                         event.status === "upcoming"
-                          ? "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30"
+                          ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6] border-[#3b82f6]/30"
                           : event.status === "ongoing"
                           ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
                           : event.status === "completed"
@@ -1061,7 +1061,7 @@ function SponsorsTab() {
             setSponsorLogo(null);
             setModalOpen(true);
           }}
-          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Yeni Sponsor
@@ -1071,16 +1071,16 @@ function SponsorsTab() {
       {isLoading ? (
         <SkeletonTable rows={4} />
       ) : isError ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <p className="text-gray-400">Sponsorlar yüklenemedi</p>
         </div>
       ) : sponsors.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <Star className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
           <p className="text-mancave-muted">Henüz sponsor yok</p>
         </div>
       ) : (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-gray-800 hover:bg-transparent">
@@ -1385,7 +1385,7 @@ function EventFormDialog({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
+              className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1544,7 +1544,7 @@ function SponsorForm({
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1623,7 +1623,7 @@ function MarketTab() {
         </div>
         <Button
           onClick={() => setShowForm(true)}
-          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium text-sm"
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium text-sm"
         >
           <Plus className="w-4 h-4 mr-1.5" />
           Ürün Ekle
@@ -1633,16 +1633,16 @@ function MarketTab() {
       {isLoading ? (
         <SkeletonTable rows={4} />
       ) : isError ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <p className="text-gray-400">Ürünler yüklenemedi</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-10 text-center">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
           <ShoppingBag className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
           <p className="text-mancave-muted">Henüz ürün eklenmemiş</p>
         </div>
       ) : (
-        <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-gray-800 hover:bg-transparent">
@@ -1690,7 +1690,7 @@ function MarketTab() {
                       href={product.shopifyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#3b82f6] text-xs hover:underline"
+                      className="tap text-[#3b82f6] text-xs hover:underline"
                     >
                       Link
                     </a>
@@ -1726,7 +1726,7 @@ function MarketTab() {
                           setEditingProduct(product);
                           setShowForm(true);
                         }}
-                        className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-[#3b82f6]/10 text-xs"
+                        className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-xs"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
@@ -1923,7 +1923,7 @@ function ProductForm({
         <Button
           type="submit"
           disabled={isSubmitting || !name.trim() || !shopifyUrl.trim()}
-          className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium"
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -2008,13 +2008,13 @@ function MediaTab() {
   return (
     <div className="space-y-5">
       {msg && (
-        <div className="rounded-lg border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-2 text-[12px] text-[#93c5fd]">
+        <div className="rounded-lg border border-[#3b82f6]/30 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 px-3 py-2 text-[12px] text-[#93c5fd]">
           {msg}
         </div>
       )}
 
       {/* YouTube */}
-      <Card className="bg-[#0f1d32]/50 border-[#162544]">
+      <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-white text-base flex items-center gap-2">
@@ -2025,7 +2025,7 @@ function MediaTab() {
               size="sm"
               onClick={() => syncMutation.mutate()}
               disabled={syncing}
-              className="bg-[#3b82f6] text-black hover:bg-[#60a5fa] gap-1.5"
+              className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
               {syncing ? "Yenileniyor" : "Yenile"}
@@ -2051,7 +2051,7 @@ function MediaTab() {
       </Card>
 
       {/* Galeri yukleme */}
-      <Card className="bg-[#0f1d32]/50 border-[#162544]">
+      <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
         <CardHeader className="pb-3">
           <CardTitle className="text-white text-base flex items-center gap-2">
             <ImagePlus className="w-4 h-4 text-[#3b82f6]" />
@@ -2077,7 +2077,7 @@ function MediaTab() {
             />
           </div>
 
-          <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#23365c] bg-[#0a1628]/60 py-6 cursor-pointer hover:border-[#3b82f6]/50 transition-colors">
+          <label className="flex items-center justify-center gap-2 rounded-[16px] border border-dashed border-[#23365c] bg-[#0a1628]/60 py-6 cursor-pointer hover:border-[#3b82f6]/50 transition-colors">
             <ImagePlus className="w-4 h-4 text-[#3b82f6]" />
             <span className="text-[12.5px] text-[#8b9bb0]">
               {uploadMutation.isPending ? "Yükleniyor..." : "Fotoğraf seç (çoklu)"}
@@ -2099,7 +2099,7 @@ function MediaTab() {
       </Card>
 
       {/* Galeri listesi */}
-      <Card className="bg-[#0f1d32]/50 border-[#162544]">
+      <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
         <CardHeader className="pb-3">
           <CardTitle className="text-white text-base">
             Galeri ({photos.length})

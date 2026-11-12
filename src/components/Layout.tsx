@@ -10,7 +10,7 @@ interface LayoutProps {
 
 export function Layout({ children, hideFooter }: LayoutProps) {
   return (
-    <div className="relative min-h-screen flex flex-col bg-mancave-bg selection:bg-[#3b82f6]/30">
+    <div className="relative min-h-screen flex flex-col bg-mancave-bg selection:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/30">
       {/* Global marka arka plani */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div

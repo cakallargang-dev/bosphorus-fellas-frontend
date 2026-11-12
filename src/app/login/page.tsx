@@ -112,7 +112,7 @@ export default function LoginPage() {
       </div>
 
       {/* Logo */}
-      <Link href="/" className="mb-9 group">
+      <Link href="/" className="tap mb-9 group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/brand-mark-hero.webp"
@@ -121,9 +121,9 @@ export default function LoginPage() {
         />
       </Link>
 
-      <Card className="w-full max-w-md bg-[#0f1d32]/50 backdrop-blur border-[#162544]">
+      <Card className="w-full max-w-md bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 backdrop-blur border-[#162544]">
         <CardHeader className="text-center pb-4">
-          <div className="mx-auto w-10 h-10 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-3">
+          <div className="mx-auto w-10 h-10 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center mb-3">
             <LogIn className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <CardTitle className="text-white text-xl">Giriş Yap</CardTitle>
@@ -178,10 +178,10 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between text-xs -mt-1">
-              <Link href="/sifremi-unuttum" className="text-[#7a8da4] hover:text-white">
+              <Link href="/sifremi-unuttum" className="tap text-[#7a8da4] hover:text-white">
                 Şifremi unuttum
               </Link>
-              <Link href="/kayit" className="text-[#3b82f6] hover:underline">
+              <Link href="/kayit" className="tap text-[#3b82f6] hover:underline">
                 Kayıt ol
               </Link>
             </div>
@@ -189,7 +189,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#3b82f6] text-black hover:bg-[#60a5fa] font-medium h-11"
+              className="w-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium h-11"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -242,7 +242,7 @@ export default function LoginPage() {
               Henüz üye değil misiniz?{" "}
               <Link
                 href="/apply"
-                className="text-[#3b82f6] hover:underline font-medium"
+                className="tap text-[#3b82f6] hover:underline font-medium"
               >
                 Başvuru yapın
               </Link>

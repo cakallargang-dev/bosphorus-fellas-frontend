@@ -62,7 +62,7 @@ export function BrandWheel({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors ${
+        className={`w-full flex items-center gap-3 rounded-[16px] border px-3 py-2.5 transition-colors ${
           error
             ? "border-red-500/60 bg-red-500/5"
             : "border-[#162544] bg-[#0a1628] hover:border-[#3b82f6]/50"
@@ -97,7 +97,7 @@ export function BrandWheel({
         >
           <div
             style={{ width: "100%", maxWidth: 430 }}
-            className="rounded-2xl border border-[#162544] bg-[#0c1729] overflow-hidden shadow-2xl"
+            className="rounded-[22px] border border-[#162544] bg-[#0c1729] overflow-hidden shadow-2xl"
           >
             {/* Baslik */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#162544]">
@@ -125,7 +125,7 @@ export function BrandWheel({
             <div className="relative h-[230px] select-none">
               {/* orta secim bandi */}
               <div
-                className="pointer-events-none absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[46px] rounded-xl border border-[#3b82f6]/40 bg-[#3b82f6]/8"
+                className="pointer-events-none absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[46px] rounded-[16px] border border-[#3b82f6]/40 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/8"
                 style={{ height: ITEM_H }}
               />
               {/* ust/alt solma */}

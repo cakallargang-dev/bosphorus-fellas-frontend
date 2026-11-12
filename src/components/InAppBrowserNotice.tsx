@@ -39,12 +39,12 @@ export function InAppBrowserNotice({ onClose }: Props) {
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-sm rounded-2xl border border-[#162544] bg-mancave-surface p-5 text-left">
+      <div className="w-full max-w-sm rounded-[22px] border border-[#162544] bg-mancave-surface p-5 text-left">
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-white font-semibold text-lg leading-tight">
             SMS için tarayıcı gerekiyor
           </h2>
-          <button onClick={onClose} aria-label="Kapat" className="text-[#7a8da4] hover:text-white">
+          <button onClick={onClose} aria-label="Kapat" className="tap text-[#7a8da4] hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -88,7 +88,7 @@ export function InAppBrowserNotice({ onClose }: Props) {
 
         <button
           onClick={onClose}
-          className="mt-3 w-full text-center text-xs text-[#7a8da4] hover:text-white"
+          className="tap mt-3 w-full text-center text-xs text-[#7a8da4] hover:text-white"
         >
           Yine de dene
         </button>

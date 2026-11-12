@@ -49,7 +49,7 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 const INPUT =
-  "pl-10 bg-[#0a1628]/80 border-[#162544] text-white text-[13px] placeholder:text-[#5b6b80] focus:border-[#3b82f6]/50 h-[46px] rounded-xl";
+  "pl-10 bg-[#0a1628]/80 border-[#162544] text-white text-[13px] placeholder:text-[#5b6b80] focus:border-[#3b82f6]/50 h-[46px] rounded-[16px]";
 
 export default function ApplyPage() {
   const router = useRouter();
@@ -282,17 +282,17 @@ export default function ApplyPage() {
           <button
             type="button"
             onClick={() => setKvkk(!kvkk)}
-            className="w-full flex items-start gap-2.5 rounded-xl border border-[#162544] bg-[#0a1628]/60 p-3 text-left"
+            className="w-full flex items-start gap-2.5 rounded-[16px] border border-[#162544] bg-[#0a1628]/60 p-3 text-left"
           >
             <span
               className={`mt-0.5 w-4 h-4 shrink-0 rounded border flex items-center justify-center transition-colors ${
-                kvkk ? "bg-[#3b82f6] border-[#3b82f6]" : "border-[#2a3a54]"
+                kvkk ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] border-[#3b82f6]" : "border-[#2a3a54]"
               }`}
             >
               {kvkk && <Check className="w-3 h-3 text-[#030711]" />}
             </span>
             <span className="text-[11.5px] leading-relaxed text-[#9fb0c4]">
-              <Link href="/kvkk" target="_blank" className="text-[#60a5fa] underline">
+              <Link href="/kvkk" target="_blank" className="tap text-[#60a5fa] underline">
                 KVKK Aydınlatma Metni
               </Link>
               &apos;ni okudum, kişisel verilerimin işlenmesini onaylıyorum.
@@ -302,7 +302,7 @@ export default function ApplyPage() {
           <Button
             type="submit"
             disabled={submitting || !kvkk || refState.valid === false}
-            className="w-full h-[48px] bg-[#3b82f6] text-white hover:bg-[#2563eb] font-semibold rounded-xl"
+            className="w-full h-[48px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[#030711] font-bold hover:brightness-110 font-semibold rounded-[16px]"
           >
             {submitting ? (
               <span className="flex items-center gap-2">
@@ -319,7 +319,7 @@ export default function ApplyPage() {
 
           <p className="text-center text-[12px] text-[#7a8da4]">
             Hesabın var mı?{" "}
-            <Link href="/login" className="text-[#60a5fa] font-medium">
+            <Link href="/login" className="tap text-[#60a5fa] font-medium">
               Giriş yap
             </Link>
           </p>

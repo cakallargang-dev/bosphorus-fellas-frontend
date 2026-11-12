@@ -313,7 +313,7 @@ function DashboardContent() {
             </span>
           </h2>
 
-          <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-3 animate-slide-up">
+          <div className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border border-[#162544] rounded-[22px] premium-shadow p-3 animate-slide-up">
             <div className="flex items-center justify-between mb-2.5">
               <button
                 onClick={() =>
@@ -483,9 +483,9 @@ function CarBox({
           onOpen(user);
         }
       }}
-      className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
+      className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-2 text-center min-h-[150px] flex flex-col justify-center cursor-pointer transition-colors hover:outline hover:outline-1 hover:outline-[#3b82f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b82f6]"
     >
-      <div className="h-16 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center mb-1.5 overflow-hidden">
+      <div className="h-16 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center mb-1.5 overflow-hidden">
         {user.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imgUrl(user.photo)} alt={user.car} className="w-full h-full object-cover" />
@@ -539,7 +539,7 @@ function MeetingCard({
     : null;
 
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-[#f97316]/25 bg-[#0f1d32]/70 premium-shadow">
+    <article className="relative overflow-hidden rounded-[22px] border border-[#f97316]/25 bg-[#0f1d32]/70 premium-shadow">
       {/* Turuncu serit */}
       <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#f97316] z-10" />
 
@@ -564,7 +564,7 @@ function MeetingCard({
               href={m.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
+              className="tap absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
             >
               <MapPin className="w-4 h-4 text-[#f97316] shrink-0" />
               <span className="truncate">{m.place}</span>
@@ -588,7 +588,7 @@ function MeetingCard({
               href={m.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
+              className="tap absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
             >
               <MapPin className="w-4 h-4 text-[#f97316] shrink-0" />
               <span className="truncate">{m.place}</span>
@@ -625,7 +625,7 @@ function MeetingCard({
             href={m.mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1.5 flex items-center gap-1 text-[12px] text-[#f97316] underline underline-offset-2"
+            className="tap mt-1.5 flex items-center gap-1 text-[12px] text-[#f97316] underline underline-offset-2"
           >
             <MapPin className="w-3 h-3" />
             {m.place} · Haritada aç
@@ -676,7 +676,7 @@ function MeetingCard({
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => onRespond(m.id, "going")}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors ${
+            className={`flex items-center justify-center gap-1.5 rounded-[16px] border py-2 text-[11.5px] font-medium transition-colors ${
               m.myResponse === "going"
                 ? "border-[#22c55e] bg-[#22c55e]/15 text-[#4ade80]"
                 : "border-[#162544] text-[#8b9bb0] hover:border-[#22c55e]/50 hover:text-[#4ade80]"
@@ -691,7 +691,7 @@ function MeetingCard({
 
           <button
             onClick={() => onRespond(m.id, "not_going")}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors ${
+            className={`flex items-center justify-center gap-1.5 rounded-[16px] border py-2 text-[11.5px] font-medium transition-colors ${
               m.myResponse === "not_going"
                 ? "border-[#ef4444] bg-[#ef4444]/15 text-[#f87171]"
                 : "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
@@ -786,7 +786,7 @@ function EventCard({
   return (
     <article
       key={e.id}
-      className={`bg-[#0f1d32]/50 border rounded-xl overflow-hidden ${
+      className={`bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border rounded-[16px] overflow-hidden ${
         e.featured ? "border-[#3b82f6]" : "border-[#162544]"
       }`}
     >
@@ -802,7 +802,7 @@ function EventCard({
           ))}
         <span
           className={`absolute top-2.5 left-2.5 text-[11px] px-2.5 py-0.5 rounded-lg ${
-            kind === "Yarış" ? "bg-red-500/15 text-red-400" : "bg-[#3b82f6]/15 text-[#3b82f6]"
+            kind === "Yarış" ? "bg-red-500/15 text-red-400" : "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/15 text-[#3b82f6]"
           }`}
         >
           {e.featured ? "Öne çıkan · " : ""}
@@ -836,7 +836,7 @@ function EventCard({
                 href={e.locationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#3b82f6] underline underline-offset-2"
+                className="tap text-[#3b82f6] underline underline-offset-2"
               >
                 {e.location || "Konum"}
               </a>
@@ -851,7 +851,7 @@ function EventCard({
           <button
             onClick={() => (onRespond ? onRespond(e.id, "going") : onJoin(e.id))}
             disabled={pending || (full && e.myResponse !== "going")}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
+            className={`flex items-center justify-center gap-1.5 rounded-[16px] border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
               e.myResponse === "going"
                 ? "border-[#22c55e] bg-[#22c55e]/15 text-[#4ade80]"
                 : "border-[#162544] text-[#8b9bb0] hover:border-[#22c55e]/50 hover:text-[#4ade80]"
@@ -865,7 +865,7 @@ function EventCard({
           <button
             onClick={() => (onRespond ? onRespond(e.id, "not_going") : onLeave(e.id))}
             disabled={pending}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
+            className={`flex items-center justify-center gap-1.5 rounded-[16px] border py-2 text-[11.5px] font-medium transition-colors disabled:opacity-50 ${
               e.myResponse === "not_going"
                 ? "border-[#ef4444] bg-[#ef4444]/15 text-[#f87171]"
                 : "border-[#162544] text-[#8b9bb0] hover:border-[#ef4444]/50 hover:text-[#f87171]"
@@ -961,12 +961,12 @@ function DayModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-[22px] premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-[16px] font-semibold tracking-[-0.01em] text-white">{label}</p>
           <button
             onClick={onClose}
-            className="flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
+            className="tap flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
           >
             <X className="w-3.5 h-3.5" />
             Kapat
@@ -1031,9 +1031,9 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         if (e.key === "Escape") onClose();
       }}
     >
-      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-[22px] premium-shadow w-full max-w-[400px] max-h-[85vh] overflow-auto p-4">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-[#3b82f6] flex items-center justify-center font-semibold text-lg overflow-hidden shrink-0">
             {user.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={imgUrl(user.photo)} alt={user.name} className="w-full h-full object-cover" />
@@ -1047,14 +1047,14 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
           </div>
           <button
             onClick={onClose}
-            className="ml-auto flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
+            className="tap ml-auto flex items-center gap-1 text-[13px] border border-[#162544] rounded-lg px-3 py-1.5 text-gray-200 hover:bg-[#0a1628]/80"
           >
             <X className="w-3.5 h-3.5" />
             Kapat
           </button>
         </div>
 
-        <div className="h-[150px] rounded-xl bg-[#0a1628] flex items-center justify-center my-4 overflow-hidden">
+        <div className="h-[150px] rounded-[16px] bg-[#0a1628] flex items-center justify-center my-4 overflow-hidden">
           {user.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imgUrl(user.photo)} alt={user.car} className="w-full h-full object-cover" />
@@ -1073,7 +1073,7 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
             { v: user.wins, l: "Galibiyet" },
             { v: losses, l: "Mağlubiyet" },
           ].map((s) => (
-            <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-2.5 text-center">
+            <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-2.5 text-center">
               <b className="block text-lg text-white">{s.v}</b>
               <span className="text-[12px] text-[#7a8da4]">{s.l}</span>
             </div>
@@ -1097,11 +1097,11 @@ function EmptyState({
 }) {
   return (
     <div
-      className={`bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow flex flex-col items-center justify-center text-center ${
+      className={`bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border border-[#162544] rounded-[22px] premium-shadow flex flex-col items-center justify-center text-center ${
         compact ? "p-6 gap-2" : "p-10 gap-3"
       }`}
     >
-      <div className="w-12 h-12 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center">
         <Icon className="w-6 h-6 text-[#3b82f6]/60" />
       </div>
       <h3 className="text-[#8f9fb4] font-medium text-sm">{title}</h3>
@@ -1162,13 +1162,13 @@ function NewMeetingSheet({
     >
       <div
         style={{ width: "100%", maxWidth: 430, maxHeight: "85vh" }}
-        className="overflow-y-auto rounded-2xl border border-[#162544] bg-[#0c1729] shadow-2xl"
+        className="overflow-y-auto rounded-[22px] border border-[#162544] bg-[#0c1729] shadow-2xl"
       >
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#162544]">
           <p className="text-[15px] font-semibold text-white">Yeni Buluşma</p>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8b9bb0]"
+            className="tap w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8b9bb0]"
             aria-label="Kapat"
           >
             <X className="w-4 h-4" />
@@ -1182,7 +1182,7 @@ function NewMeetingSheet({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Örn. Cumartesi kahve & araç buluşması"
-              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
+              className="w-full h-[44px] rounded-[16px] bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
             />
           </div>
 
@@ -1192,7 +1192,7 @@ function NewMeetingSheet({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="block w-full min-w-0 h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+              className="block w-full min-w-0 h-[44px] rounded-[16px] bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
             />
           </div>
 
@@ -1202,7 +1202,7 @@ function NewMeetingSheet({
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="block w-full min-w-0 h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
+              className="block w-full min-w-0 h-[44px] rounded-[16px] bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white outline-none focus:border-[#f97316]/60 [color-scheme:dark]"
             />
           </div>
 
@@ -1212,7 +1212,7 @@ function NewMeetingSheet({
               value={mapUrl}
               onChange={(e) => setMapUrl(e.target.value)}
               placeholder="https://maps.google.com/..."
-              className="w-full h-[44px] rounded-xl bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
+              className="w-full h-[44px] rounded-[16px] bg-[#0a1628] border border-[#162544] px-3 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60"
             />
             <p className="text-[10px] text-[#5b6b80]">
               Mekanın fotoğrafı otomatik gösterilir
@@ -1228,7 +1228,7 @@ function NewMeetingSheet({
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Buluşma hakkında detaylar"
-              className="w-full rounded-xl bg-[#0a1628] border border-[#162544] px-3 py-2.5 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60 resize-none"
+              className="w-full rounded-[16px] bg-[#0a1628] border border-[#162544] px-3 py-2.5 text-[13px] text-white placeholder:text-[#5b6b80] outline-none focus:border-[#f97316]/60 resize-none"
             />
           </div>
 
@@ -1237,7 +1237,7 @@ function NewMeetingSheet({
           <button
             onClick={submit}
             disabled={pending}
-            className="w-full h-[46px] rounded-xl bg-[#f97316] text-[13.5px] font-semibold text-black hover:bg-[#fb923c] transition-colors disabled:opacity-60"
+            className="tap w-full h-[46px] rounded-[16px] bg-[#f97316] text-[13.5px] font-semibold text-black hover:bg-[#fb923c] transition-colors disabled:opacity-60"
           >
             {pending ? "Oluşturuluyor..." : "Buluşma Oluştur"}
           </button>

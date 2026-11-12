@@ -186,7 +186,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div className="w-7 h-7 rounded-full bg-[#3b82f6]/20 flex items-center justify-center">
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 flex items-center justify-center">
           <ShieldAlert className="w-3.5 h-3.5 text-[#3b82f6]" />
         </div>
         <div className="flex-1">
@@ -210,7 +210,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
                 onClick={() => setSelectedMemberId(mid)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
                   selectedMemberId === mid
-                    ? "bg-[#3b82f6] text-white"
+                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[#030711] font-bold"
                     : "bg-white/5 text-[#8f9fb4] hover:bg-white/10"
                 }`}
               >
@@ -257,15 +257,15 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
                   <AvatarImage
                     src={msg.sender?.avatar ? `${apiBase}${msg.sender.avatar}` : undefined}
                   />
-                  <AvatarFallback className="text-[10px] bg-[#3b82f6]/20 text-[#3b82f6]">
+                  <AvatarFallback className="text-[10px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6]">
                     {msg.senderName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div
-                  className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                  className={`max-w-[75%] rounded-[22px] px-3 py-2 text-sm ${
                     msg.senderId === user?.id
-                      ? "bg-[#3b82f6]/20 text-white rounded-tr-md"
-                      : "bg-white/5 text-white/90 rounded-tl-md"
+                      ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#030711] font-bold rounded-tr-md"
+                      : "bg-white/5 text-[#030711] font-bold/90 rounded-tl-md"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-0.5">
@@ -293,7 +293,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
                     </AvatarFallback>
                   </Avatar>
                   <div
-                    className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                    className={`max-w-[75%] rounded-[22px] px-3 py-2 text-sm ${
                       msg.senderId === user?.id
                         ? "bg-[#06b6d4]/10 text-white/90 rounded-tl-md"
                         : "bg-[#06b6d4]/20 text-white rounded-tr-md"
@@ -335,7 +335,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
           onClick={() => (isAdmin ? handleAdminSend() : handleSend())}
           disabled={!input.trim() || sending}
           size="icon"
-          className="h-[40px] w-[40px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
+          className="h-[40px] w-[40px] shrink-0 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/80 text-black"
         >
           <Send className="w-4 h-4" />
         </Button>
@@ -494,17 +494,17 @@ function ChannelChatView({
                         : undefined
                     }
                   />
-                  <AvatarFallback className="bg-[#3b82f6]/20 text-[#3b82f6] text-xs">
+                  <AvatarFallback className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6] text-xs">
                     {msg.senderName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </button>
               {/* Bubble */}
               <div
-                className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                className={`max-w-[75%] rounded-[22px] px-3 py-2 text-sm ${
                   msg.senderId === user?.id
-                    ? "bg-[#3b82f6]/20 text-white rounded-tr-md"
-                    : "bg-white/5 text-white/90 rounded-tl-md"
+                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#030711] font-bold rounded-tr-md"
+                    : "bg-white/5 text-[#030711] font-bold/90 rounded-tl-md"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-0.5">
@@ -559,7 +559,7 @@ function ChannelChatView({
           onClick={handleSend}
           disabled={!input.trim() || sending}
           size="icon"
-          className="h-[44px] w-[44px] shrink-0 bg-[#3b82f6] hover:bg-[#3b82f6]/80 text-black"
+          className="h-[44px] w-[44px] shrink-0 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/80 text-black"
         >
           <Send className="w-4 h-4" />
         </Button>
@@ -578,7 +578,7 @@ function ChannelChatView({
                 <AvatarImage
                   src={profileData.avatar ? `${apiBase}${profileData.avatar}` : undefined}
                 />
-                <AvatarFallback className="bg-[#3b82f6]/10 text-[#3b82f6] text-2xl">
+                <AvatarFallback className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-[#3b82f6] text-2xl">
                   {profileData.firstName?.[0]}{profileData.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
@@ -675,7 +675,7 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
             key={ch.id}
             onClick={() => onSelectChannel(ch)}
             whileTap={{ scale: 0.99 }}
-            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left group"
+            className="w-full flex items-center gap-3 p-3 rounded-[16px] hover:bg-white/5 transition-colors text-left group"
           >
             {/* Icon */}
             <div className="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/10 transition-colors">
@@ -701,7 +701,7 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
 
             {/* Unread badge */}
             {unread > 0 && (
-              <Badge className="shrink-0 bg-[#3b82f6] text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
+              <Badge className="shrink-0 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
                 {unread > 99 ? "99+" : unread}
               </Badge>
             )}
@@ -726,7 +726,7 @@ export default function ChatPage() {
         <div className="flex flex-col h-[calc(100vh-4rem)]">
           {/* Compact header with support toggle */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
-            <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center">
               <MessageCircle className="w-4 h-4 text-[#3b82f6]" />
             </div>
             <div className="flex-1">
@@ -737,7 +737,7 @@ export default function ChatPage() {
                 onClick={() => setShowSupport((v) => !v)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
                   showSupport
-                    ? "bg-[#3b82f6] text-white"
+                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[#030711] font-bold"
                     : "bg-white/5 text-[#8f9fb4] hover:bg-white/10"
                 }`}
               >

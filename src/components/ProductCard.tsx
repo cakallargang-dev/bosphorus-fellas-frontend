@@ -27,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
         href={product.shopifyUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block aspect-square overflow-hidden bg-black/50 relative"
+        className="tap block aspect-square overflow-hidden bg-black/50 relative"
       >
         {product.imageUrl ? (
           <img

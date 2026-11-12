@@ -26,7 +26,7 @@ export function StatsCard({
   trendUp,
 }: StatsCardProps) {
   return (
-    <div className="bg-mancave-card border border-mancave-border rounded-lg p-5 hover:border-mancave-blue/30 transition-colors">
+    <div className="panel interactive-card p-5 hover:border-[#3b82f6]/40">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm text-[#7a8da4] uppercase tracking-wider">
           {title}

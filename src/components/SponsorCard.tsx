@@ -36,10 +36,10 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
   const tier = tierStyles[sponsor.tier] || tierStyles.bronze;
 
   const content = (
-    <Card className="bg-mancave-card border-mancave-border hover:border-mancave-blue/30 transition-all group">
+    <Card className="interactive-card group hover:border-[#3b82f6]/40">
       <CardContent className="p-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-lg bg-mancave-surface border border-mancave-border flex items-center justify-center overflow-hidden shrink-0 group-hover:border-mancave-blue/30 transition-colors">
+          <div className="w-16 h-16 rounded-[16px] bg-[#0f1d32] border border-[#162544] flex items-center justify-center overflow-hidden shrink-0 transition-colors group-hover:border-[#3b82f6]/40">
             {(sponsor.logoUrl || sponsor.logo) ? (
               <img
                 src={
@@ -89,7 +89,7 @@ export function SponsorCard({ sponsor }: SponsorCardProps) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block"
+        className="tap block"
       >
         {content}
       </a>

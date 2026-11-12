@@ -141,7 +141,7 @@ function TeamContent() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="İsim, araç veya teknik özellik"
-            className="w-full rounded-xl bg-[#0a1628]/80 border border-[#162544] pl-10 pr-3 py-2.5 text-[13px] text-white placeholder:text-[#4d5c70] focus:outline-none focus:border-[#3b82f6]/40 focus:bg-[#0a1628] transition-all duration-300"
+            className="w-full rounded-[16px] bg-[#0a1628]/80 border border-[#162544] pl-10 pr-3 py-2.5 text-[13px] text-white placeholder:text-[#4d5c70] focus:outline-none focus:border-[#3b82f6]/40 focus:bg-[#0a1628] transition-all duration-300"
           />
         </div>
 
@@ -151,7 +151,7 @@ function TeamContent() {
               onClick={() => setBrand(null)}
               className={`shrink-0 px-3 py-1.5 rounded-lg text-[11.5px] font-medium border transition-all duration-300 ${
                 !brand
-                  ? "bg-[#3b82f6]/15 border-[#3b82f6]/40 text-[#60a5fa]"
+                  ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/15 border-[#3b82f6]/40 text-[#60a5fa]"
                   : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
               }`}
             >
@@ -163,7 +163,7 @@ function TeamContent() {
                 onClick={() => setBrand(brand === label ? null : label)}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-medium border transition-all duration-300 ${
                   brand === label
-                    ? "bg-[#3b82f6]/15 border-[#3b82f6]/40 text-[#60a5fa]"
+                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/15 border-[#3b82f6]/40 text-[#60a5fa]"
                     : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
                 }`}
               >
@@ -181,7 +181,7 @@ function TeamContent() {
             <SkeletonCard className="h-28" />
           </div>
         ) : members.length === 0 ? (
-          <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow p-10 text-center">
+          <div className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border border-[#162544] rounded-[22px] premium-shadow p-10 text-center">
             <p className="text-[13px] text-[#7a8da4]">Eşleşen üye yok.</p>
           </div>
         ) : (
@@ -193,7 +193,7 @@ function TeamContent() {
                   key={m.id}
                   onClick={() => setOpen(m)}
                   style={{ animationDelay: `${Math.min(i * 45, 450)}ms` }}
-                  className="group relative rounded-2xl overflow-hidden border border-[#162544] bg-[#0f1d32] card-hover press-scale cursor-pointer animate-fade-in"
+                  className="group relative rounded-[22px] overflow-hidden border border-[#162544] bg-[#0f1d32] interactive-card cursor-pointer animate-fade-in"
                 >
                   {/* Araç fotoğrafı — kart zemini */}
                   <div className="absolute inset-0 bg-[#0a1628]">
@@ -322,7 +322,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
         if (e.key === "Escape") onClose();
       }}
     >
-      <div className="bg-[#0f1d32] border border-[#162544] rounded-2xl w-full max-w-[400px] max-h-[88vh] overflow-auto premium-shadow">
+      <div className="bg-[#0f1d32] border border-[#162544] rounded-[22px] w-full max-w-[400px] max-h-[88vh] overflow-auto premium-shadow">
         <div className="relative h-[210px] bg-[#0a1628] flex items-center justify-center overflow-hidden">
           {m.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -346,7 +346,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
           <button
             onClick={onClose}
             aria-label="Kapat"
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+            className="tap absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -368,7 +368,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
 
           {/* Arac bilgileri */}
           {(m.carYear || m.carHp || m.plateNumber || m.carFeatures) && (
-            <div className="mt-3.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl overflow-hidden">
+            <div className="mt-3.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] overflow-hidden">
               <div className="grid grid-cols-3 divide-x divide-[#162544]/70">
                 <StatCell label="Model" value={m.carModel || "-"} />
                 <StatCell label="Yıl" value={m.carYear ? String(m.carYear) : "-"} />
@@ -399,8 +399,8 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
             </div>
           )}
 
-          <div className="mt-4 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#3b82f6]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">
+          <div className="mt-4 bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">
               <CalendarCheck className="w-4 h-4 text-[#3b82f6]" />
             </div>
             <div className="min-w-0">
@@ -410,7 +410,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
           </div>
 
           {/* Aktiflik */}
-          <div className="mt-2.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-xl p-3">
+          <div className="mt-2.5 bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] text-[#6b7d94] flex items-center gap-1.5">
                 <Gauge className="w-3 h-3 text-[#3b82f6]/70" />
@@ -426,7 +426,7 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
                 <span
                   key={i}
                   className={`flex-1 h-[5px] rounded-full transition-colors duration-300 ${
-                    i < m.score ? "bg-[#3b82f6]" : "bg-[#162544]"
+                    i < m.score ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]" : "bg-[#162544]"
                   }`}
                 />
               ))}
@@ -444,14 +444,14 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
                 href={waLink(m.phone)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] py-2.5 text-[13px] font-semibold text-[#030711] hover:bg-[#20c05c] transition-colors press-scale"
+                className="tap flex items-center justify-center gap-1.5 rounded-[16px] bg-[#25D366] py-2.5 text-[13px] font-semibold text-[#030711] hover:bg-[#20c05c] transition-colors press-scale"
               >
                 <WaIcon className="w-4 h-4" />
                 WhatsApp
               </a>
               <a
                 href={telLink(m.phone)}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-[#3b82f6]/30 bg-[#3b82f6]/10 py-2.5 text-[13px] font-semibold text-[#60a5fa] hover:bg-[#3b82f6]/20 transition-colors press-scale"
+                className="tap flex items-center justify-center gap-1.5 rounded-[16px] border border-[#3b82f6]/30 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 py-2.5 text-[13px] font-semibold text-[#60a5fa] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 transition-colors press-scale"
               >
                 <TelIcon className="w-3.5 h-3.5" />
                 Ara

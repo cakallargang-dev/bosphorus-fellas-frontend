@@ -13,7 +13,7 @@ import { findBrand, brandLogo } from "@/lib/brands";
 import { Car, Plus, X, Check, Star, Trash2, Pencil } from "lucide-react";
 
 const INPUT =
-  "bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300";
+  "bg-[#0a1628]/80 border-[#162544] rounded-[16px] text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300";
 
 /* ---------------- Araç formu ---------------- */
 function CarForm({
@@ -77,7 +77,7 @@ function CarForm({
     >
       <div
         style={{ width: "100%", maxWidth: 430, maxHeight: "88vh" }}
-        className="overflow-y-auto rounded-2xl border border-[#162544] bg-[#0c1729] shadow-2xl"
+        className="overflow-y-auto rounded-[22px] border border-[#162544] bg-[#0c1729] shadow-2xl"
       >
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#162544]">
           <p className="text-[15px] font-semibold text-white">
@@ -85,7 +85,7 @@ function CarForm({
           </p>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8b9bb0]"
+            className="tap w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8b9bb0]"
             aria-label="Kapat"
           >
             <X className="w-4 h-4" />
@@ -153,7 +153,7 @@ function CarForm({
               onChange={(e) => setFeatures(e.target.value)}
               rows={3}
               placeholder="Örn. Stage 2, karbon paket"
-              className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 resize-none"
+              className="bg-[#0a1628]/80 border-[#162544] rounded-[16px] text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 resize-none"
             />
           </div>
 
@@ -162,7 +162,7 @@ function CarForm({
           <Button
             onClick={submit}
             disabled={saving}
-            className="w-full rounded-xl bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium py-2.5"
+            className="w-full rounded-[16px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[#030711] font-bold hover:brightness-110 font-medium py-2.5"
           >
             {saving ? "Kaydediliyor..." : initial ? "Güncelle" : "Aracı Ekle"}
           </Button>
@@ -211,10 +211,10 @@ export default function CarsSection() {
   });
 
   return (
-    <div className="bg-[#0f1d32]/70 border border-[#162544] rounded-2xl premium-shadow mb-4 overflow-hidden">
+    <div className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border border-[#162544] rounded-[22px] premium-shadow mb-4 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
-          <span className="w-6 h-6 rounded-md bg-[#3b82f6]/12 border border-[#3b82f6]/25 flex items-center justify-center">
+          <span className="w-6 h-6 rounded-md bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12 border border-[#3b82f6]/25 flex items-center justify-center">
             <Car className="w-3 h-3 text-[#3b82f6]" />
           </span>
           <p className="text-[14px] font-semibold text-white tracking-tight">Araçlarım</p>
@@ -229,7 +229,7 @@ export default function CarsSection() {
             setEditing(null);
             setFormOpen(true);
           }}
-          className="flex items-center gap-1 rounded-lg border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-2.5 py-1.5 text-[11.5px] font-medium text-[#60a5fa] hover:bg-[#3b82f6]/20 transition-colors"
+          className="flex items-center gap-1 rounded-lg border border-[#3b82f6]/40 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 px-2.5 py-1.5 text-[11.5px] font-medium text-[#60a5fa] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 transition-colors"
         >
           <Plus className="w-3 h-3" />
           Araç Ekle
@@ -254,9 +254,9 @@ export default function CarsSection() {
           return (
             <div
               key={c.id}
-              className={`relative rounded-xl border p-3 transition-colors ${
+              className={`relative rounded-[16px] border p-3 transition-colors ${
                 c.isPrimary
-                  ? "border-[#3b82f6]/45 bg-[#3b82f6]/[0.07]"
+                  ? "border-[#3b82f6]/45 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/[0.07]"
                   : "border-[#162544] bg-[#0a1628]/60"
               }`}
             >
@@ -279,7 +279,7 @@ export default function CarsSection() {
                       {c.brand} {c.model}
                     </p>
                     {c.isPrimary && (
-                      <span className="shrink-0 flex items-center gap-0.5 rounded bg-[#3b82f6] px-1.5 py-[1px] text-[8.5px] font-bold uppercase tracking-wider text-[#030711]">
+                      <span className="shrink-0 flex items-center gap-0.5 rounded bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] px-1.5 py-[1px] text-[8.5px] font-bold uppercase tracking-wider text-[#030711]">
                         <Star className="w-2 h-2" />
                         Ana
                       </span>

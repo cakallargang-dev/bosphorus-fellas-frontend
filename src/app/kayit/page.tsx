@@ -249,7 +249,7 @@ export default function KayitPage() {
 
           <div className="pt-2 border-t border-[#162544] text-center text-sm text-[#7a8da4]">
             Hesabın var mı?{" "}
-            <Link href="/login" className="text-[#3b82f6] hover:underline">Giriş yap</Link>
+            <Link href="/login" className="tap text-[#3b82f6] hover:underline">Giriş yap</Link>
           </div>
         </CardContent>
       </Card>

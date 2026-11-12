@@ -32,7 +32,7 @@ export function BrandSelect({ value, onChange, error }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`w-full h-[46px] flex items-center gap-2.5 rounded-xl border px-3 transition-colors text-left ${
+        className={`w-full h-[46px] flex items-center gap-2.5 rounded-[16px] border px-3 transition-colors text-left ${
           error
             ? "border-red-500/60 bg-red-500/5"
             : "border-[#162544] bg-[#0a1628] hover:border-[#23365c]"
@@ -77,7 +77,7 @@ export function BrandSelect({ value, onChange, error }: Props) {
 
             {/* Arama */}
             <div className="px-4 py-3">
-              <div className="flex items-center gap-2 rounded-xl border border-[#162544] bg-[#0a1628] px-3 h-[40px]">
+              <div className="flex items-center gap-2 rounded-[16px] border border-[#162544] bg-[#0a1628] px-3 h-[40px]">
                 <Search className="w-4 h-4 text-[#5b6b80] shrink-0" />
                 <input
                   autoFocus
@@ -108,9 +108,9 @@ export function BrandSelect({ value, onChange, error }: Props) {
                         setOpen(false);
                         setQ("");
                       }}
-                      className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border px-1 py-3 transition-colors press-scale ${
+                      className={`relative flex flex-col items-center justify-center gap-2 rounded-[16px] border px-1 py-3 transition-colors press-scale ${
                         active
-                          ? "border-[#3b82f6] bg-[#3b82f6]/12"
+                          ? "border-[#3b82f6] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12"
                           : "border-[#162544] bg-[#0f1d32]/60 hover:border-[#23365c]"
                       }`}
                     >
@@ -125,7 +125,7 @@ export function BrandSelect({ value, onChange, error }: Props) {
                         {b.label}
                       </span>
                       {active && (
-                        <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#3b82f6] flex items-center justify-center">
+                        <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />
                         </span>
                       )}
