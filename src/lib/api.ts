@@ -750,3 +750,59 @@ export function galleryThumbUrl(url: string | null | undefined, w = 400): string
   if (!url.includes("res.cloudinary.com")) return imgUrl(url);
   return url.replace("/image/upload/", `/image/upload/w_${w},c_fill,q_auto:good,f_auto/`);
 }
+
+// ============================================================
+// Cars (çoklu araç)
+// ============================================================
+
+export interface CarItem {
+  id: string;
+  brand: string;
+  model: string;
+  year: number | null;
+  hp: number | null;
+  plateNumber: string;
+  features: string | null;
+  isPrimary: boolean;
+  createdAt: string;
+}
+
+export const carsApi = {
+  list: () => request<ApiResponse<CarItem[]>>("/api/cars"),
+
+  create: (data: {
+    brand: string;
+    model: string;
+    year?: number | null;
+    hp?: number | null;
+    plateNumber: string;
+    features?: string | null;
+  }) =>
+    request<ApiResponse<CarItem>>("/api/cars", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (
+    id: string,
+    data: {
+      brand?: string;
+      model?: string;
+      year?: number | null;
+      hp?: number | null;
+      plateNumber?: string;
+      features?: string | null;
+    }
+  ) =>
+    request<ApiResponse<CarItem>>(`/api/cars/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  setPrimary: (id: string) =>
+    request<ApiResponse<unknown>>(`/api/cars/${id}/primary`, { method: "POST" }),
+
+  remove: (id: string) =>
+    request<ApiResponse<unknown>>(`/api/cars/${id}`, { method: "DELETE" }),
+};
+

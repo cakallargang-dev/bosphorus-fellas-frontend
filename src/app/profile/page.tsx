@@ -11,7 +11,7 @@ import { authApi, referansApi, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
-import { BrandWheel } from "@/components/BrandWheel";
+import CarsSection from "@/components/CarsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,13 +98,8 @@ function SummaryRow({
 const profileSchema = z.object({
   firstName: z.string().min(2, "Ad en az 2 karakter olmalıdır"),
   lastName: z.string().min(2, "Soyad en az 2 karakter olmalıdır"),
+  birthDate: z.string().optional(),
   district: z.string().optional(),
-  carBrand: z.string().optional(),
-  carModel: z.string().optional(),
-  carYear: z.string().optional(),
-  carHp: z.string().optional(),
-  carFeatures: z.string().optional(),
-  plateNumber: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -289,13 +284,8 @@ function ProfileContent() {
     defaultValues: {
       firstName: user?.firstName ?? "",
       lastName: user?.lastName ?? "",
+      birthDate: (user as any)?.birthDate ?? "",
       district: user?.district ?? "",
-      carBrand: user?.carBrand ?? "",
-      carModel: user?.carModel ?? "",
-      carYear: user?.carYear ? String(user.carYear) : "",
-      carHp: user?.carHp ? String(user.carHp) : "",
-      carFeatures: user?.carFeatures ?? "",
-      plateNumber: user?.plateNumber ?? "",
     },
   });
 
@@ -314,13 +304,8 @@ function ProfileContent() {
       await authApi.updateProfile({
         firstName: data.firstName,
         lastName: data.lastName,
+        birthDate: data.birthDate || undefined,
         district: data.district || undefined,
-        carBrand: data.carBrand || undefined,
-        carModel: data.carModel || undefined,
-        carYear: data.carYear ? Number(data.carYear) : undefined,
-        carHp: data.carHp ? Number(data.carHp) : undefined,
-        carFeatures: data.carFeatures || undefined,
-        plateNumber: data.plateNumber || undefined,
         avatar: removeAvatar ? null : avatarFile || undefined,
       });
       await refreshProfile();
@@ -569,17 +554,6 @@ function ProfileContent() {
                   </div>
                 )}
 
-                {/* Düzenle */}
-                <div className="p-3 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(true)}
-                    className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-[#3b82f6]/35 bg-[#3b82f6]/10 py-2.5 text-[12px] font-semibold text-[#60a5fa] hover:bg-[#3b82f6]/20 active:scale-[0.98] transition-all"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    Kartı Düzenle
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -601,7 +575,6 @@ function ProfileContent() {
 
           <CardContent className="pt-5">
             <form
-              style={{ display: isEditing ? undefined : "none" }}
               onSubmit={handleProfileSubmit(onProfileSubmit)}
               className="space-y-5"
             >
@@ -708,101 +681,26 @@ function ProfileContent() {
                 </div>
               </div>
 
-              <Separator className="bg-[#0a1628]" />
-
               <div className="space-y-2">
-                <Label className="text-[#9fb0c4] text-[11.5px] font-medium">Araç Markası</Label>
-                <BrandWheel
-                  value={watchProfile("carBrand")}
-                  onChange={(slug) =>
-                    setValueProfile("carBrand", slug, { shouldDirty: true })
-                  }
-                  error={profileErrors.carBrand?.message}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="carModel" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Araç Modeli
-                  </Label>
-                  <Input
-                    id="carModel"
-                    placeholder="M3"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("carModel")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="carYear" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Araç Yılı
-                  </Label>
-                  <Input
-                    id="carYear"
-                    inputMode="numeric"
-                    placeholder="2020"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("carYear")}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="carHp" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Beygir Gücü
-                  </Label>
-                  <Input
-                    id="carHp"
-                    inputMode="numeric"
-                    placeholder="400"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("carHp")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="plateNumber" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                    Plaka
-                  </Label>
-                  <Input
-                    id="plateNumber"
-                    placeholder="34 ABC 123"
-                    className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 focus:bg-[#0a1628] transition-all duration-300"
-                    {...registerProfile("plateNumber")}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="carFeatures" className="text-[#9fb0c4] text-[11.5px] font-medium">
-                  Araç Özellikleri
+                <Label htmlFor="birthDate" className="text-[#9fb0c4] text-[11.5px] font-medium">
+                  Doğum Tarihi
                 </Label>
-                <Textarea
-                  id="carFeatures"
-                  placeholder="Örn. Stage 2, karbon paket, adaptif süspansiyon"
-                  rows={3}
-                  className="bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] placeholder:text-[#4d5c70] focus:border-[#3b82f6]/50 resize-none transition-all duration-300"
-                  {...registerProfile("carFeatures")}
-                />
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    className="pl-10 block min-w-0 bg-[#0a1628]/80 border-[#162544] rounded-xl text-white text-[13px] focus:border-[#3b82f6]/50 [color-scheme:dark]"
+                    {...registerProfile("birthDate")}
+                  />
+                </div>
               </div>
 
               <div className="pt-1 flex gap-2">
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setAvatarFile(null);
-                    setRemoveAvatar(false);
-                  }}
-                  className="flex-1 rounded-xl py-2.5 border-[#162544] text-[#9fb0c4] hover:bg-[#0a1628]"
-                >
-                  Vazgeç
-                </Button>
-                <Button
                   type="submit"
                   disabled={isSavingProfile || (!isProfileDirty && !avatarFile && !removeAvatar)}
-                  className="flex-[2] bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
+                  className="w-full bg-[#3b82f6] text-white hover:bg-[#2563eb] font-medium rounded-xl py-2.5 press-scale"
                 >
                   {isSavingProfile ? (
                     <span className="flex items-center gap-2">
