@@ -82,10 +82,11 @@ function MapContent() {
         attributionControl: true,
       }).setView([ISTANBUL.lat, ISTANBUL.lng], 12);
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      // OSM standart tile: API anahtarı istemez, ücretsiz. Koyu görünüm CSS filtresiyle.
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-        subdomains: "abcd",
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        attribution: '&copy; OpenStreetMap katkıcıları',
+        crossOrigin: true,
       }).addTo(map);
 
       L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -238,8 +239,12 @@ function MapContent() {
 
             <style jsx global>{`
               .leaflet-container {
-                background: #0a1628;
+                background: #e8eaed;
                 font-family: inherit;
+              }
+              /* OSM karolarını koyu temaya çevir — pinler etkilenmesin */
+              .leaflet-tile-pane {
+                filter: invert(1) hue-rotate(185deg) brightness(0.82) contrast(1.05) saturate(0.55);
               }
               .leaflet-control-attribution {
                 background: rgba(3, 7, 17, 0.72) !important;
