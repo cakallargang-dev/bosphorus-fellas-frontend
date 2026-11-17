@@ -211,8 +211,11 @@ function MapContent() {
    * Tek noktayı göstermek için `search/?api=1&query=` kullan (uygulama varsa açar,
    * yoksa Google Maps web'e düşer ve noktayı doğrudan gösterir).
    */
-  const directionsUrl = (m: LiveMember) =>
-    `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
+  const directionsUrl = (m: LiveMember) => {
+    // Koordinat yoksa/bozuksa Google Maps'e boş sorgu gönderme
+    if (!Number.isFinite(m.lat) || !Number.isFinite(m.lng)) return "#";
+    return `https://www.google.com/maps/search/?api=1&query=${m.lat.toFixed(6)},${m.lng.toFixed(6)}`;
+  };
 
   return (
     <Layout hideFooter>
@@ -380,7 +383,7 @@ function MapContent() {
           </div>
 
           <p className="px-1 text-[10.5px] leading-relaxed text-[#6b7d94]">
-            Konum yalnızca paylaşım açıkken ve son 10 dakikada görünür. PWA&apos;da uygulama arka
+            Konum yalnızca paylaşım açıkken ve son 3 dakikada görünür. PWA&apos;da uygulama arka
             plana düşünce paylaşım durur.{" "}
             <Link href="/ekip" className="text-[#60a5fa]">
               Ekip

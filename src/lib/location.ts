@@ -59,9 +59,15 @@ export async function startTracking(onPosition: PositionHandler): Promise<void> 
     firstReject = reject;
   });
 
+  let firstSent = false;
   const push = (p: Parameters<PositionHandler>[0]) => {
     last = p;
     onPosition(p);
+    // İlk konumu beklemeden gönder — haritada anında görün, 5 sn bekleme
+    if (!firstSent) {
+      firstSent = true;
+      locationApi.ping(p).catch(() => {});
+    }
     firstResolve?.();
     firstResolve = null;
   };
@@ -113,8 +119,8 @@ export async function startTracking(onPosition: PositionHandler): Promise<void> 
       },
     };
 
-    // 20 sn içinde konum gelmezse kullanıcıyı bekletmeyelim
-    const timeout = setTimeout(() => firstReject?.(new Error("Konum alınamadı")), 20_000);
+    // 15 sn içinde konum gelmezse kullanıcıyı bekletmeyelim
+    const timeout = setTimeout(() => firstReject?.(new Error("Konum alınamadı")), 15_000);
     await first.finally(() => clearTimeout(timeout));
     return;
   }
