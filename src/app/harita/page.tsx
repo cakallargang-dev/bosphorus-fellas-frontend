@@ -80,7 +80,7 @@ function MapContent() {
       const map = L.map(mapEl.current, {
         zoomControl: false,
         attributionControl: true,
-      }).setView([ISTANBUL.lat, ISTANBUL.lng], 12);
+      }).setView([ISTANBUL.lat, ISTANBUL.lng], 3);
 
       // OSM standart tile: API anahtarı istemez, ücretsiz. Koyu görünüm CSS filtresiyle.
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -158,9 +158,9 @@ function MapContent() {
 
     if (points.length > 0) {
       
-      // Sabit zoom 4 — kullanıcı "hep 4'te kalsın, otomatik zoom değişmesin" dedi.
+      // Sabit zoom 3 — kullanıcı "hep 3'te kalsın, isteyen +/- ile oynar" dedi.
       // Pin'ler sığsın diye sadece merkez hesaplanır, ölçek değiştirilmez.
-      map.setView(L.latLngBounds(points).getCenter(), 4, { animate: true });
+      map.setView(L.latLngBounds(points).getCenter(), 3, { animate: true });
     }
   }, [members, myPos, ready]);
 
