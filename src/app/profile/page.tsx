@@ -855,7 +855,19 @@ function ProfileContent() {
   const { data: carsData } = useQuery({
     queryKey: ["cars"],
     queryFn: () => carsApi.list(),
+    staleTime: 0,
   });
+
+  // Uygulama tekrar görünür olduğunda araçları tazele (ana araç değişikliği yansısın)
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        queryClient.invalidateQueries({ queryKey: ["cars"] });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [queryClient]);
 
   const cars = useMemo(() => carsData?.data ?? [], [carsData]);
 

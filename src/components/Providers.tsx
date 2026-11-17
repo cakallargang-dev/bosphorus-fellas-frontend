@@ -1,12 +1,12 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 import { ThemeProvider } from "next-themes";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -14,12 +14,38 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            // Veri "taze" sayılsa bile sayfaya dönüşte/sekme odağa gelince yeniden çekilir.
+            staleTime: 15 * 1000,
+            refetchOnMount: "always",
+            refetchOnWindowFocus: true,
+            refetchOnReconnect: true,
             retry: 1,
           },
         },
       })
   );
+
+  /**
+   * iOS PWA (ana ekrana eklenmiş) "visibilitychange" olayını tetikler ama
+   * "focus" olayını tetiklemez → react-query kendiliğinden yenilemez.
+   * Bu köprü, uygulama tekrar görünür olduğunda sorguları tazeler.
+   */
+  useEffect(() => {
+    focusManager.setEventListener((handleFocus) => {
+      if (typeof window === "undefined") return;
+      const onVisible = () => {
+        if (document.visibilityState === "visible") handleFocus(true);
+        else handleFocus(false);
+      };
+      const onFocus = () => handleFocus(true);
+      window.addEventListener("visibilitychange", onVisible, false);
+      window.addEventListener("focus", onFocus, false);
+      return () => {
+        window.removeEventListener("visibilitychange", onVisible);
+        window.removeEventListener("focus", onFocus);
+      };
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

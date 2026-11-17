@@ -87,7 +87,7 @@ function TeamContent() {
   const { data, isLoading } = useQuery({
     queryKey: ["team-directory"],
     queryFn: () => teamApi.list(),
-    staleTime: 60_000,
+    refetchInterval: 30_000,
   });
 
   const all = data?.data ?? [];
