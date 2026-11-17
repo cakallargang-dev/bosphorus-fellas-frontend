@@ -19,6 +19,9 @@ import { Navigation, Radio, Power, Clock, Locate, RefreshCw } from "lucide-react
 
 const ISTANBUL = { lat: 41.0082, lng: 28.9784 };
 
+/** Haritanın sabit zoom'u = "konumuma dön" tuşunun kullandığı seviye */
+const FOCUS_ZOOM = 16;
+
 function fmtAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60_000);
@@ -80,7 +83,7 @@ function MapContent() {
       const map = L.map(mapEl.current, {
         zoomControl: false,
         attributionControl: true,
-      }).setView([ISTANBUL.lat, ISTANBUL.lng], 3);
+      }).setView([ISTANBUL.lat, ISTANBUL.lng], FOCUS_ZOOM);
 
       // OSM standart tile: API anahtarı istemez, ücretsiz. Koyu görünüm CSS filtresiyle.
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -158,9 +161,9 @@ function MapContent() {
 
     if (points.length > 0) {
       
-      // Sabit zoom 3 — kullanıcı "hep 3'te kalsın, isteyen +/- ile oynar" dedi.
+      // Konum tuşunun kullandığı zoom sabit tutulur (kullanıcı: "en iyi gösteren o").
       // Pin'ler sığsın diye sadece merkez hesaplanır, ölçek değiştirilmez.
-      map.setView(L.latLngBounds(points).getCenter(), 3, { animate: true });
+      map.setView(L.latLngBounds(points).getCenter(), FOCUS_ZOOM, { animate: true });
     }
   }, [members, myPos, ready]);
 
@@ -199,7 +202,7 @@ function MapContent() {
   }, []);
 
   const centerOn = (lat: number, lng: number) => {
-    mapRef.current?.flyTo([lat, lng], 16, { duration: 0.9 });
+    mapRef.current?.flyTo([lat, lng], FOCUS_ZOOM, { duration: 0.9 });
     setSelected(null);
   };
 
