@@ -204,8 +204,15 @@ function MapContent() {
     setSelected(null);
   };
 
+  /**
+   * Yol tarifi linki.
+   * ⚠️ `dir/?api=1` formu iOS'ta Google Maps uygulamasını açıp BULUNDUĞUN konumdan
+   * rota hesaplamaya çalışır; konum izni yoksa/uygulama yoksa boş haritada kalır.
+   * Tek noktayı göstermek için `search/?api=1&query=` kullan (uygulama varsa açar,
+   * yoksa Google Maps web'e düşer ve noktayı doğrudan gösterir).
+   */
   const directionsUrl = (m: LiveMember) =>
-    `https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}`;
+    `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
 
   return (
     <Layout hideFooter>
