@@ -63,7 +63,7 @@ function MapContent() {
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["live-location"],
     queryFn: () => locationApi.live(),
-    refetchInterval: 20_000,
+    refetchInterval: 5_000,
   });
 
   const members: LiveMember[] = useMemo(() => data?.data ?? [], [data]);

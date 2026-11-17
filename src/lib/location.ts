@@ -19,8 +19,12 @@ export type PositionHandler = (p: {
   accuracy: number | null;
 }) => void;
 
-/** Sunucuya gönderme aralığı (ms) */
-const PING_MS = 20_000;
+/**
+ * Sunucuya gönderme aralığı (ms).
+ * Konvoy halinde araç ~50-90 km/h gider → 5 sn'de 70-120 m yol.
+ * 5 sn canlı takip için yeterli; 3 sn altı pil ve trafik maliyetini gereksiz artırır.
+ */
+const PING_MS = 5_000;
 
 type WatcherHandle = { stop: () => Promise<void> };
 
@@ -72,7 +76,7 @@ export async function startTracking(onPosition: PositionHandler): Promise<void> 
         backgroundTitle: "Bosphorus Fellas — Canlı konum",
         requestPermissions: true,
         stale: false,
-        distanceFilter: 15,
+        distanceFilter: 10,
       },
       (location: any, error: any) => {
         if (error) {
@@ -140,7 +144,7 @@ export async function startTracking(onPosition: PositionHandler): Promise<void> 
       );
       firstReject = null;
     },
-    { enableHighAccuracy: true, maximumAge: 10_000, timeout: 20_000 }
+    { enableHighAccuracy: true, maximumAge: 2_000, timeout: 15_000 }
   );
 
   const timer = setInterval(() => {
