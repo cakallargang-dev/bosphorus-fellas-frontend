@@ -157,11 +157,11 @@ function MapContent() {
     }
 
     if (points.length > 0) {
-      // fitBounds tek kişide aşırı yakınlaşır → 4 kademe uzaklaştır (konvoy görünümü)
+      // fitBounds'u 4 kademe YAKINLAŞTIR (pinler daha büyük görünsün), 4-18 arası sınırla
       const bounds = L.latLngBounds(points).pad(0.35);
       map.fitBounds(bounds, { animate: true });
       const zoom = map.getZoom();
-      map.setZoom(Math.max(9, zoom - 9), { animate: true });
+      map.setZoom(Math.min(18, Math.max(4, zoom + 4)), { animate: true });
     }
   }, [members, myPos, ready]);
 
