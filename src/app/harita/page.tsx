@@ -250,17 +250,22 @@ function MapContent() {
           </div>
 
           {/* Harita */}
-          <div className="relative h-[420px] w-full overflow-hidden rounded-[26px] border border-[#1d3157] bg-[#0a1628]">
+          <div className="relative h-[420px] w-full overflow-hidden rounded-[26px] border border-[#162544] bg-[#030711] shadow-[0_0_40px_rgba(59,130,246,.08)]">
             <div ref={mapEl} className="absolute inset-0 z-0" />
 
             <style jsx global>{`
               .leaflet-container {
-                background: #e8eaed;
+                background: #030711;
                 font-family: inherit;
               }
               /* OSM karolarını koyu temaya çevir — pinler etkilenmesin */
+              /**
+               * OSM karolarını uygulama paletine çevirir:
+               * invert → koyu zemin, hue-rotate(195) → mavi-kobalt ton,
+               * saturate(.45) → marka mavisiyle uyum, brightness(.72) → #030711 zeminine yakın.
+               */
               .leaflet-tile-pane {
-                filter: invert(1) hue-rotate(185deg) brightness(0.82) contrast(1.05) saturate(0.55);
+                filter: invert(1) hue-rotate(195deg) brightness(0.72) contrast(1.12) saturate(0.45);
               }
               .leaflet-control-attribution {
                 background: rgba(3, 7, 17, 0.72) !important;
@@ -270,10 +275,21 @@ function MapContent() {
               .leaflet-control-attribution a {
                 color: #7a8da4 !important;
               }
+              .leaflet-bar {
+                border: 1px solid #162544 !important;
+                border-radius: 12px !important;
+                overflow: hidden;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+              }
               .leaflet-bar a {
-                background: #0f1d32 !important;
+                background: rgba(10, 22, 40, 0.92) !important;
                 color: #9fb0c4 !important;
-                border-color: #1d3157 !important;
+                border-color: #162544 !important;
+                font-size: 17px !important;
+                line-height: 30px !important;
+              }
+              .leaflet-bar a:first-child {
+                border-bottom: 1px solid #162544 !important;
               }
               .leaflet-bar a:hover {
                 background: #162544 !important;
