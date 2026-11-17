@@ -161,7 +161,7 @@ function MapContent() {
       const bounds = L.latLngBounds(points).pad(0.35);
       map.fitBounds(bounds, { animate: true });
       const zoom = map.getZoom();
-      map.setZoom(Math.max(3, zoom - 3), { animate: true });
+      map.setZoom(Math.max(9, zoom - 9), { animate: true });
     }
   }, [members, myPos, ready]);
 
