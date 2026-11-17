@@ -157,11 +157,10 @@ function MapContent() {
     }
 
     if (points.length > 0) {
-      // fitBounds'u 4 kademe YAKINLAŞTIR (pinler daha büyük görünsün), 4-18 arası sınırla
-      const bounds = L.latLngBounds(points).pad(0.35);
-      map.fitBounds(bounds, { animate: true });
-      const zoom = map.getZoom();
-      map.setZoom(Math.min(18, Math.max(4, zoom + 4)), { animate: true });
+      
+      // Sabit zoom 4 — kullanıcı "hep 4'te kalsın, otomatik zoom değişmesin" dedi.
+      // Pin'ler sığsın diye sadece merkez hesaplanır, ölçek değiştirilmez.
+      map.setView(L.latLngBounds(points).getCenter(), 4, { animate: true });
     }
   }, [members, myPos, ready]);
 
