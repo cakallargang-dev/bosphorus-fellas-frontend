@@ -831,3 +831,54 @@ export const carsApi = {
     request<ApiResponse<unknown>>(`/api/cars/${id}`, { method: "DELETE" }),
 };
 
+// ============================================================
+// Canlı konum (harita)
+// ============================================================
+
+export interface LiveMember {
+  userId: string;
+  name: string;
+  initials: string;
+  avatar: string | null;
+  photo: string | null;
+  car: string;
+  plateNumber: string | null;
+  lat: number;
+  lng: number;
+  heading: number | null;
+  speed: number | null;
+  accuracy: number | null;
+  updatedAt: string;
+}
+
+export const locationApi = {
+  /** Paylaşan üyelerin son konumları */
+  live: () => request<ApiResponse<LiveMember[]>>("/api/location/live"),
+
+  /** Konum bildir (paylaşım açılır) */
+  ping: (data: {
+    lat: number;
+    lng: number;
+    heading?: number | null;
+    speed?: number | null;
+    accuracy?: number | null;
+  }) =>
+    request<ApiResponse<unknown>>("/api/location/ping", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  /** Paylaşımı durdur */
+  stop: () => request<ApiResponse<unknown>>("/api/location/ping", { method: "DELETE" }),
+
+  /** Kendi paylaşım durumum */
+  me: () =>
+    request<
+      ApiResponse<{
+        sharing: boolean;
+        lat: number | null;
+        lng: number | null;
+        updatedAt: string | null;
+      }>
+    >("/api/location/me"),
+};

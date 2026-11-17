@@ -49,9 +49,14 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>ManCave giriş yapmak için Face ID kullanır</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Konvoy haritasında konumunu görebilmen ve paylaşabilmen için</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Konvoy halinde canlı konum paylaşımı için</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>location</string>
 	</array>
 </dict>
 </plist>
