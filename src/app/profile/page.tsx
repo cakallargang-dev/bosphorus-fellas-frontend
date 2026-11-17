@@ -721,6 +721,116 @@ function ReferenceRow() {
   );
 }
 
+/* ---------------- Araç kartı (alt alta liste) ---------------- */
+
+function CarCard({
+  car,
+  onPrimary,
+  primaryPending,
+  onEdit,
+  onDelete,
+}: {
+  car: CarItem;
+  onPrimary: () => void;
+  primaryPending: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const cover = car.coverPhoto ?? car.photos?.[0] ?? null;
+  return (
+    <div className="overflow-hidden rounded-[26px] border border-[#1d3157] bg-[#0f1d32]/70">
+      {/* Fotoğraf */}
+      <div
+        className="relative h-[190px] w-full overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(260px 200px at 80% 0%,rgba(59,130,246,.32),transparent 70%),linear-gradient(180deg,#0f1d32,#050b16)",
+        }}
+      >
+        {cover ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imgUrl(cover)} alt={`${car.brand} ${car.model}`} className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050b16] via-[#050b16]/35 to-transparent" />
+          </>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Car className="h-9 w-9 text-[#2a3a54]" strokeWidth={1.4} />
+          </div>
+        )}
+
+        {car.isPrimary && (
+          <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-[14px] border border-[#60a5fa]/40 bg-[#030711]/70 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#60a5fa] backdrop-blur-md">
+            <Star className="h-3 w-3" fill="currentColor" />
+            Ana Araç
+          </span>
+        )}
+
+        {car.plateNumber && (
+          <div className="absolute bottom-3 left-3 flex h-7 items-center overflow-hidden rounded-[7px] bg-white shadow-[0_2px_10px_rgba(0,0,0,.45)]">
+            <span className="flex h-full items-center bg-[#1e3a9e] px-1.5 text-[10.5px] font-bold text-white">
+              TR
+            </span>
+            <span className="px-2 font-numeric text-[12px] font-bold tracking-[0.1em] text-[#111]">
+              {car.plateNumber}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Bilgiler */}
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate font-display text-[19px] font-bold leading-tight text-white">
+            {car.model || car.brand}
+          </span>
+          <span className="truncate text-[11px] font-medium uppercase tracking-[0.14em] text-[#9fb0c4]">
+            {[car.brand, car.year ? String(car.year) : null, car.hp ? `${car.hp} HP` : null]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </div>
+
+        {car.features && (
+          <p className="line-clamp-2 text-[12px] leading-relaxed text-[#7a8da4]">{car.features}</p>
+        )}
+
+        <div className="flex items-center gap-2">
+          {!car.isPrimary ? (
+            <button
+              onClick={onPrimary}
+              disabled={primaryPending}
+              className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[12.5px] font-bold text-[#030711] shadow-[0_4px_16px_rgba(59,130,246,.35)] disabled:opacity-50"
+            >
+              <Star className="h-3.5 w-3.5" />
+              Ana araç olarak seç
+            </button>
+          ) : (
+            <span className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#60a5fa]/30 bg-[#3b82f6]/10 text-[12.5px] font-semibold text-[#60a5fa]">
+              <Star className="h-3.5 w-3.5" fill="currentColor" />
+              Ana araç
+            </span>
+          )}
+          <button
+            onClick={onEdit}
+            aria-label="Düzenle"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#162544] text-[#8b9bb0] transition-colors hover:border-[#3b82f6]/50 hover:text-[#60a5fa]"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={onDelete}
+            aria-label="Sil"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#3a1c1c] text-red-400 transition-colors hover:bg-red-500/10"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Sayfa ---------------- */
 
 export default function ProfilePage() {
@@ -740,9 +850,7 @@ function ProfileContent() {
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [carOpen, setCarOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<CarItem | null>(null);
-  const [carIndex, setCarIndex] = useState(0);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+
 
   const { data: carsData } = useQuery({
     queryKey: ["cars"],
@@ -757,45 +865,9 @@ function ProfileContent() {
     return [...primary, ...cars.filter((c) => !c.isPrimary)];
   }, [cars]);
 
-  const safeIndex = Math.min(carIndex, Math.max(0, ordered.length - 1));
-  const active = ordered[safeIndex];
-
-  useEffect(() => {
-    if (carIndex > ordered.length - 1) setCarIndex(0);
-  }, [ordered.length, carIndex]);
-
-  // Aktif aracın fotoğrafları — kapak önce, sonra kalanlar
-  const activePhotos = useMemo(() => {
-    if (!active) return [] as string[];
-    const list = active.photos ?? [];
-    return active.coverPhoto
-      ? [active.coverPhoto, ...list.filter((p) => p !== active.coverPhoto)]
-      : list;
-  }, [active]);
-
-  const safePhoto = Math.min(photoIndex, Math.max(0, activePhotos.length - 1));
-
-  useEffect(() => {
-    setPhotoIndex(0);
-  }, [safeIndex, active?.id]);
-
-  useEffect(() => {
-    if (photoIndex > activePhotos.length - 1) setPhotoIndex(0);
-  }, [activePhotos.length, photoIndex]);
-
-  const goPhoto = (dir: 1 | -1) =>
-    setPhotoIndex((i) => {
-      const n = activePhotos.length;
-      if (n === 0) return 0;
-      return (i + dir + n) % n;
-    });
-
-  const swipe = useRef<{ x: number; y: number; t: number } | null>(null);
-
   const refreshCars = () => {
     queryClient.invalidateQueries({ queryKey: ["cars"] });
     queryClient.invalidateQueries({ queryKey: ["profile"] });
-    setConfirmDelete(false);
   };
 
   const primaryMut = useMutation({
@@ -811,7 +883,6 @@ function ProfileContent() {
     mutationFn: (id: string) => carsApi.remove(id),
     onSuccess: () => {
       toast.success("Araç silindi");
-      setCarIndex(0);
       refreshCars();
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Silinemedi"),
@@ -826,13 +897,6 @@ function ProfileContent() {
         year: "2-digit",
       })
     : "—";
-
-  // Vitrinde model adı öne çıkar: aracın modeli, yoksa kullanıcının araç modeli
-  const displayModel = active
-    ? active.model || active.brand
-    : user?.carModel || user?.carBrand || "—";
-  const displayBrand = active ? active.brand : user?.carBrand;
-  const displayYear = active?.year ?? user?.carYear ?? null;
 
   return (
     <Layout>
@@ -928,7 +992,7 @@ function ProfileContent() {
                   setEditingCar(null);
                   setCarOpen(true);
                 }}
-                className="flex h-[330px] w-full flex-col items-center justify-center gap-2.5 rounded-[30px] border border-dashed border-[#1d3157] text-[13px] text-[#7a8da4]"
+                className="flex h-[200px] w-full flex-col items-center justify-center gap-2.5 rounded-[26px] border border-dashed border-[#1d3157] text-[13px] text-[#7a8da4]"
                 style={{
                   background:
                     "radial-gradient(260px 200px at 80% 0%,rgba(59,130,246,.2),transparent 70%),linear-gradient(180deg,#0f1d32,#050b16)",
@@ -941,236 +1005,25 @@ function ProfileContent() {
                 </span>
               </button>
             ) : (
-              <div
-                onPointerDown={(e) => {
-                  swipe.current = { x: e.clientX, y: e.clientY, t: Date.now() };
-                }}
-                onPointerUp={(e) => {
-                  const s = swipe.current;
-                  swipe.current = null;
-                  if (!s) return;
-                  if (Date.now() - s.t > 1200) return;
-                  const dx = e.clientX - s.x;
-                  const dy = e.clientY - s.y;
-                  if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
-                  // Gövdede kaydır → aracın fotoğrafları arasında
-                  goPhoto(dx > 0 ? -1 : 1);
-                }}
-                className="relative h-[330px] shrink-0 touch-pan-y select-none overflow-hidden rounded-[30px] border border-[#1d3157]"
-                style={{
-                  background:
-                    "radial-gradient(260px 200px at 80% 0%,rgba(59,130,246,.38),transparent 70%),linear-gradient(180deg,#0f1d32,#050b16)",
-                }}
-              >
-                {/* Kapak fotoğrafı — varsa zeminin üstüne oturur */}
-                {activePhotos.length > 0 ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      key={activePhotos[safePhoto]}
-                      src={imgUrl(activePhotos[safePhoto])}
-                      alt={`${active?.brand} ${active?.model} ${safePhoto + 1}`}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    {/* Okunabilirlik için alt gradyan */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050b16] via-[#050b16]/45 to-transparent" />
-                  </>
-                ) : (
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-[210px]"
-                    style={{
-                      background:
-                        "repeating-linear-gradient(90deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px),repeating-linear-gradient(0deg,rgba(96,165,250,.14) 0 1px,transparent 1px 36px)",
-                      WebkitMaskImage: "linear-gradient(180deg,transparent,#000)",
-                      maskImage: "linear-gradient(180deg,transparent,#000)",
+              <div className="flex flex-col gap-3.5">
+                {ordered.map((c) => (
+                  <CarCard
+                    key={c.id}
+                    car={c}
+                    onPrimary={() => primaryMut.mutate(c.id)}
+                    primaryPending={primaryMut.isPending}
+                    onEdit={() => {
+                      setEditingCar(c);
+                      setCarOpen(true);
+                    }}
+                    onDelete={() => {
+                      if (confirm(`"${c.brand} ${c.model}" silinsin mi?`)) deleteMut.mutate(c.id);
                     }}
                   />
-                )}
-
-                {/* Üst bar */}
-                <div className="absolute left-4 right-4 top-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 rounded-[14px] border border-[#162544] bg-[#030711]/55 px-3 py-1.5 text-[12px] font-semibold text-[#f1f5f9]">
-                      <i
-                        className={`block h-[7px] w-[7px] rounded-full ${
-                          active?.isPrimary
-                            ? "bg-[#60a5fa] shadow-[0_0_8px_#60a5fa]"
-                            : "bg-[#7a8da4]"
-                        }`}
-                      />
-                      {active?.isPrimary ? "Ana araç" : "Araç"}
-                    </span>
-                    <span className="font-numeric text-[12px] font-bold text-[#9fb0c4]">
-                      {safeIndex + 1}/{ordered.length}
-                    </span>
-                  </div>
-
-                  {/* Araç seçici — sadece birden fazla araç varsa */}
-                  {ordered.length > 1 && (
-                    <div className="flex gap-[5px]">
-                      {ordered.map((c, i) => (
-                        <button
-                          key={c.id}
-                          onClick={() => setCarIndex(i)}
-                          aria-label={`${c.brand} ${c.model}`}
-                          className={`block h-[3px] flex-1 rounded-[2px] transition-colors ${
-                            i === safeIndex ? "bg-[#60a5fa]" : "bg-[#162544]"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Foto gezinme okları */}
-                {activePhotos.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => goPhoto(-1)}
-                      aria-label="Önceki fotoğraf"
-                      className="absolute left-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#1d3157] bg-[#030711]/60 text-white backdrop-blur-md transition hover:bg-[#030711]/85 active:scale-95"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => goPhoto(1)}
-                      aria-label="Sonraki fotoğraf"
-                      className="absolute right-2.5 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#1d3157] bg-[#030711]/60 text-white backdrop-blur-md transition hover:bg-[#030711]/85 active:scale-95"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-
-                    {/* Foto noktaları */}
-                    <div className="absolute left-0 right-0 top-[68px] z-10 flex justify-center gap-1.5">
-                      {activePhotos.map((p, i) => (
-                        <button
-                          key={p + i}
-                          onClick={() => setPhotoIndex(i)}
-                          aria-label={`Fotoğraf ${i + 1}`}
-                          className={`h-1.5 rounded-full transition-all ${
-                            i === safePhoto
-                              ? "w-4 bg-[#60a5fa]"
-                              : "w-1.5 bg-white/45 hover:bg-white/70"
-                          }`}
-                        />
-                      ))}
-                    </div>
-
-                    <span className="absolute right-3.5 top-[92px] z-10 rounded-full bg-[#030711]/65 px-2 py-0.5 font-numeric text-[10.5px] font-bold text-[#dbe6f4] backdrop-blur-md">
-                      {safePhoto + 1}/{activePhotos.length}
-                    </span>
-                  </>
-                )}
-
-                {/* Orta: foto alanı — sadece fotoğraf yoksa */}
-                {activePhotos.length === 0 && (
-                  <div className="absolute left-0 right-0 top-[104px] flex flex-col items-center gap-2 text-[12.5px] text-[#7a8da4]">
-                    <Car className="h-8 w-8" strokeWidth={1.4} />
-                    Araç fotoğrafı
-                  </div>
-                )}
-
-                {/* Araç değiştirme okları — birden çok araç varsa */}
-                {ordered.length > 1 && (
-                  <div className="absolute bottom-[104px] left-0 right-0 z-10 flex items-center justify-between px-3.5">
-                    <button
-                      onClick={() =>
-                        setCarIndex((safeIndex - 1 + ordered.length) % ordered.length)
-                      }
-                      aria-label="Önceki araç"
-                      className="flex h-8 items-center gap-1 rounded-full border border-[#1d3157] bg-[#030711]/60 px-2.5 text-[11.5px] font-semibold text-[#9fb0c4] backdrop-blur-md transition hover:text-[#60a5fa] active:scale-95"
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                      Araç
-                    </button>
-                    <button
-                      onClick={() => setCarIndex((safeIndex + 1) % ordered.length)}
-                      aria-label="Sonraki araç"
-                      className="flex h-8 items-center gap-1 rounded-full border border-[#1d3157] bg-[#030711]/60 px-2.5 text-[11.5px] font-semibold text-[#9fb0c4] backdrop-blur-md transition hover:text-[#60a5fa] active:scale-95"
-                    >
-                      Araç
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Alt cam panel */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 rounded-[22px] border border-[#1d3157] bg-[#030711]/[0.62] px-4 py-3.5 backdrop-blur-md">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="font-numeric text-[13px] font-bold tracking-[0.22em] text-[#60a5fa]">
-                      {displayYear ?? "—"}
-                    </span>
-                    <span className="truncate font-display text-[34px] font-bold leading-[1.05] tracking-[-0.02em] text-white">
-                      {displayModel}
-                    </span>
-                    <span className="truncate text-[11px] font-medium uppercase tracking-[0.1em] text-[#9fb0c4]">
-                      {displayBrand}
-                    </span>
-                  </div>
-                  {active?.plateNumber && (
-                    <div className="flex h-8 shrink-0 items-center overflow-hidden rounded-[9px] bg-white">
-                      <span className="flex h-full items-center bg-[#1e3a9e] px-2 text-[12px] font-bold text-white">
-                        TR
-                      </span>
-                      <span className="px-2.5 font-numeric text-[13px] font-bold tracking-[0.12em] text-[#111]">
-                        {active.plateNumber}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                ))}
               </div>
             )}
 
-            {/* Aktif araç aksiyonları */}
-            {active && (
-              <div className="flex items-center gap-2">
-                {!active.isPrimary && (
-                  <button
-                    onClick={() => primaryMut.mutate(active.id)}
-                    disabled={primaryMut.isPending}
-                    className="flex items-center gap-1.5 rounded-xl border border-[#162544] px-3 py-2 text-[12px] text-[#8b9bb0] transition-colors hover:border-[#3b82f6]/50 hover:text-[#60a5fa] disabled:opacity-50"
-                  >
-                    <Star className="h-3 w-3" />
-                    Ana Yap
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    setEditingCar(active);
-                    setCarOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 rounded-xl border border-[#162544] px-3 py-2 text-[12px] text-[#8b9bb0] transition-colors hover:border-[#3b82f6]/50 hover:text-[#60a5fa]"
-                >
-                  <Pencil className="h-3 w-3" />
-                  Düzenle
-                </button>
-                {confirmDelete ? (
-                  <div className="ml-auto flex items-center gap-1.5">
-                    <button
-                      onClick={() => deleteMut.mutate(active.id)}
-                      disabled={deleteMut.isPending}
-                      className="rounded-lg bg-red-500 px-2.5 py-1.5 text-[11.5px] font-semibold text-white disabled:opacity-50"
-                    >
-                      {deleteMut.isPending ? "..." : "Evet, sil"}
-                    </button>
-                    <button
-                      onClick={() => setConfirmDelete(false)}
-                      className="rounded-lg border border-[#162544] px-2 py-1.5 text-[11.5px] text-[#8b9bb0]"
-                    >
-                      Vazgeç
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setConfirmDelete(true)}
-                    className="ml-auto flex items-center gap-1.5 rounded-xl border border-[#3a1c1c] px-3 py-2 text-[12px] text-red-400 transition-colors hover:bg-red-500/10"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                    Sil
-                  </button>
-                )}
-              </div>
-            )}
           </section>
 
           {/* ===== REFERANS KODU ===== */}
