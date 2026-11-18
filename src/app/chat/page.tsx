@@ -726,7 +726,11 @@ export default function ChatPage() {
   return (
     <AuthGuard>
       <Layout hideFooter>
-        <div className="flex h-[calc(100dvh-4.5rem)] flex-col">
+        {/* Yükseklik: viewport - (wrapper pb-16 = 4rem) - nav yüksekliği (60px + 12px alt boşluk) - safe-area */}
+        <div
+          className="flex flex-col overflow-hidden"
+          style={{ height: "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))" }}
+        >
           {/* Başlık */}
           <div className="flex items-center gap-3 border-b border-[#162544] px-4 py-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10">
@@ -746,13 +750,13 @@ export default function ChatPage() {
           </div>
 
           {/* Sohbet */}
-          <div className="flex-1 overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden">
             {showSupport ? (
               <div className="h-full p-4">
                 <SupportChatView onBack={() => setShowSupport(false)} />
               </div>
             ) : (
-              <div className="flex h-full flex-col p-4">
+              <div className="flex h-full min-h-0 flex-col p-4">
                 <ChannelChatView channel={channel} onBack={() => {}} />
               </div>
             )}
