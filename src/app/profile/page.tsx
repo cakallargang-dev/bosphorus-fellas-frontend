@@ -5,10 +5,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import {
+  isSharingEnabled,
+  setSharingEnabled,
+  startTracking,
+  stopTracking,
+  isTracking,
+} from "@/lib/location";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useWebPush } from "@/lib/useWebPush";
-import { authApi, referansApi, imgUrl, carsApi, type CarItem } from "@/lib/api";
+import { authApi, referansApi, imgUrl, carsApi, type CarItem, locationApi } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { FileUpload } from "@/components/FileUpload";
@@ -844,6 +851,43 @@ export default function ProfilePage() {
 function ProfileContent() {
   const { user, logout } = useAuth();
   const push = useWebPush();
+
+  /* ----- Konum paylaşımı anahtarı ----- */
+  const [locShare, setLocShare] = useState(false);
+  const [locBusy, setLocBusy] = useState(false);
+
+  useEffect(() => {
+    setLocShare(isSharingEnabled() && isTracking());
+  }, []);
+
+  const toggleLocation = useCallback(async () => {
+    setLocBusy(true);
+    try {
+      if (locShare) {
+        setSharingEnabled(false);
+        await stopTracking();
+        try {
+          await locationApi.stop();
+        } catch {
+          /* yut */
+        }
+        setLocShare(false);
+        toast.success("Konum paylaşımı kapatıldı");
+      } else {
+        setSharingEnabled(true);
+        await startTracking();
+        setLocShare(true);
+        toast.success("Konum paylaşımı açık — konvoyda görünüyorsun");
+      }
+    } catch (e) {
+      setSharingEnabled(false);
+      await stopTracking();
+      setLocShare(false);
+      toast.error(e instanceof Error ? e.message : "Konum açılamadı");
+    } finally {
+      setLocBusy(false);
+    }
+  }, [locShare]);
   const queryClient = useQueryClient();
 
   const [editOpen, setEditOpen] = useState(false);
@@ -1102,6 +1146,55 @@ function ProfileContent() {
           {push.error && (
             <p className="-mt-3 text-[12px] leading-relaxed text-[#e0b070]">{push.error}</p>
           )}
+
+          {/* ===== KONUM PAYLAŞIMI ===== */}
+          <div
+            className="flex items-center gap-3.5 rounded-[22px] border border-[#162544] p-4"
+            style={{ background: SURFACE_PANEL }}
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#22c55e]/15">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={locShare ? "#22c55e" : "#7a8da4"}
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11z" />
+                <circle cx="12" cy="10" r="2.6" />
+              </svg>
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="text-[15px] font-semibold text-white">Konum paylaşımı</span>
+              <span className="text-[12.5px] leading-snug text-[#9fb0c4]">
+                {locShare ? "Konvoyda görünüyorsun" : "Kapalı — konvoyda görünmüyorsun"}
+              </span>
+            </div>
+            <button
+              role="switch"
+              aria-checked={locShare}
+              aria-label="Konum paylaşımı"
+              disabled={locBusy}
+              onClick={toggleLocation}
+              className="flex h-11 w-[52px] shrink-0 items-center disabled:opacity-40"
+            >
+              <span
+                className={`flex h-7 w-12 items-center rounded-full border px-[3px] transition-colors ${
+                  locShare ? "border-[#22c55e] bg-[#22c55e]/30" : "border-[#162544] bg-[#0f1d32]"
+                }`}
+              >
+                <i
+                  className={`block h-5 w-5 rounded-full transition-transform ${
+                    locShare ? "translate-x-[20px] bg-[#22c55e]" : "bg-[#7a8da4]"
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
 
           {/* ===== ÇIKIŞ ===== */}
           <button

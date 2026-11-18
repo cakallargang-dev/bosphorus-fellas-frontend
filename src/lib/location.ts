@@ -26,6 +26,12 @@ export type PositionHandler = (p: {
  */
 const PING_MS = 5_000;
 
+/**
+ * Kullanıcının konum paylaşım tercihi (localStorage).
+ * Profil sayfasındaki anahtarla yönetilir; uygulama açılışında otomatik başlatılır.
+ */
+const PREF_KEY = "bf_share_location";
+
 type WatcherHandle = { stop: () => Promise<void> };
 
 let handle: WatcherHandle | null = null;
@@ -43,11 +49,25 @@ async function nativePlugin() {
 
 export const isNative = () => Capacitor.isNativePlatform();
 
+/** Paylaşım tercihi açık mı? Varsayılan: açık (kullanıcı kapatmadıysa paylaşır). */
+export function isSharingEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(PREF_KEY) !== "0";
+}
+
+export function setSharingEnabled(on: boolean): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(PREF_KEY, on ? "1" : "0");
+}
+
+/** Takip şu an çalışıyor mu? */
+export const isTracking = () => handle !== null;
+
 /**
  * Konum dinlemeyi başlatır. İlk konum gelince resolve olur.
  * Hata durumunda anlamlı Türkçe mesajla reject eder.
  */
-export async function startTracking(onPosition: PositionHandler): Promise<void> {
+export async function startTracking(onPosition: PositionHandler = () => {}): Promise<void> {
   await stopTracking();
 
   let last: Parameters<PositionHandler>[0] | null = null;

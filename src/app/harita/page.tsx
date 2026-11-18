@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/Layout";
 import { AuthGuard } from "@/components/AuthGuard";
 import { imgUrl, locationApi, type LiveMember } from "@/lib/api";
-import { startTracking, stopTracking } from "@/lib/location";
+import { isSharingEnabled, isTracking, startTracking, stopTracking } from "@/lib/location";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Navigation, Radio, Power, Clock, Locate, RefreshCw } from "lucide-react";
@@ -66,6 +66,10 @@ function MapContent() {
   const LRef = useRef<any>(null);
   const hasCentered = useRef(false);
   const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setSharing(isSharingEnabled() && isTracking());
+  }, []);
 
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["live-location"],
@@ -319,18 +323,22 @@ function MapContent() {
               }
             `}</style>
 
-            <button
-              onClick={() => (sharing ? stopSharing() : startSharing())}
-              disabled={busy}
-              className={`absolute left-3 top-3 z-20 flex h-11 items-center gap-2 rounded-[18px] px-4 text-[13px] font-bold backdrop-blur-md transition disabled:opacity-60 ${
+            {/* Durum rozeti — paylaşım profilden yönetilir, buradan açılmaz */}
+            <Link
+              href="/profile"
+              className={`absolute left-3 top-3 z-20 flex h-9 items-center gap-1.5 rounded-full px-3 text-[11.5px] font-bold backdrop-blur-md ${
                 sharing
                   ? "border border-[#22c55e]/50 bg-[#030711]/78 text-[#22c55e]"
-                  : "border border-[#1d3157] bg-[#030711]/78 text-white"
+                  : "border border-[#1d3157] bg-[#030711]/78 text-[#9fb0c4]"
               }`}
             >
-              <Power className="h-3.5 w-3.5" />
-              {sharing ? "Paylaşılıyor" : busy ? "Açılıyor…" : "Konumumu paylaş"}
-            </button>
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  sharing ? "bg-[#22c55e] animate-pulse" : "bg-[#7a8da4]"
+                }`}
+              />
+              {sharing ? "Konum açık" : "Konum kapalı"}
+            </Link>
 
             {myPos && (
               <button
