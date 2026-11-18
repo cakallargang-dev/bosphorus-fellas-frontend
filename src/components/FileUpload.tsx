@@ -1,5 +1,7 @@
 "use client";
 
+import { compressImage } from "@/lib/imageCompress";
+
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileImage, Loader2 } from "lucide-react";
@@ -20,7 +22,7 @@ export function FileUpload({
   value,
   onChange,
   accept = { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
-  maxSize = 25 * 1024 * 1024,
+  maxSize = 50 * 1024 * 1024,
   preview = true,
   label = "Dosya yüklemek için tıklayın veya sürükleyin",
   disabled = false,
@@ -40,10 +42,13 @@ export function FileUpload({
   }, [value]);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return;
-      const file = acceptedFiles[0];
       setUploading(true);
+
+      // Tarayıcıda küçült: 8 MB'lık telefon fotoğrafı ~300 KB'a iner,
+      // sunucu limitine takılmaz ve yükleme hızlanır.
+      const { file } = await compressImage(acceptedFiles[0]);
 
       const reader = new FileReader();
       reader.onloadend = () => {

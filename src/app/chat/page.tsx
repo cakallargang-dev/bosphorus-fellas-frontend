@@ -815,7 +815,7 @@ export default function ChatPage() {
         visualViewport.height/offsetTop kullanılabilir.
       */}
       <div
-        className="flex flex-col overflow-hidden bg-[#030711]"
+        className="flex flex-col overflow-hidden bg-[#030711] pt-[env(safe-area-inset-top,0px)]"
         style={
           keyboardOpen
             ? {
@@ -827,7 +827,14 @@ export default function ChatPage() {
                 zIndex: 70,
               }
             : {
-                height: "calc(100dvh - 4rem - 64px - env(safe-area-inset-bottom, 0px))",
+                // Nav bar'ın tam üstüne sabitle: hesap yok, boşluk imkânsız.
+                // Nav: bottom = safe-area + 12px, yükseklik 60px  →  alt kenar = 72px + safe
+                position: "fixed",
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: "calc(72px + env(safe-area-inset-bottom, 0px))",
+                zIndex: 40,
               }
         }
       >
