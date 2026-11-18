@@ -21,7 +21,7 @@ export type PositionHandler = (p: {
 
 /**
  * Sunucuya gönderme aralığı (ms).
- * Konvoy halinde araç ~50-90 km/h gider → 5 sn'de 70-120 m yol.
+ * Araç ~50-90 km/h gider → 5 sn'de 70-120 m yol.
  * 5 sn canlı takip için yeterli; 3 sn altı pil ve trafik maliyetini gereksiz artırır.
  */
 const PING_MS = 5_000;
@@ -98,8 +98,8 @@ export async function startTracking(onPosition: PositionHandler = () => {}): Pro
 
     const watcherId = await BackgroundGeolocation.addWatcher(
       {
-        backgroundMessage: "Konvoy için konumun paylaşılıyor. Durdurmak için dokun.",
-        backgroundTitle: "Bosphorus Fellas — Canlı konum",
+        backgroundMessage: "Konumun paylaşılıyor. Durdurmak için dokun.",
+        backgroundTitle: "Bosphorus Fellas — Konum",
         requestPermissions: true,
         stale: false,
         distanceFilter: 10,

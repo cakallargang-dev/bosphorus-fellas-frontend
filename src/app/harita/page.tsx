@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Harita — canlı konum + konvoy takibi.
+ * Harita — canlı konum ve ekip takibi.
  *
  * Leaflet + OpenStreetMap (CartoDB dark tiles): istemciye sızan API anahtarı yok, ücretsiz.
  */
@@ -257,7 +257,7 @@ function MapContent() {
                 HARİTA
               </span>
               <h1 className="font-display text-[26px] font-bold leading-tight tracking-tight text-white">
-                Konvoy
+                Konum
               </h1>
             </div>
             <div className="flex items-center gap-2">

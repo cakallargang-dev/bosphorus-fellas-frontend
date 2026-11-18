@@ -877,7 +877,7 @@ function ProfileContent() {
         setSharingEnabled(true);
         await startTracking();
         setLocShare(true);
-        toast.success("Konum paylaşımı açık — konvoyda görünüyorsun");
+        toast.success("Konum paylaşımı açık — haritada görünüyorsun");
       }
     } catch (e) {
       setSharingEnabled(false);
@@ -1171,7 +1171,7 @@ function ProfileContent() {
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="text-[15px] font-semibold text-white">Konum paylaşımı</span>
               <span className="text-[12.5px] leading-snug text-[#9fb0c4]">
-                {locShare ? "Konvoyda görünüyorsun" : "Kapalı — konvoyda görünmüyorsun"}
+                {locShare ? "Haritada görünüyorsun" : "Kapalı — haritada görünmüyorsun"}
               </span>
             </div>
             <button
