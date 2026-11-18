@@ -260,11 +260,12 @@ function DashboardContent() {
         <div className="relative -mx-4 -mt-4 mb-7 overflow-hidden">
           {/* Zemin katmanı */}
           <div className="absolute inset-0 bg-[#0a1628]">
-            {user?.avatar ? (
+            {/* Arka fon: ana araç fotoğrafı (yoksa profil fotoğrafına düşer) */}
+            {user?.carPhoto || user?.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={imgUrl(user.avatar)}
-                alt={user?.firstName || "profil"}
+                src={imgUrl((user.carPhoto || user.avatar) as string)}
+                alt={user?.carBrand ? `${user.carBrand} ${user.carModel || ""}`.trim() : user?.firstName || "profil"}
                 className="w-full h-full object-cover opacity-[0.35] scale-105"
               />
             ) : null}
