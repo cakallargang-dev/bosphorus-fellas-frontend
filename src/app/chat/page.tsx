@@ -454,7 +454,7 @@ function ChannelChatView({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Messages */}
-      <div ref={scrollRef} data-chat-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-3 pr-1">
+      <div ref={scrollRef} data-chat-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-1 pr-1">
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
@@ -827,7 +827,7 @@ export default function ChatPage() {
                 zIndex: 70,
               }
             : {
-                height: "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))",
+                height: "calc(100dvh - 4rem - 64px - env(safe-area-inset-bottom, 0px))",
               }
         }
       >
