@@ -20,7 +20,7 @@ export function BottomNav() {
   ];
 
   const memberLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Anasayfa", icon: Home },
     ...(isAdmin ? [{ href: "/admin", label: "Panel", icon: Shield }] : []),
     { href: "/ekip", label: "Ekip", icon: Users },
     { href: "/harita", label: "Harita", icon: Map },

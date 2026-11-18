@@ -11,6 +11,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { SkeletonCard } from "@/components/LoadingSpinner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BirthdayItem, teamApi } from "@/lib/api";
 import { Car, Trophy, Sparkles, Star, ShoppingBag, Calendar, Plus, X, MapPin, CalendarCheck, CalendarDays, Flame, Clock, Trash2, Check } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -36,6 +37,7 @@ const TR_MONTHS_SHORT = [
 const TR_DAYS = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"];
 const CAL_EVENT = "#3b82f6";
 const CAL_ROLL = "#f97316";
+const CAL_BIRTHDAY = "#ef4444";
 
 const dayKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -88,6 +90,12 @@ function DashboardContent() {
     queryKey: ["dashboard"],
     queryFn: () => dashboardApi.getData(),
     staleTime: 30_000,
+  });
+
+  const { data: bdayData } = useQuery({
+    queryKey: ["birthdays"],
+    queryFn: () => teamApi.birthdays(),
+    staleTime: 5 * 60_000,
   });
 
   const { data: meetData } = useQuery({
@@ -173,19 +181,32 @@ function DashboardContent() {
   const sponsors = dashboardData?.data.sponsors ?? [];
   const meetings = (meetData?.data ?? []) as Meeting[];
 
+  const birthdays = bdayData?.data ?? [];
+
   const calMap = useMemo(() => {
-    const map = new Map<string, { events: number; rolls: number }>();
+    const map = new Map<string, { events: number; rolls: number; birthdays: number; names: string[] }>();
     const bump = (d: Date | null, k: "events" | "rolls") => {
       if (!d) return;
       const key = dayKey(d);
-      const cur = map.get(key) || { events: 0, rolls: 0 };
+      const cur = map.get(key) || { events: 0, rolls: 0, birthdays: 0, names: [] };
       cur[k] += 1;
       map.set(key, cur);
     };
     events.forEach((e) => bump(new Date(e.date), "events"));
     meetings.forEach((m) => bump(new Date(m.dateIso || m.date), "rolls"));
+
+    // Doğum günleri: yıl yok sayılır, her yıl tekrar eder
+    birthdays.forEach((b) => {
+      const cell = new Date(calMonth.y, b.month - 1, b.day);
+      const key = dayKey(cell);
+      const cur = map.get(key) || { events: 0, rolls: 0, birthdays: 0, names: [] };
+      cur.birthdays += 1;
+      cur.names.push(b.name);
+      map.set(key, cur);
+    });
+
     return map;
-  }, [events, meetings]);
+  }, [events, meetings, birthdays, calMonth]);
 
   const upcomingCount = events.filter((e) => new Date(e.date) >= new Date()).length;
   const monthLabel = new Date().toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
@@ -193,6 +214,14 @@ function DashboardContent() {
   const calCells = useMemo(() => monthGrid(calMonth.y, calMonth.m), [calMonth]);
   const todayKey = dayKey(new Date());
   const calEventList = calDay ? events.filter((e) => dayKey(new Date(e.date)) === calDay) : [];
+
+  /** Seçili gündeki doğum günü sahipleri */
+  const calBirthdayList = calDay
+    ? birthdays.filter((b) => {
+        const d = new Date(calMonth.y, b.month - 1, b.day);
+        return dayKey(d) === calDay;
+      })
+    : [];
   const calMeetingList = calDay
     ? meetings.filter((m) => {
         const d = new Date(m.dateIso || m.date);
@@ -310,6 +339,10 @@ function DashboardContent() {
                 <i className="w-2 h-2 rounded-full inline-block" style={{ background: CAL_ROLL }} />
                 Buluşma
               </span>
+              <span className="flex items-center gap-1">
+                <i className="w-2 h-2 rounded-full inline-block" style={{ background: CAL_BIRTHDAY }} />
+                Doğum günü
+              </span>
             </span>
           </h2>
 
@@ -355,7 +388,8 @@ function DashboardContent() {
                 const isToday = key === todayKey;
                 const hasE = (info?.events ?? 0) > 0;
                 const hasR = (info?.rolls ?? 0) > 0;
-                const active = hasE || hasR;
+                const hasB = (info?.birthdays ?? 0) > 0;
+                const active = hasE || hasR || hasB;
                 return (
                   <button
                     key={key}
@@ -382,6 +416,13 @@ function DashboardContent() {
                           <i
                             className="w-1.5 h-1.5 rounded-full"
                             style={{ background: CAL_ROLL, opacity: isPast ? 0.45 : 1 }}
+                          />
+                        )}
+                        {hasB && (
+                          <i
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ background: CAL_BIRTHDAY }}
+                            title={`Doğum günü: ${info?.names.join(", ")}`}
                           />
                         )}
                       </span>
@@ -441,6 +482,7 @@ function DashboardContent() {
           meetings={calMeetingList}
           onClose={() => setCalDay(null)}
           onOpenUser={(u) => setSheet({ id: u.id, name: `${u.firstName} ${u.lastName}`, car: [u.carBrand, u.carModel].filter(Boolean).join(" "), spec: "", photo: u.avatar, bio: "", rolls: 0, wins: 0, since: "" })}
+          birthdays={calBirthdayList}
           onDeleteMeeting={(id) => deleteMeeting.mutate(id)}
           onRespond={(id, status) => respondMeeting.mutate({ id, status })}
           onRespondEvent={(id, status) => respondEvent.mutate({ id, status })}
@@ -918,6 +960,7 @@ function DayModal({
   label,
   events,
   meetings,
+  birthdays = [],
   onClose,
   onOpenUser,
   onDeleteMeeting,
@@ -943,6 +986,7 @@ function DayModal({
     isJoined?: boolean;
   }[];
   meetings: Meeting[];
+  birthdays?: BirthdayItem[];
   onClose: () => void;
   onOpenUser: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDeleteMeeting: (id: string) => void;
@@ -973,8 +1017,31 @@ function DayModal({
           </button>
         </div>
 
-        {events.length === 0 && meetings.length === 0 && (
+        {events.length === 0 && meetings.length === 0 && birthdays.length === 0 && (
           <p className="text-[13px] text-[#7a8da4]">Bu gün için kayıt yok.</p>
+        )}
+
+        {/* Doğum günleri — kırmızı vurgulu */}
+        {birthdays.length > 0 && (
+          <div className="mb-3 space-y-2">
+            {birthdays.map((b) => (
+              <div
+                key={b.userId}
+                className="flex items-center gap-2.5 rounded-[14px] border border-[#ef4444]/30 bg-[#ef4444]/8 px-3 py-2.5"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ef4444]/15 text-[13px] font-bold text-[#ef4444]">
+                  🎂
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13.5px] font-semibold text-white">{b.name}</p>
+                  <p className="text-[11px] text-[#ef4444]">
+                    Doğum günü
+                    {b.year ? ` · ${new Date().getFullYear() - b.year} yaşında` : ""}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
         {events.length > 0 && (

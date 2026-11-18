@@ -292,7 +292,18 @@ export interface TeamMember {
   since: string;
 }
 
+/** Doğum günü kaydı — takvimde kırmızı nokta */
+export interface BirthdayItem {
+  userId: string;
+  name: string;
+  avatar: string | null;
+  month: number;
+  day: number;
+  year: number;
+}
+
 export const teamApi = {
+  birthdays: () => request<ApiResponse<BirthdayItem[]>>("/api/members/birthdays"),
   list: (q?: string) =>
     request<ApiResponse<TeamMember[]>>(`/api/members/directory${q ? `?q=${encodeURIComponent(q)}` : ""}`),
 };
