@@ -69,6 +69,7 @@ function MapContent() {
   const markersRef = useRef<Marker[]>([]);
   const meMarkerRef = useRef<Marker | null>(null);
   const mbRef = useRef<any>(null);
+  const hasCentered = useRef(false);
 
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["live-location"],
@@ -149,6 +150,9 @@ function MapContent() {
     const map = mapRef.current;
     if (!mb || !map || !mapReady) return;
 
+    // Hata ayıklama: veri geldi mi?
+    if (members.length === 0 && !myPos) return;
+
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
@@ -186,7 +190,9 @@ function MapContent() {
       });
     }
 
-    if (coords.length > 0) {
+    // Sadece ilk yüklemede otomatik merkezle; sonraki yenilemelerde haritayı kaydırma
+    if (coords.length > 0 && !hasCentered.current) {
+      hasCentered.current = true;
       map.easeTo({ center: coords[0], zoom: FOCUS_ZOOM, duration: 600 });
     }
   }, [members, myPos, mapReady]);
@@ -218,6 +224,19 @@ function MapContent() {
     }
     refetch();
   }, [refetch]);
+
+  /**
+   * Sayfa açılınca kendi konumunu al (paylaşımı AÇMADAN).
+   * Sadece haritayı doğru yere getirmek için; sunucuya hiçbir şey gönderilmez.
+   */
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 }
+    );
+  }, []);
 
   useEffect(() => {
     return () => {
