@@ -14,6 +14,7 @@ import { Layout } from "@/components/Layout";
 import { AuthGuard } from "@/components/AuthGuard";
 import { imgUrl, locationApi, type LiveMember } from "@/lib/api";
 import { startTracking, stopTracking } from "@/lib/location";
+import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Navigation, Radio, Power, Clock, Locate, RefreshCw } from "lucide-react";
 
@@ -51,6 +52,8 @@ function pinHtml(m: LiveMember): string {
 }
 
 function MapContent() {
+  const { user } = useAuth();
+  const myUserId = user?.id;
   const [sharing, setSharing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
@@ -137,7 +140,9 @@ function MapContent() {
       points.push([m.lat, m.lng]);
     });
 
-    if (myPos) {
+    // Paylaşım açıksa listede zaten avatar pin'im var → yeşil noktayı çift gösterme
+    const iAmListed = members.some((m) => m.userId === myUserId);
+    if (myPos && !iAmListed) {
       const me = L.marker([myPos.lat, myPos.lng], {
         icon: L.divIcon({
           html: `<div style="width:18px;height:18px;border-radius:50%;background:#22c55e;
@@ -169,7 +174,7 @@ function MapContent() {
         map.setView(L.latLngBounds(points).getCenter(), FOCUS_ZOOM, { animate: true });
       }
     }
-  }, [members, myPos, ready]);
+  }, [members, myPos, ready, myUserId]);
 
   /* ---------------- Konum gönderimi ---------------- */
 
