@@ -315,8 +315,8 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex gap-2">
+      {/* Input — sabit alt satır */}
+      <div className="flex shrink-0 gap-2">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -438,7 +438,7 @@ function ChannelChatView({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-2 mb-3 pr-1">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-3 pr-1">
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
@@ -520,8 +520,8 @@ function ChannelChatView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex gap-2">
+      {/* Input — sabit alt satır */}
+      <div className="flex shrink-0 gap-2">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -742,10 +742,19 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      {/* Tam ekran: alt navigasyon yok, sayfa kaymaz */}
+      <Layout hideFooter>
+      {/*
+        Alt navigasyon KALIR (kaldırılmadı).
+        Yükseklik = görsel viewport - alt nav payı (72px) - wrapper pb-16 (4rem).
+        Klavye açılınca visualViewport küçülür, sohbet alanı ona uyar.
+      */}
       <div
-        className="fixed inset-0 z-[70] flex flex-col bg-[#030711]"
-        style={vh ? { height: `${vh}px` } : undefined}
+        className="flex flex-col overflow-hidden bg-[#030711]"
+        style={{
+          height: vh
+            ? `${Math.max(240, vh - 72)}px`
+            : "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))",
+        }}
       >
         {/* Başlık */}
         <div className="flex shrink-0 items-center gap-3 border-b border-[#162544] px-4 py-2.5">
@@ -770,6 +779,7 @@ export default function ChatPage() {
           <ChannelChatView channel={channel} onBack={() => {}} />
         </div>
       </div>
+      </Layout>
     </AuthGuard>
   );
 }
