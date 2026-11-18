@@ -74,6 +74,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
   const [sending, setSending] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const { data, isLoading } = useQuery({
@@ -100,8 +101,15 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
     ? messages.filter((m) => m.senderId === selectedMemberId)
     : messages;
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  /**
+   * En son mesaja kaydır.
+   * `scrollIntoView` sayfayı da kaydırdığı için (klavye açıkken tüm
+   * sohbet ekranı zıplıyordu) doğrudan scroll konteynerini kaydırıyoruz.
+   */
+  const scrollToBottom = useCallback((smooth = true) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
   }, []);
 
   useEffect(() => {
@@ -225,7 +233,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Messages — chat bubbles */}
-      <div className="flex-1 overflow-y-auto space-y-2 pr-1 mb-3">
+      <div ref={scrollRef} data-chat-scroll className="flex-1 overflow-y-auto space-y-2 pr-1 mb-3">
         {isLoading && (
           <p className="text-center text-[#6b7d94] text-xs py-8">Yükleniyor...</p>
         )}
@@ -360,6 +368,7 @@ function ChannelChatView({
   const [profileData, setProfileData] = useState<UserPublicProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
   const msgCountRef = useRef(0);
 
@@ -373,8 +382,15 @@ function ChannelChatView({
 
   const messages: ChatMessage[] = (data as any)?.data ?? [];
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  /**
+   * En son mesaja kaydır.
+   * `scrollIntoView` sayfayı da kaydırdığı için (klavye açıkken tüm
+   * sohbet ekranı zıplıyordu) doğrudan scroll konteynerini kaydırıyoruz.
+   */
+  const scrollToBottom = useCallback((smooth = true) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
   }, []);
 
   // Auto-scroll on new messages & update read count
@@ -438,7 +454,7 @@ function ChannelChatView({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Messages */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-3 pr-1">
+      <div ref={scrollRef} data-chat-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-3 pr-1">
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
@@ -757,6 +773,15 @@ export default function ChatPage() {
       vv.removeEventListener("scroll", update);
     };
   }, []);
+
+  /**
+   * Klavye açılıp kapandığında konteyner yüksekliği değişir; scroll
+   * konumu korunmaz. Her iki durumda da en son mesaja sabitliyoruz.
+   */
+  useEffect(() => {
+    const el = document.querySelector<HTMLDivElement>("[data-chat-scroll]");
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [keyboardOpen, vpHeight]);
 
   if (showSupport) {
     return (
