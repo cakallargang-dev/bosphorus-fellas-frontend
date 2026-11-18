@@ -315,8 +315,8 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input — sabit alt satır */}
-      <div className="flex shrink-0 gap-2">
+      {/* Input — her zaman en altta, klavyenin üstünde */}
+      <div className="flex shrink-0 gap-2 pb-1">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -520,8 +520,8 @@ function ChannelChatView({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input — sabit alt satır */}
-      <div className="flex shrink-0 gap-2">
+      {/* Input — her zaman en altta, klavyenin üstünde */}
+      <div className="flex shrink-0 gap-2 pb-1">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -721,6 +721,7 @@ export default function ChatPage() {
    * ortada belirmiyor.
    */
   const [vpHeight, setVpHeight] = useState<number | null>(null);
+  const [vpTop, setVpTop] = useState<number | null>(null);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   /**
@@ -743,6 +744,7 @@ export default function ChatPage() {
 
     const update = () => {
       setVpHeight(vv.height);
+      setVpTop(vv.offsetTop);
       // 120px'ten fazla küçülme = klavye açıldı
       setKeyboardOpen(BASE - vv.height > 120);
     };
@@ -768,22 +770,41 @@ export default function ChatPage() {
     );
   }
 
+  /**
+   * Klavye açıkken viewport'un üst kenarı (visualViewport.offsetTop).
+   * Giriş kutusunu bu ofsete göre konumluyoruz.
+   */
+  const vvTop = vpTop ?? 0;
+
   return (
     <AuthGuard>
-      <Layout hideFooter>
       {/*
-        Alt navigasyon KALIR (kaldırılmadı).
-        Yükseklik = görsel viewport - alt nav payı (72px) - wrapper pb-16 (4rem).
-        Klavye açılınca visualViewport küçülür, sohbet alanı ona uyar.
+        Sohbet, klavye durumuna göre iki modda çalışır:
+
+        1) Klavye KAPALI → normal akış. Alt nav görünür (72px pay).
+        2) Klavye AÇIK   → container `position: fixed` ile görsel viewport'a
+           kilitlenir. Sayfa hiç kaymaz; giriş kutusu klavyenin tam üstünde.
+           Alt nav gizlenir (klavyenin üstünde ortada belirmesin).
+
+        iOS'ta `100dvh` klavyeden etkilenmediği için yalnızca
+        visualViewport.height/offsetTop kullanılabilir.
       */}
       <div
         className="flex flex-col overflow-hidden bg-[#030711]"
-        style={{
-          height: keyboardOpen
-            ? // Klavye açık: nav gizli, alan tamamen klavyenin üstü
-              `${Math.max(200, (vpHeight ?? window.innerHeight) - 8)}px`
-            : "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))",
-        }}
+        style={
+          keyboardOpen
+            ? {
+                position: "fixed",
+                left: 0,
+                right: 0,
+                top: `${vvTop}px`,
+                height: `${vpHeight ?? window.innerHeight}px`,
+                zIndex: 70,
+              }
+            : {
+                height: "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))",
+              }
+        }
       >
         {/* Başlık */}
         <div className="flex shrink-0 items-center gap-3 border-b border-[#162544] px-4 py-2.5">
@@ -804,11 +825,10 @@ export default function ChatPage() {
         </div>
 
         {/* Mesajlar */}
-        <div className="min-h-0 flex-1 overflow-hidden p-4">
+        <div className="min-h-0 flex-1 overflow-hidden px-4 pt-3">
           <ChannelChatView channel={channel} onBack={() => {}} />
         </div>
       </div>
-      </Layout>
-    </AuthGuard>
+</AuthGuard>
   );
 }
