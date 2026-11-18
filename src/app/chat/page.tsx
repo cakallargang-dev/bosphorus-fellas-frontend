@@ -716,62 +716,51 @@ function ChannelList({ onSelectChannel }: { onSelectChannel: (c: (typeof CHANNEL
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function ChatPage() {
-  const [selectedChannel, setSelectedChannel] = useState<
-    (typeof CHANNELS)[number] | null
-  >(null);
   const [showSupport, setShowSupport] = useState(false);
 
   /**
-   * Kanal açıldığında okundu işaretle.
-   * BottomNav'daki kırmızı rozet bu bilgiyle temizlenir.
+   * Tek kanal: sohbet açılır açılmaz "genel" kanalına girilir.
+   * Kanal seçim listesi kaldırıldı (kullanıcı isteği, 2026-11) —
+   * İlan/Touge/Pist/Rolling mesajları DB'de duruyor, sadece
+   * arayüzde listelenmiyor.
    */
+  const channel = CHANNELS[0];
+
   useEffect(() => {
-    if (selectedChannel) markChannelRead(selectedChannel.id);
-  }, [selectedChannel]);
+    markChannelRead(channel.id);
+  }, [channel.id]);
 
   return (
     <AuthGuard>
-      <Layout>
-        <div className="flex flex-col h-[calc(100vh-4rem)]">
-          {/* Compact header with support toggle */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-mancave-border">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-[#3b82f6]" />
+      <Layout hideFooter>
+        <div className="flex h-[calc(100dvh-4.5rem)] flex-col">
+          {/* Başlık */}
+          <div className="flex items-center gap-3 border-b border-[#162544] px-4 py-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10">
+              <MessageCircle className="h-4 w-4 text-[#3b82f6]" />
             </div>
             <div className="flex-1">
-              <h2 className="text-base font-bold text-white">Sohbet</h2>
+              <h2 className="text-[15px] font-bold text-white">Sohbet</h2>
+              <p className="text-[10.5px] text-[#6b7d94]">Tüm üyeler</p>
             </div>
-            {!selectedChannel && (
-              <button
-                onClick={() => setShowSupport((v) => !v)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
-                  showSupport
-                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-[#030711] font-bold"
-                    : "bg-white/5 text-[#8f9fb4] hover:bg-white/10"
-                }`}
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                Destek
-              </button>
-            )}
+            <button
+              onClick={() => setShowSupport(true)}
+              className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs text-[#8f9fb4] transition-colors hover:bg-white/10"
+            >
+              <ShieldAlert className="h-3.5 w-3.5" />
+              Destek
+            </button>
           </div>
 
-          {/* Main Content */}
+          {/* Sohbet */}
           <div className="flex-1 overflow-hidden">
-            {selectedChannel ? (
-              <div className="h-full flex flex-col p-4">
-                <ChannelChatView
-                  channel={selectedChannel}
-                  onBack={() => setSelectedChannel(null)}
-                />
-              </div>
-            ) : showSupport ? (
+            {showSupport ? (
               <div className="h-full p-4">
                 <SupportChatView onBack={() => setShowSupport(false)} />
               </div>
             ) : (
-              <div className="h-full overflow-y-auto p-4">
-                <ChannelList onSelectChannel={setSelectedChannel} />
+              <div className="flex h-full flex-col p-4">
+                <ChannelChatView channel={channel} onBack={() => {}} />
               </div>
             )}
           </div>
