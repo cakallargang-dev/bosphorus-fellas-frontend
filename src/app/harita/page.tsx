@@ -40,18 +40,13 @@ function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number): num
 }
 
 /**
- * Mesafeyi okunur biçime çevirir.
- * <1 km → metre, sonrası → km. Araç hızı varsa tahmini varış süresi de eklenir.
+ * Mesafeyi okunur biçime çevirir: <1 km → metre, sonrası → km.
+ *
+ * Süre/dakika GÖSTERİLMEZ: trafik durumu bilinmediği için tahmini varış
+ * süresi yanıltıcı oluyordu. Sadece kuş uçuşu mesafe verilir.
  */
-function fmtDistance(km: number, speedKmh: number | null): string {
-  const base =
-    km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
-
-  // Tahmini süre: kendi konumdan sabit 40 km/h varsayımı (şehir içi ortalama)
-  const eta = Math.round((km / 40) * 60);
-  if (eta < 1) return `${base} · yakınında`;
-  if (eta < 60) return `${base} · ~${eta} dk`;
-  return `${base} · ~${Math.floor(eta / 60)} sa ${eta % 60} dk`;
+function fmtDistance(km: number): string {
+  return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
 }
 
 function fmtAgo(iso: string): string {
@@ -194,14 +189,8 @@ function MapContent() {
       points.unshift([myPos.lat, myPos.lng]);
     }
 
-    if (points.length > 1) {
-      lineRef.current = L.polyline(points, {
-        color: "#3b82f6",
-        weight: 2,
-        opacity: 0.5,
-        dashArray: "6 8",
-      }).addTo(map);
-    }
+    // NOT: Üyeleri birleştiren mavi kesikli çizgi kaldırıldı.
+    // Sürücüler arasında gerçek bir güzergâh olmadığı için yanıltıcıydı.
 
     if (points.length > 0) {
       
@@ -349,7 +338,7 @@ function MapContent() {
                   {convoySummary.nearest.m.name.split(" ")[0]}
                 </span>
                 <span className="font-numeric text-[11px] font-bold text-[#22c55e]">
-                  {fmtDistance(convoySummary.nearest.km, null)}
+                  {fmtDistance(convoySummary.nearest.km)}
                 </span>
               </div>
               <div className="flex flex-1 flex-col gap-0.5 rounded-[16px] border border-[#162544] bg-[#0f1d32]/70 px-3 py-2">
@@ -360,7 +349,7 @@ function MapContent() {
                   {convoySummary.farthest.m.name.split(" ")[0]}
                 </span>
                 <span className="font-numeric text-[11px] font-bold text-[#9fb0c4]">
-                  {fmtDistance(convoySummary.farthest.km, null)}
+                  {fmtDistance(convoySummary.farthest.km)}
                 </span>
               </div>
               <div className="flex w-[62px] flex-col items-center justify-center gap-0.5 rounded-[16px] border border-[#162544] bg-[#0f1d32]/70 py-2">
@@ -516,7 +505,7 @@ function MapContent() {
                       {myPos && m.userId !== myUserId && (
                         <span className="flex items-center gap-1 text-[10.5px] font-semibold text-[#60a5fa]">
                           <MapPin className="h-2.5 w-2.5" />
-                          {fmtDistance(distanceKm(myPos.lat, myPos.lng, m.lat, m.lng), m.speed ?? null)}
+                          {fmtDistance(distanceKm(myPos.lat, myPos.lng, m.lat, m.lng))}
                         </span>
                       )}
                       {myPos && m.userId === myUserId && (
