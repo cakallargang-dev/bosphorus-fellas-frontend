@@ -27,7 +27,18 @@ export function BottomNav() {
   const links = isAuthenticated ? memberLinks : guestLinks;
 
   return (
-    <nav className="fixed bottom-3 left-0 right-0 z-50 mx-auto w-[calc(100%-1.5rem)] max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628]/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)] safe-area-inset-bottom">
+    <nav
+      className="fixed left-0 right-0 z-[60] mx-auto w-[calc(100%-1.5rem)] max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)]"
+      style={{
+        // iOS Safari'de backdrop-filter + scroll kombinasyonu nav'ı kaydırıyordu.
+        // Sabit konumu GPU katmanına alıp backdrop-filter'ı kaldırdık (bg opak yapıldı).
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
+        transform: "translate3d(0,0,0)",
+        willChange: "transform",
+        isolation: "isolate",
+        WebkitBackfaceVisibility: "hidden",
+      }}
+    >
       <div className="flex items-center justify-around h-[60px] px-1">
         {links.map((link) => {
           const isActive = pathname === link.href;
