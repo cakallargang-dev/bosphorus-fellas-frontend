@@ -39,6 +39,17 @@ const CAL_EVENT = "#3b82f6";
 const CAL_ROLL = "#f97316";
 const CAL_BIRTHDAY = "#ef4444";
 
+/**
+ * Doğum günü GÜNÜNDE kaç yaşına girdiğini hesaplar.
+ *
+ * Doğru formül: gösterilen yıl - doğum yılı.
+ * `bugünün yılı - doğum yılı` YANLIŞ — yılın ilerisindeki bir tarihe
+ * bakınca bir fazla çıkıyordu (örn. 1995 doğumlu biri 2026'da 31 değil 30).
+ */
+function ageOnBirthday(birthYear: number, displayYear: number): number {
+  return displayYear - birthYear;
+}
+
 const dayKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
@@ -483,6 +494,7 @@ function DashboardContent() {
           onClose={() => setCalDay(null)}
           onOpenUser={(u) => setSheet({ id: u.id, name: `${u.firstName} ${u.lastName}`, car: [u.carBrand, u.carModel].filter(Boolean).join(" "), spec: "", photo: u.avatar, bio: "", rolls: 0, wins: 0, since: "" })}
           birthdays={calBirthdayList}
+          calYear={calMonth.y}
           onDeleteMeeting={(id) => deleteMeeting.mutate(id)}
           onRespond={(id, status) => respondMeeting.mutate({ id, status })}
           onRespondEvent={(id, status) => respondEvent.mutate({ id, status })}
@@ -961,6 +973,7 @@ function DayModal({
   events,
   meetings,
   birthdays = [],
+  calYear,
   onClose,
   onOpenUser,
   onDeleteMeeting,
@@ -987,6 +1000,7 @@ function DayModal({
   }[];
   meetings: Meeting[];
   birthdays?: BirthdayItem[];
+  calYear: number;
   onClose: () => void;
   onOpenUser: (u: { id: string; firstName: string; lastName: string; avatar: string | null; carBrand: string | null; carModel: string | null }) => void;
   onDeleteMeeting: (id: string) => void;
@@ -1036,7 +1050,7 @@ function DayModal({
                   <p className="truncate text-[13.5px] font-semibold text-white">{b.name}</p>
                   <p className="text-[11px] text-[#ef4444]">
                     Doğum günü
-                    {b.year ? ` · ${new Date().getFullYear() - b.year} yaşında` : ""}
+                    {b.year ? ` · ${ageOnBirthday(b.year, calYear)} yaşında` : ""}
                   </p>
                 </div>
               </div>
