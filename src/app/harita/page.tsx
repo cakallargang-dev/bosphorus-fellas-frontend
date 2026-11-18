@@ -16,12 +16,43 @@ import { imgUrl, locationApi, type LiveMember } from "@/lib/api";
 import { isSharingEnabled, isTracking, startTracking, stopTracking } from "@/lib/location";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { Navigation, Radio, Power, Clock, Locate, RefreshCw } from "lucide-react";
+import { Navigation, Radio, Power, Clock, Locate, RefreshCw, MapPin } from "lucide-react";
 
 const ISTANBUL = { lat: 41.0082, lng: 28.9784 };
 
 /** Haritanın sabit zoom'u = "konumuma dön" tuşunun kullandığı seviye */
 const FOCUS_ZOOM = 16;
+
+/**
+ * İki koordinat arasındaki mesafe (km) — Haversine.
+ * Konvoyda "kim ne kadar uzakta" göstergesi için.
+ */
+function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const s1 = Math.sin(dLat / 2);
+  const s2 = Math.sin(dLng / 2);
+  const h =
+    s1 * s1 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * s2 * s2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/**
+ * Mesafeyi okunur biçime çevirir.
+ * <1 km → metre, sonrası → km. Araç hızı varsa tahmini varış süresi de eklenir.
+ */
+function fmtDistance(km: number, speedKmh: number | null): string {
+  const base =
+    km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
+
+  // Tahmini süre: kendi konumdan sabit 40 km/h varsayımı (şehir içi ortalama)
+  const eta = Math.round((km / 40) * 60);
+  if (eta < 1) return `${base} · yakınında`;
+  if (eta < 60) return `${base} · ~${eta} dk`;
+  return `${base} · ~${Math.floor(eta / 60)} sa ${eta % 60} dk`;
+}
 
 function fmtAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -253,6 +284,24 @@ function MapContent() {
    * Tek noktayı göstermek için `search/?api=1&query=` kullan (uygulama varsa açar,
    * yoksa Google Maps web'e düşer ve noktayı doğrudan gösterir).
    */
+  /**
+   * Konvoy özeti: bana en yakın ve en uzak üye.
+   * Konum yoksa veya listede başka kimse yoksa gösterilmez.
+   */
+  const convoySummary = useMemo(() => {
+    if (!myPos) return null;
+    const others = members
+      .filter((m) => m.userId !== myUserId)
+      .map((m) => ({ m, km: distanceKm(myPos.lat, myPos.lng, m.lat, m.lng) }))
+      .sort((a, b) => a.km - b.km);
+    if (others.length === 0) return null;
+    return {
+      nearest: others[0],
+      farthest: others[others.length - 1],
+      count: others.length,
+    };
+  }, [members, myPos, myUserId]);
+
   const directionsUrl = (m: LiveMember) => {
     // Koordinat yoksa/bozuksa Google Maps'e boş sorgu gönderme
     if (!Number.isFinite(m.lat) || !Number.isFinite(m.lng)) return "#";
@@ -288,6 +337,42 @@ function MapContent() {
               </span>
             </div>
           </div>
+
+          {/* Konvoy özeti — bana en yakın / en uzak */}
+          {convoySummary && (
+            <div className="flex items-stretch gap-2">
+              <div className="flex flex-1 flex-col gap-0.5 rounded-[16px] border border-[#22c55e]/25 bg-[#22c55e]/8 px-3 py-2">
+                <span className="text-[8.5px] font-bold uppercase tracking-[0.16em] text-[#22c55e]/70">
+                  En yakın
+                </span>
+                <span className="truncate text-[12px] font-semibold text-white">
+                  {convoySummary.nearest.m.name.split(" ")[0]}
+                </span>
+                <span className="font-numeric text-[11px] font-bold text-[#22c55e]">
+                  {fmtDistance(convoySummary.nearest.km, null)}
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col gap-0.5 rounded-[16px] border border-[#162544] bg-[#0f1d32]/70 px-3 py-2">
+                <span className="text-[8.5px] font-bold uppercase tracking-[0.16em] text-[#7a8da4]">
+                  En uzak
+                </span>
+                <span className="truncate text-[12px] font-semibold text-white">
+                  {convoySummary.farthest.m.name.split(" ")[0]}
+                </span>
+                <span className="font-numeric text-[11px] font-bold text-[#9fb0c4]">
+                  {fmtDistance(convoySummary.farthest.km, null)}
+                </span>
+              </div>
+              <div className="flex w-[62px] flex-col items-center justify-center gap-0.5 rounded-[16px] border border-[#162544] bg-[#0f1d32]/70 py-2">
+                <span className="font-numeric text-[17px] font-bold leading-none text-[#60a5fa]">
+                  {convoySummary.count}
+                </span>
+                <span className="text-[8.5px] font-bold uppercase tracking-[0.1em] text-[#7a8da4]">
+                  kişi
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Harita */}
           <div className="relative h-[420px] w-full overflow-hidden rounded-[26px] border border-[#162544] bg-[#030711] shadow-[0_0_40px_rgba(59,130,246,.08)]">
@@ -428,6 +513,15 @@ function MapContent() {
                         {fmtAgo(m.updatedAt)}
                         {m.plateNumber ? ` · ${m.plateNumber}` : ""}
                       </span>
+                      {myPos && m.userId !== myUserId && (
+                        <span className="flex items-center gap-1 text-[10.5px] font-semibold text-[#60a5fa]">
+                          <MapPin className="h-2.5 w-2.5" />
+                          {fmtDistance(distanceKm(myPos.lat, myPos.lng, m.lat, m.lng), m.speed ?? null)}
+                        </span>
+                      )}
+                      {myPos && m.userId === myUserId && (
+                        <span className="text-[10.5px] font-semibold text-[#22c55e]">Sen</span>
+                      )}
                     </div>
                   </button>
                   <a
