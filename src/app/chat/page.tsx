@@ -710,21 +710,49 @@ export default function ChatPage() {
   }, [channel.id]);
 
   /**
-   * Klavye açılınca görsel viewport'u (visualViewport) takip et.
-   * iOS'ta `100dvh` klavyeden etkilenmez; bu yüzden giriş kutusu
-   * klavyenin altında kalıyor ve sayfa yukarı kayıyordu.
+   * Klavye takibi.
+   *
+   * iOS'ta `100dvh` klavye açılınca DEĞİŞMEZ. Klavye açıkken gerçek
+   * görünür alan `visualViewport.height`'tır. Bunu kullanarak sohbet
+   * alanını klavyenin tam üstüne oturtuyoruz — sayfa kaymıyor.
+   *
+   * `keyboardOpen` true iken alt navigasyonu gizliyoruz (App Store
+   * sohbet uygulamalarındaki davranış), böylece nav klavyenin üstünde
+   * ortada belirmiyor.
    */
-  const [vh, setVh] = useState<number | null>(null);
+  const [vpHeight, setVpHeight] = useState<number | null>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  /**
+   * Klavye açıkken alt navigasyonu gizle.
+   * BottomNav bu sınıfı okuyup kendini gizler — nav klavyenin üstünde
+   * ortada belirmesin.
+   */
+  useEffect(() => {
+    const el = document.documentElement;
+    if (keyboardOpen) el.classList.add("kb-open");
+    else el.classList.remove("kb-open");
+    return () => el.classList.remove("kb-open");
+  }, [keyboardOpen]);
+
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const onResize = () => setVh(vv.height);
-    onResize();
-    vv.addEventListener("resize", onResize);
-    vv.addEventListener("scroll", onResize);
+
+    const BASE = window.innerHeight;
+
+    const update = () => {
+      setVpHeight(vv.height);
+      // 120px'ten fazla küçülme = klavye açıldı
+      setKeyboardOpen(BASE - vv.height > 120);
+    };
+
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
     return () => {
-      vv.removeEventListener("resize", onResize);
-      vv.removeEventListener("scroll", onResize);
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
     };
   }, []);
 
@@ -751,8 +779,9 @@ export default function ChatPage() {
       <div
         className="flex flex-col overflow-hidden bg-[#030711]"
         style={{
-          height: vh
-            ? `${Math.max(240, vh - 72)}px`
+          height: keyboardOpen
+            ? // Klavye açık: nav gizli, alan tamamen klavyenin üstü
+              `${Math.max(200, (vpHeight ?? window.innerHeight) - 8)}px`
             : "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))",
         }}
       >

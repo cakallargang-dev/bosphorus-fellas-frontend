@@ -662,3 +662,15 @@
 .link-underline:hover::after {
   width: 100%;
 }
+
+/* ─── Sohbet: klavye açıkken sayfa kilitlenir ─────────────────────────────
+   iOS'ta klavye açılınca sayfa kendiliğinden yukarı kayıyor (focus scroll).
+   Sohbet sayfası <html>'e .kb-open ekler; bu kural kaydırmayı dondurur ki
+   mesaj listesi yerinde kalsın, sadece giriş kutusu klavyenin üstünde durur. */
+html.kb-open,
+html.kb-open body {
+  overflow: hidden !important;
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}

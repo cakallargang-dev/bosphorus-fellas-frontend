@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Home, UserPlus, LogIn, LayoutDashboard, Shield, Users, User, Film, Map, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { chatApi } from "@/lib/api";
 import { countUnreadChannels } from "@/lib/chatRead";
@@ -46,9 +47,24 @@ export function BottomNav() {
 
   const unread = activity?.data ? countUnreadChannels(activity.data) : 0;
 
+  /**
+   * Klavye açıkken nav gizlenir.
+   * Sohbet sayfası <html>'e `kb-open` sınıfı ekliyor; CSS ile opacity 0
+   * ve pointer-events none yapıyoruz (display:none yerine, geçiş yumuşak).
+   */
+  const [kbOpen, setKbOpen] = useState(false);
+  useEffect(() => {
+    const el = document.documentElement;
+    const sync = () => setKbOpen(el.classList.contains("kb-open"));
+    sync();
+    const obs = new MutationObserver(sync);
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <nav
-      className="fixed left-0 right-0 z-[60] mx-auto w-[calc(100%-1.5rem)] max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)]"
+      className={`fixed left-0 right-0 z-[60] mx-auto transition-opacity duration-150 ${kbOpen ? "pointer-events-none opacity-0" : "opacity-100"} w-[calc(100%-1.5rem)] max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)]`}
       style={{
         // iOS Safari'de backdrop-filter + scroll kombinasyonu nav'ı kaydırıyordu.
         // Sabit konumu GPU katmanına alıp backdrop-filter'ı kaldırdık (bg opak yapıldı).
