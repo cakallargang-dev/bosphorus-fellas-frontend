@@ -75,6 +75,18 @@ function monthGrid(year: number, month: number): (Date | null)[] {
   return cells;
 }
 
+/**
+ * Uzun yer adlarını kartta okunur hale getirir.
+ * Örn. "Nefes Ormanı Mesire Alanı, Beykoz, İstanbul" → "Nefes Ormanı"
+ * Virgülle ayrılmış ilk parçayı alır, sonra ilk iki kelimeye indirir.
+ */
+function shortPlace(place?: string | null): string {
+  if (!place) return "Konum belirtilmedi";
+  const first = place.split(",")[0].trim();
+  const words = first.split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).join(" ") || first;
+}
+
 function countdown(date: string, time?: string) {
   const target = new Date(date);
   if (time && /^\d{1,2}:\d{2}/.test(time)) {
@@ -608,17 +620,6 @@ function MeetingCard({
           <span className="absolute top-2.5 right-2.5 rounded-lg border border-[#162544] bg-[#0f1d32] px-2.5 py-0.5 text-[11px] font-semibold text-gray-200">
             {countdown(m.dateIso || m.date, m.time)}
           </span>
-          {m.mapUrl && (
-            <a
-              href={m.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tap absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
-            >
-              <MapPin className="w-4 h-4 text-[#f97316] shrink-0" />
-              <span className="truncate">{m.place}</span>
-            </a>
-          )}
         </div>
       )}
 
@@ -632,17 +633,6 @@ function MeetingCard({
             referrerPolicy="no-referrer-when-downgrade"
           />
           <span className="absolute inset-0 bg-gradient-to-t from-[#0f1d32] via-transparent to-transparent pointer-events-none" />
-          {m.mapUrl && (
-            <a
-              href={m.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tap absolute bottom-2.5 left-3 right-3 flex items-center gap-1.5 text-[13px] font-medium text-white drop-shadow hover:text-[#fb923c]"
-            >
-              <MapPin className="w-4 h-4 text-[#f97316] shrink-0" />
-              <span className="truncate">{m.place}</span>
-            </a>
-          )}
         </div>
       )}
 
@@ -669,10 +659,10 @@ function MeetingCard({
                 rel="noopener noreferrer"
                 className="tap text-[#f97316] underline underline-offset-2 truncate"
               >
-                {m.place}
+                {shortPlace(m.place)}
               </a>
             ) : (
-              m.place
+              shortPlace(m.place)
             )}
           </span>
         </div>
