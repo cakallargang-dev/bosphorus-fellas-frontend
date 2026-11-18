@@ -445,7 +445,7 @@ function MapContent() {
           </div>
 
           <p className="px-1 text-[10.5px] leading-relaxed text-[#6b7d94]">
-            Konum yalnızca paylaşım açıkken ve son 30 dakikada görünür. PWA&apos;da uygulama arka
+            Konum yalnızca paylaşımı açık olan üyelerde görünür. PWA&apos;da uygulama arka
             plana düşünce paylaşım durur.{" "}
             <Link href="/ekip" className="text-[#60a5fa]">
               Ekip
