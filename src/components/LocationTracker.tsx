@@ -35,7 +35,8 @@ export function LocationTracker() {
         // onPosition boş: harita dışındaki sayfalarda da sunucuya ping gider
         await startTracking();
       } catch {
-        // İzin yok / konum alınamadı → sessizce bekle, kullanıcı profilden açar
+        // İzin yok / konum alınamadı → tercihi BOZMA, sessizce bekle.
+        // Kullanıcı izni verdikten sonra görünürlük olayında yeniden denenir.
       }
     };
 

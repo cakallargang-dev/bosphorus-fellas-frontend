@@ -856,8 +856,17 @@ function ProfileContent() {
   const [locShare, setLocShare] = useState(false);
   const [locBusy, setLocBusy] = useState(false);
 
+  /**
+   * Anahtarın durumu = kullanıcı tercihi (localStorage).
+   * `isTracking()` KULLANILMAZ: uygulama açılışında izin/konum gecikmesi
+   * yüzünden takip henüz başlamamış olur ve anahtar yanlışlıkla "kapalı" görünürdü.
+   */
   useEffect(() => {
-    setLocShare(isSharingEnabled() && isTracking());
+    setLocShare(isSharingEnabled());
+    // Takip arka planda başlamadıysa başlat (tercih açık ama watcher yok)
+    if (isSharingEnabled() && !isTracking()) {
+      void startTracking().catch(() => {});
+    }
   }, []);
 
   const toggleLocation = useCallback(async () => {

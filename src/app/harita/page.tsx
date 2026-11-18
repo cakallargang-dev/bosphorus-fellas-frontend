@@ -67,8 +67,9 @@ function MapContent() {
   const hasCentered = useRef(false);
   const [ready, setReady] = useState(false);
 
+  // Tercih açıksa "açık" göster — takip durumu gecikmeli başlayabilir
   useEffect(() => {
-    setSharing(isSharingEnabled() && isTracking());
+    setSharing(isSharingEnabled());
   }, []);
 
   const { data, refetch, isFetching } = useQuery({
