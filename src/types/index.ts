@@ -12,7 +12,8 @@ export interface User {
   city?: string;
   role: "user" | "admin";
   avatar?: string;
-  status: "active" | "inactive" | "pending";
+  // Gerçek durum modeli: approved = aktif, rejected = pasif, pending = onay bekliyor
+  status: "approved" | "rejected" | "pending";
   carBrand?: string;
   carModel?: string;
   carSpec?: string;

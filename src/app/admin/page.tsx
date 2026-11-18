@@ -540,8 +540,8 @@ function MembersTab() {
           </SelectTrigger>
           <SelectContent className="bg-mancave-card border-gray-800">
             <SelectItem value="all" className="text-gray-300">Tümü</SelectItem>
-            <SelectItem value="active" className="text-gray-300">Aktif</SelectItem>
-            <SelectItem value="inactive" className="text-gray-300">Pasif</SelectItem>
+            <SelectItem value="approved" className="text-gray-300">Aktif</SelectItem>
+            <SelectItem value="rejected" className="text-gray-300">Pasif</SelectItem>
           </SelectContent>
         </Select>
         <span className="text-sm text-mancave-muted">
@@ -619,19 +619,19 @@ function MembersTab() {
                   <TableCell>
                     <span
                       className={`inline-flex items-center gap-1 text-xs ${
-                        member.status === "active"
+                        member.status === "approved"
                           ? "text-green-500"
                           : "text-red-500"
                       }`}
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${
-                          member.status === "active"
+                          member.status === "approved"
                             ? "bg-green-500"
                             : "bg-red-500"
                         }`}
                       />
-                      {member.status === "active" ? "Aktif" : "Pasif"}
+                      {member.status === "approved" ? "Aktif" : "Pasif"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -720,17 +720,17 @@ function MembersTab() {
                           toggleMutation.mutate({
                             id: member.id,
                             status:
-                              member.status === "active" ? "inactive" : "active",
+                              member.status === "approved" ? "inactive" : "active",
                           })
                         }
                         disabled={toggleMutation.isPending}
                         className={
-                          member.status === "active"
+                          member.status === "approved"
                             ? "border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
                             : "border-green-500/30 text-green-400 hover:bg-green-500/10 text-xs"
                         }
                       >
-                        {member.status === "active" ? "Pasif Yap" : "Aktif Yap"}
+                        {member.status === "approved" ? "Pasif Yap" : "Aktif Yap"}
                       </Button>
                     </div>
                   </TableCell>
