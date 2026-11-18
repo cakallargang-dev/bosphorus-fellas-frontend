@@ -41,6 +41,7 @@ import {
    ============================================================ */
 
 const SURFACE_PANEL = "linear-gradient(180deg,rgba(15,29,50,.85),rgba(10,22,40,.85))";
+import { compressImage } from "@/lib/imageCompress";
 
 const FIELD =
   "h-[52px] w-full rounded-2xl border border-[#162544] bg-[#0f1d32] px-4 text-[15px] text-white placeholder:text-[#7a8da4] outline-none transition-colors focus:border-[#3b82f6]/60";
@@ -159,6 +160,7 @@ function CarSheet({
   const [saving, setSaving] = useState(false);
   // Yeni secilen fotograflar — kaydet ile birlikte yuklenir
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
+  const [compressing, setCompressing] = useState(false);
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
   const coverPhoto = initial?.coverPhoto ?? photos[0] ?? null;
   const fileInput = useRef<HTMLInputElement>(null);
@@ -224,7 +226,7 @@ function CarSheet({
             accept="image/png,image/jpeg,image/webp"
             multiple
             className="hidden"
-            onChange={(e) => {
+            onChange={async (e) => {
               const files = Array.from(e.target.files ?? []);
               e.target.value = "";
               if (files.length === 0) return;
@@ -235,13 +237,20 @@ function CarSheet({
                 setErr("En fazla 5 fotoğraf ekleyebilirsiniz");
                 return;
               }
-              const tooBig = files.find((f) => f.size > 5 * 1024 * 1024);
-              if (tooBig) {
-                setErr(`${tooBig.name} 5MB'dan büyük`);
-                return;
-              }
+              // Boyut limiti yok: tarayıcıda küçültülüp JPEG'e çevriliyor.
               setErr(null);
-              setNewPhotos((prev) => [...prev, ...files.slice(0, room)]);
+              setCompressing(true);
+              try {
+                const picked = files.slice(0, room);
+                const out: File[] = [];
+                for (const f of picked) {
+                  const res = await compressImage(f);
+                  out.push(res.file);
+                }
+                setNewPhotos((prev) => [...prev, ...out]);
+              } finally {
+                setCompressing(false);
+              }
             }}
           />
 
@@ -329,7 +338,7 @@ function CarSheet({
         </div>
 
         <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="car-year" className={FIELD_LABEL}>
               Yıl
             </label>
@@ -343,7 +352,7 @@ function CarSheet({
               className={FIELD}
             />
           </div>
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="car-hp" className={FIELD_LABEL}>
               Beygir Gücü
             </label>
@@ -573,7 +582,7 @@ function EditProfileSheet({
         </div>
 
         <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="firstName" className={FIELD_LABEL}>
               İsim
             </label>
@@ -582,7 +591,7 @@ function EditProfileSheet({
               <p className="text-[12px] text-red-400">{errors.firstName.message}</p>
             )}
           </div>
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="lastName" className={FIELD_LABEL}>
               Soyisim
             </label>
@@ -606,20 +615,22 @@ function EditProfileSheet({
         </div>
 
         <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="district" className={FIELD_LABEL}>
               İlçe
             </label>
             <input id="district" placeholder="İlçe" className={FIELD} {...register("district")} />
           </div>
-          <div className="flex flex-1 flex-col gap-[7px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
             <label htmlFor="birthDate" className={FIELD_LABEL}>
               Doğum tarihi
             </label>
             <input
               id="birthDate"
               type="date"
-              className={`${FIELD} [color-scheme:dark]`}
+              /* `min-w-0` olmadan flex çocuğu küçülmüyor, tarih iOS'ta taşıyordu. */
+              /* `appearance-none` ile Safari'nin geniş native tarih kontrolü sıfırlanır. */
+              className={`${FIELD} min-w-0 appearance-none px-3 text-[14px] [color-scheme:dark] [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:truncate`}
               {...register("birthDate")}
             />
           </div>
