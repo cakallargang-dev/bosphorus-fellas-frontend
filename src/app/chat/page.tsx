@@ -436,22 +436,7 @@ function ChannelChatView({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onBack}
-          className="h-8 w-8 text-[#8f9fb4] hover:text-white hover:bg-white/10"
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-          <Icon className={`w-4 h-4 ${channel.color}`} />
-        </div>
-      </div>
-
+    <div className="flex h-full min-h-0 flex-col">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-2 mb-3 pr-1">
         {isLoading && (
@@ -712,10 +697,11 @@ export default function ChatPage() {
   const [showSupport, setShowSupport] = useState(false);
 
   /**
-   * Tek kanal: sohbet açılır açılmaz "genel" kanalına girilir.
-   * Kanal seçim listesi kaldırıldı (kullanıcı isteği, 2026-11) —
-   * İlan/Touge/Pist/Rolling mesajları DB'de duruyor, sadece
-   * arayüzde listelenmiyor.
+   * Tek kanal, tam ekran sohbet.
+   *
+   * - Sohbet modunda sayfa `fixed inset-0` ile tüm ekranı kaplar; alt
+   *   navigasyon görünmez. Böylece klavye açılınca içerik kaymaz.
+   * - Destek moduna geçince normal Layout + alt nav geri gelir.
    */
   const channel = CHANNELS[0];
 
@@ -723,46 +709,67 @@ export default function ChatPage() {
     markChannelRead(channel.id);
   }, [channel.id]);
 
+  /**
+   * Klavye açılınca görsel viewport'u (visualViewport) takip et.
+   * iOS'ta `100dvh` klavyeden etkilenmez; bu yüzden giriş kutusu
+   * klavyenin altında kalıyor ve sayfa yukarı kayıyordu.
+   */
+  const [vh, setVh] = useState<number | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => setVh(vv.height);
+    onResize();
+    vv.addEventListener("resize", onResize);
+    vv.addEventListener("scroll", onResize);
+    return () => {
+      vv.removeEventListener("resize", onResize);
+      vv.removeEventListener("scroll", onResize);
+    };
+  }, []);
+
+  if (showSupport) {
+    return (
+      <AuthGuard>
+        <Layout hideFooter>
+          <div className="h-[calc(100dvh-4.5rem)] p-4">
+            <SupportChatView onBack={() => setShowSupport(false)} />
+          </div>
+        </Layout>
+      </AuthGuard>
+    );
+  }
+
   return (
     <AuthGuard>
-      <Layout hideFooter>
-        {/* Yükseklik: viewport - (wrapper pb-16 = 4rem) - nav yüksekliği (60px + 12px alt boşluk) - safe-area */}
-        <div
-          className="flex flex-col overflow-hidden"
-          style={{ height: "calc(100dvh - 4rem - 72px - env(safe-area-inset-bottom, 0px))" }}
-        >
-          {/* Başlık */}
-          <div className="flex items-center gap-3 border-b border-[#162544] px-4 py-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10">
-              <MessageCircle className="h-4 w-4 text-[#3b82f6]" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-[15px] font-bold text-white">Sohbet</h2>
-              <p className="text-[10.5px] text-[#6b7d94]">Tüm üyeler</p>
-            </div>
-            <button
-              onClick={() => setShowSupport(true)}
-              className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs text-[#8f9fb4] transition-colors hover:bg-white/10"
-            >
-              <ShieldAlert className="h-3.5 w-3.5" />
-              Destek
-            </button>
+      {/* Tam ekran: alt navigasyon yok, sayfa kaymaz */}
+      <div
+        className="fixed inset-0 z-[70] flex flex-col bg-[#030711]"
+        style={vh ? { height: `${vh}px` } : undefined}
+      >
+        {/* Başlık */}
+        <div className="flex shrink-0 items-center gap-3 border-b border-[#162544] px-4 py-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10">
+            <MessageCircle className="h-4 w-4 text-[#3b82f6]" />
           </div>
-
-          {/* Sohbet */}
-          <div className="min-h-0 flex-1 overflow-hidden">
-            {showSupport ? (
-              <div className="h-full p-4">
-                <SupportChatView onBack={() => setShowSupport(false)} />
-              </div>
-            ) : (
-              <div className="flex h-full min-h-0 flex-col p-4">
-                <ChannelChatView channel={channel} onBack={() => {}} />
-              </div>
-            )}
+          <div className="flex-1">
+            <h2 className="text-[15px] font-bold leading-tight text-white">Sohbet</h2>
+            <p className="text-[10.5px] leading-tight text-[#6b7d94]">Tüm üyeler</p>
           </div>
+          <button
+            onClick={() => setShowSupport(true)}
+            className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs text-[#8f9fb4] transition-colors hover:bg-white/10"
+          >
+            <ShieldAlert className="h-3.5 w-3.5" />
+            Destek
+          </button>
         </div>
-      </Layout>
+
+        {/* Mesajlar */}
+        <div className="min-h-0 flex-1 overflow-hidden p-4">
+          <ChannelChatView channel={channel} onBack={() => {}} />
+        </div>
+      </div>
     </AuthGuard>
   );
 }
