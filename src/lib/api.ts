@@ -773,6 +773,10 @@ export interface CarItem {
 export const carsApi = {
   list: () => request<ApiResponse<CarItem[]>>("/api/cars"),
 
+  /** Başka bir üyenin garajı — ekip kartından açılan vitrin */
+  byMember: (userId: string) =>
+    request<ApiResponse<CarItem[]>>(`/api/members/${userId}/cars`),
+
   create: (data: {
     brand: string;
     model: string;

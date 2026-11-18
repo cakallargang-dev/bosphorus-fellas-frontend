@@ -1,5 +1,6 @@
 "use client";
 
+import { markChannelRead } from "@/lib/chatRead";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -719,6 +720,14 @@ export default function ChatPage() {
     (typeof CHANNELS)[number] | null
   >(null);
   const [showSupport, setShowSupport] = useState(false);
+
+  /**
+   * Kanal açıldığında okundu işaretle.
+   * BottomNav'daki kırmızı rozet bu bilgiyle temizlenir.
+   */
+  useEffect(() => {
+    if (selectedChannel) markChannelRead(selectedChannel.id);
+  }, [selectedChannel]);
 
   return (
     <AuthGuard>

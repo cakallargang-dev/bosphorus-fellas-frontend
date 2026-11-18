@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { teamApi, type TeamMember, imgUrl } from "@/lib/api";
+import { teamApi, carsApi, type TeamMember, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
@@ -310,6 +310,73 @@ function StatCell({ label, value }: { label: string; value: string }) {
   );
 }
 
+/**
+ * Üyenin garajı — birden fazla aracı varsa yatay kaydırmalı galeri.
+ * Tek araç varsa gösterilmez (yukarıdaki ana araç kartı yeterli).
+ */
+function MemberGarage({ userId, fallbackPhoto }: { userId: string; fallbackPhoto: string | null }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["member-cars", userId],
+    queryFn: () => carsApi.byMember(userId),
+    staleTime: 60_000,
+  });
+
+  const cars = data?.data ?? [];
+
+  // Tek araç veya yükleniyor → ekstra bölüm gösterme
+  if (isLoading || cars.length <= 1) return null;
+
+  return (
+    <div className="mt-3.5">
+      <div className="flex items-center justify-between mb-1.5 px-0.5">
+        <span className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#6b7d94]">
+          Garaj
+        </span>
+        <span className="font-mono text-[10.5px] text-[#6b7d94]">{cars.length} araç</span>
+      </div>
+      <div className="-mx-4 px-4 overflow-x-auto no-scrollbar">
+        <div className="flex gap-2.5 pb-1">
+          {cars.map((c) => {
+            const cover = c.coverPhoto || c.photos?.[0] || fallbackPhoto;
+            return (
+              <div
+                key={c.id}
+                className="relative w-[148px] shrink-0 overflow-hidden rounded-[14px] border border-[#162544] bg-[#0a1628]"
+              >
+                <div className="h-[86px] w-full bg-[#0a1628]">
+                  {cover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={imgUrl(cover)} alt={c.model} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Gauge className="h-5 w-5 text-[#2a3a54]" />
+                    </div>
+                  )}
+                </div>
+                {c.isPrimary && (
+                  <span className="absolute left-1.5 top-1.5 rounded-full bg-[#3b82f6] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#030711]">
+                    Ana
+                  </span>
+                )}
+                <div className="px-2 py-1.5">
+                  <p className="truncate text-[11.5px] font-semibold text-white">
+                    {c.brand} {c.model}
+                  </p>
+                  <p className="truncate font-mono text-[9.5px] tracking-tight text-[#7a8da4]">
+                    {[c.year, c.hp ? `${c.hp} HP` : null, c.plateNumber]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => void }) {
   const b = findBrand(m.car);
   return (
@@ -398,6 +465,9 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
               )}
             </div>
           )}
+
+          {/* ===== GARAJ — tüm araçlar ===== */}
+          <MemberGarage userId={m.id} fallbackPhoto={m.carPhoto} />
 
           <div className="mt-4 bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">

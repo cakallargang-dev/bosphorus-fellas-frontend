@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Home, UserPlus, LogIn, LayoutDashboard, Shield, Users, User, Film, Map } from "lucide-react";
+import { Home, UserPlus, LogIn, LayoutDashboard, Shield, Users, User, Film, Map, MessageCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { chatApi } from "@/lib/api";
+import { countUnreadChannels } from "@/lib/chatRead";
 
 export function BottomNav() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -20,11 +23,28 @@ export function BottomNav() {
     ...(isAdmin ? [{ href: "/admin", label: "Panel", icon: Shield }] : []),
     { href: "/ekip", label: "Ekip", icon: Users },
     { href: "/harita", label: "Harita", icon: Map },
+    { href: "/chat", label: "Sohbet", icon: MessageCircle },
     { href: "/medya", label: "Medya", icon: Film },
     { href: "/profile", label: "Profil", icon: User },
   ];
 
   const links = isAuthenticated ? memberLinks : guestLinks;
+
+  /**
+   * Okunmamış sohbet rozeti.
+   * 60 sn'de bir tazelenir; sekme değişiminde de yenilenir (staleTime 0).
+   * Hata olursa rozet sessizce gizlenir — nav bozulmasın.
+   */
+  const { data: activity } = useQuery({
+    queryKey: ["chat-activity", pathname],
+    queryFn: () => chatApi.getActivity(),
+    enabled: isAuthenticated,
+    staleTime: 0,
+    refetchInterval: 60_000,
+    retry: false,
+  });
+
+  const unread = activity?.data ? countUnreadChannels(activity.data) : 0;
 
   return (
     <nav
@@ -55,10 +75,18 @@ export function BottomNav() {
               {isActive && (
                 <span className="animate-pulse-soft absolute inset-x-1.5 inset-y-0.5 -z-10 rounded-[14px] bg-[#3b82f6]/12 ring-1 ring-[#3b82f6]/25" />
               )}
-              <link.icon
-                className={`w-[19px] h-[19px] transition-transform duration-300 ${isActive ? "scale-110" : ""}`}
-                strokeWidth={isActive ? 2.2 : 1.8}
-              />
+              <span className="relative">
+                <link.icon
+                  className={`w-[19px] h-[19px] transition-transform duration-300 ${isActive ? "scale-110" : ""}`}
+                  strokeWidth={isActive ? 2.2 : 1.8}
+                />
+                {/* Okunmamış sohbet rozeti */}
+                {link.href === "/chat" && unread > 0 && (
+                  <span className="absolute -right-1.5 -top-1 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-[#ef4444] px-1 text-[9px] font-bold leading-none text-white shadow-[0_0_0_2px_#0a1628]">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </span>
               <span className="text-[9.5px] font-medium tracking-[0.02em] truncate">{link.label}</span>
             </Link>
           );
