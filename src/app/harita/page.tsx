@@ -65,6 +65,8 @@ function MapContent() {
   const lineRef = useRef<Polyline | null>(null);
   const LRef = useRef<any>(null);
   const hasCentered = useRef(false);
+  /** Konum izni reddedildi veya alınamadı → kendi konumumuzu beklemeyi bırak */
+  const geoDenied = useRef(false);
   const [ready, setReady] = useState(false);
 
   // Tercih açıksa "açık" göster — takip durumu gecikmeli başlayabilir
@@ -172,11 +174,20 @@ function MapContent() {
 
     if (points.length > 0) {
       
-      // Konum tuşunun kullandığı zoom sabit tutulur (kullanıcı: "en iyi gösteren o").
-      // Pin'ler sığsın diye sadece merkez hesaplanır, ölçek değiştirilmez.
+      /**
+       * Açılışta harita KENDİ konumumdan başlar (kullanıcı tercihi).
+       * Kendi konumum yoksa (izin yok / henüz gelmedi) diğer pinlerin ortası kullanılır.
+       */
       if (!hasCentered.current) {
-        hasCentered.current = true;
-        map.setView(L.latLngBounds(points).getCenter(), FOCUS_ZOOM, { animate: true });
+        if (myPos) {
+          // Kendi konumum geldi → harita buradan başlar
+          hasCentered.current = true;
+          map.setView([myPos.lat, myPos.lng], FOCUS_ZOOM, { animate: true });
+        } else if (points.length > 0 && geoDenied.current) {
+          // Konum izni yok/başarısız → diğer pinlerin ortası
+          hasCentered.current = true;
+          map.setView(L.latLngBounds(points).getCenter(), FOCUS_ZOOM, { animate: true });
+        }
       }
     }
   }, [members, myPos, ready, myUserId]);
@@ -217,7 +228,9 @@ function MapContent() {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setMyPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {},
+      () => {
+        geoDenied.current = true;
+      },
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 }
     );
   }, []);
