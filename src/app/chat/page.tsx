@@ -538,6 +538,13 @@ function ChannelChatView({
 
       {/* Input — her zaman en altta, klavyenin üstünde */}
       <div className="flex shrink-0 gap-2 pb-1">
+        {/*
+          iOS Safari, odaklanan metin alanının üstüne "▲ ▼ ✓" şeklinde
+          kendi form yardımcı çubuğunu (input accessory bar) ekliyor.
+          `inputMode="search"` + `enterKeyHint="send"` + `autoCorrect off`
+          kombinasyonu bu çubuğu kaldırır; klavye doğrudan giriş kutusunun
+          altında başlar.
+        */}
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -548,6 +555,11 @@ function ChannelChatView({
             }
           }}
           placeholder="Mesaj yaz..."
+          inputMode="search"
+          enterKeyHint="send"
+          autoCorrect="off"
+          autoCapitalize="sentences"
+          rows={1}
           className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-[#7a8da4] text-sm"
         />
         <Button
