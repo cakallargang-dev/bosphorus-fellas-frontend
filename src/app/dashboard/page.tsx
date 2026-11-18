@@ -575,10 +575,6 @@ function MeetingCard({
   isAdmin?: boolean;
 }) {
   const d = new Date(m.dateIso || m.date);
-  const dateLabel = !isNaN(d.getTime())
-    ? d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "short" })
-    : m.date;
-
   // Google Maps statik onizleme (lat/lng varsa)
   // Google Maps embed — anahtar gerekmez, pin otomatik cikar
   const mapQuery =
@@ -593,13 +589,10 @@ function MeetingCard({
     : null;
 
   return (
-    <article className="relative overflow-hidden rounded-[22px] border border-[#f97316]/25 bg-[#0f1d32]/70 premium-shadow">
-      {/* Turuncu serit */}
-      <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#f97316] z-10" />
-
+    <article className="overflow-hidden rounded-[16px] border border-[#162544] bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85">
       {/* Harita / yer gorseli */}
       {m.photoUrl && (
-        <div className="relative h-[210px] overflow-hidden bg-[#0a1628]">
+        <div className="relative h-[160px] overflow-hidden bg-[#0a1628]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={m.photoUrl}
@@ -609,9 +602,11 @@ function MeetingCard({
             referrerPolicy="no-referrer"
           />
           <span className="absolute inset-0 bg-gradient-to-t from-[#0f1d32] via-transparent to-transparent pointer-events-none" />
-          <span className="absolute top-2 left-3 flex items-center gap-1 text-[11px] font-medium bg-black/55 backdrop-blur px-2.5 py-1 rounded-md text-white/90">
-            <MapPin className="w-2.5 h-2.5 text-[#f97316]" />
-            Mekan fotoğrafı
+          <span className="absolute top-2.5 left-2.5 rounded-lg bg-[#f97316]/20 px-2.5 py-0.5 text-[11px] text-[#fb923c]">
+            Buluşma
+          </span>
+          <span className="absolute top-2.5 right-2.5 rounded-lg border border-[#162544] bg-[#0f1d32] px-2.5 py-0.5 text-[11px] font-semibold text-gray-200">
+            {countdown(m.dateIso || m.date, m.time)}
           </span>
           {m.mapUrl && (
             <a
@@ -628,7 +623,7 @@ function MeetingCard({
       )}
 
       {!m.photoUrl && mapImg && (
-        <div className="relative h-[190px] overflow-hidden bg-[#0a1628]">
+        <div className="relative h-[160px] overflow-hidden bg-[#0a1628]">
           <iframe
             src={mapImg}
             title={m.place}
@@ -652,39 +647,35 @@ function MeetingCard({
       )}
 
       <div className="p-3.5 pl-4">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[15px] font-semibold tracking-[-0.01em] text-white leading-snug">
-            {m.title}
-          </p>
-          <span className="shrink-0 rounded-full bg-[#f97316]/15 border border-[#f97316]/30 px-2 py-0.5 text-[9px] uppercase tracking-[0.1em] text-[#fb923c]">
-            Buluşma
+        <p className="text-[15px] font-semibold tracking-[-0.01em] text-white">{m.title}</p>
+
+        {/* Tarih + konum — Etkinlik kartıyla birebir aynı düzen */}
+        <div className="flex flex-col gap-1 text-[12.5px] text-[#7a8da4] mt-2.5">
+          <span className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#f97316]" />
+            {d.toLocaleDateString("tr-TR", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+            {m.time ? ` · ${m.time}` : ""}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#f97316]" />
+            {m.mapUrl ? (
+              <a
+                href={m.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tap text-[#f97316] underline underline-offset-2 truncate"
+              >
+                {m.place}
+              </a>
+            ) : (
+              m.place
+            )}
           </span>
         </div>
-
-        <div className="flex items-center gap-3 flex-wrap text-[12px] text-[#8b9bb0] mt-1.5">
-          <span className="flex items-center gap-1">
-            <CalendarDays className="w-3 h-3" />
-            {dateLabel}
-          </span>
-          {m.time && (
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {m.time}
-            </span>
-          )}
-        </div>
-
-        {!mapImg && m.mapUrl && (
-          <a
-            href={m.mapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="tap mt-1.5 flex items-center gap-1 text-[12px] text-[#f97316] underline underline-offset-2"
-          >
-            <MapPin className="w-3 h-3" />
-            {m.place} · Haritada aç
-          </a>
-        )}
 
         {m.description && (
           <p className="mt-2 text-[12px] leading-relaxed text-[#8b9bb0] line-clamp-3">
