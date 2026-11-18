@@ -35,12 +35,9 @@ import type { ChatMessage, SupportMessage, UserPublicProfile } from "@/types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
+// Tek kanal. Eski kanalların (ilan/touge/pist/rolling) mesajları DB'de duruyor.
 const CHANNELS = [
-  { id: "genel", label: "Genel Sohbet", icon: MessageCircle, color: "text-blue-400" },
-  { id: "ilan", label: "İlan", icon: Megaphone, color: "text-orange-400" },
-  { id: "touge", label: "Touge", icon: Flame, color: "text-red-400" },
-  { id: "pist", label: "Pist", icon: Flag, color: "text-green-400" },
-  { id: "rolling", label: "Rolling", icon: Car, color: "text-purple-400" },
+  { id: "genel", label: "Sohbet", icon: MessageCircle, color: "text-blue-400" },
 ] as const;
 
 const READ_COUNTS_KEY = "mancave_chat_read_counts";
@@ -452,10 +449,6 @@ function ChannelChatView({
         </Button>
         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
           <Icon className={`w-4 h-4 ${channel.color}`} />
-        </div>
-        <div>
-          <h3 className="text-white font-medium text-sm">{channel.label}</h3>
-          <p className="text-[#7a8da4] text-xs">{messages.length} mesaj</p>
         </div>
       </div>
 
