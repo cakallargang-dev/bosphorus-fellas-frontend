@@ -420,8 +420,28 @@ function TeamSheet({ member: m, onClose }: { member: TeamMember; onClose: () => 
         </div>
 
         <div className="p-4 -mt-6 relative">
-          <p className="text-[20px] font-semibold tracking-[-0.02em] text-white">{m.name}</p>
-          <p className="text-[13px] text-[#b9c6d8] mt-0.5">{m.car}</p>
+          <div className="flex items-end gap-3">
+            {/* Profil fotoğrafı — araç fotoğrafının üstüne taşar */}
+            <div className="relative shrink-0">
+              <div className="w-[62px] h-[62px] rounded-full overflow-hidden border-[3px] border-[#0f1d32] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,.5)]">
+                {m.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imgUrl(m.avatar)}
+                    alt={m.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[19px] font-semibold text-[#3b82f6]">{m.initials}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="min-w-0 flex-1 pb-1">
+              <p className="text-[20px] font-semibold tracking-[-0.02em] text-white truncate">{m.name}</p>
+              <p className="text-[13px] text-[#b9c6d8] mt-0.5 truncate">{m.car}</p>
+            </div>
+          </div>
 
           {/* Ilce */}
           {(m.district || m.city) && (

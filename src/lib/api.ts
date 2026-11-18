@@ -274,6 +274,8 @@ export interface TeamMember {
   phone: string | null;
   bio: string;
   photo: string | null;
+  /** Profil fotoğrafı (araç fotoğrafından ayrı) */
+  avatar?: string | null;
   car: string;
   spec: string;
   carBrand: string | null;
