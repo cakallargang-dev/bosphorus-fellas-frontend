@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "/apply", label: "Üyelik Başvurusu", icon: User },
+  { href: "/kayit", label: "Kayıt Ol", icon: User },
 ];
 
 export function Navbar() {
@@ -147,7 +147,7 @@ export function Navbar() {
                     Giriş Yap
                   </Button>
                 </Link>
-                <Link href="/apply">
+                <Link href="/kayit">
                   <Button
                     size="sm"
                     className="bg-mancave-blue text-black hover:bg-mancave-blue-light font-medium"
@@ -258,7 +258,7 @@ export function Navbar() {
                       Giriş Yap
                     </Button>
                   </Link>
-                  <Link href="/apply" onClick={() => setMobileOpen(false)}>
+                  <Link href="/kayit" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full bg-mancave-blue text-black hover:bg-mancave-blue-light font-medium">
                       Başvur
                     </Button>

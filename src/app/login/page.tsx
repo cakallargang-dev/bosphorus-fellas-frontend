@@ -241,7 +241,7 @@ export default function LoginPage() {
             <p className="text-sm text-[#7a8da4]">
               Henüz üye değil misiniz?{" "}
               <Link
-                href="/apply"
+                href="/kayit"
                 className="tap text-[#3b82f6] hover:underline font-medium"
               >
                 Başvuru yapın

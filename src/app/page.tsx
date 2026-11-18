@@ -97,7 +97,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/apply">
+            <Link href="/kayit">
               <Button
                 size="lg"
                 className="btn-gradient px-8 py-6 text-base"
@@ -215,7 +215,7 @@ export default function Home() {
             Premium otomotiv topluluğumuzda yerini al. Etkinliklere katıl, özel
             içeriklere eriş, kardeşliğin bir parçası ol.
           </p>
-          <Link href="/apply">
+          <Link href="/kayit">
             <Button
               size="lg"
               className="btn-gradient px-10 py-6 text-base mt-4"

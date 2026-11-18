@@ -11,7 +11,7 @@ export function BottomNav() {
 
   const guestLinks = [
     { href: "/", label: "Ana Sayfa", icon: Home },
-    { href: "/apply", label: "Başvuru", icon: UserPlus },
+    { href: "/kayit", label: "Kayıt", icon: UserPlus },
     { href: "/login", label: "Giriş", icon: LogIn },
   ];
 
