@@ -1082,7 +1082,6 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
     .map((w) => w[0])
     .join("")
     .slice(0, 2);
-  const losses = Math.max(0, user.rolls - user.wins);
 
   return (
     <div
@@ -1130,18 +1129,8 @@ function ProfileSheet({ user, onClose }: { user: RollUserCard; onClose: () => vo
         {user.spec && <p className="text-[12px] text-[#7a8da4]">{user.spec}</p>}
         {user.bio && <p className="text-[13px] text-[#7a8da4] mt-2.5">{user.bio}</p>}
 
-        <div className="grid grid-cols-3 gap-2 mt-3.5">
-          {[
-            { v: user.rolls, l: "Roll" },
-            { v: user.wins, l: "Galibiyet" },
-            { v: losses, l: "Mağlubiyet" },
-          ].map((s) => (
-            <div key={s.l} className="bg-[#0a1628]/90 border border-[#162544]/70 rounded-[16px] p-2.5 text-center">
-              <b className="block text-lg text-white">{s.v}</b>
-              <span className="text-[12px] text-[#7a8da4]">{s.l}</span>
-            </div>
-          ))}
-        </div>
+        {/* NOT: Roll / Galibiyet / Mağlubiyet istatistikleri kaldırıldı.
+            Buluşma veya etkinlik oluşturan kişiyle ilgisi yoktu. */}
       </div>
     </div>
   );
