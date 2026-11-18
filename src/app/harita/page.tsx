@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * Harita — canlı konum + konvoy takibi.
+ * Harita — canlı konum + konvoy takibi (Mapbox GL JS).
  *
- * Leaflet + OpenStreetMap (CartoDB dark tiles): istemciye sızan API anahtarı yok, ücretsiz.
+ * Tema: Mapbox `dark-v11` — uygulamanın koyu kobalt paletiyle uyumlu.
+ * Public token env'den gelir: NEXT_PUBLIC_MAPBOX_TOKEN.
+ * Token yoksa harita yüklenmez, kullanıcıya bilgi verilir (sessiz gri ekran yok).
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import type { Map as LeafletMap, Marker, Polyline } from "leaflet";
+import type { Map as MapboxMap, Marker } from "mapbox-gl";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/Layout";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -17,6 +19,7 @@ import { startTracking, stopTracking } from "@/lib/location";
 import { toast } from "sonner";
 import { Navigation, Radio, Power, Clock, Locate, RefreshCw } from "lucide-react";
 
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
 const ISTANBUL = { lat: 41.0082, lng: 28.9784 };
 
 /** Haritanın sabit zoom'u = "konumuma dön" tuşunun kullandığı seviye */
@@ -31,23 +34,26 @@ function fmtAgo(iso: string): string {
   return `${h} sa önce`;
 }
 
-/** Pin HTML'i — yuvarlak avatar, altında isim etiketi */
-function pinHtml(m: LiveMember): string {
+/** Pin DOM'u — yuvarlak avatar + isim etiketi */
+function pinEl(m: LiveMember): HTMLDivElement {
   const photo = m.photo ? imgUrl(m.photo) : null;
-  const inner = photo
-    ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`
-    : `<span style="font-size:13px;font-weight:700;color:#60a5fa">${m.initials}</span>`;
-  const short = m.name.split(" ")[0];
-  return `
-    <div style="position:relative;width:52px;height:52px">
-      <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;border:2.5px solid #60a5fa;
-                  background:#0f1d32;display:flex;align-items:center;justify-content:center;
-                  box-shadow:0 0 0 3px rgba(59,130,246,.22),0 4px 14px rgba(0,0,0,.65)">${inner}</div>
-      <span style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-                   background:#3b82f6;color:#030711;font-size:9px;font-weight:800;
-                   padding:1px 7px;border-radius:8px;white-space:nowrap;
-                   box-shadow:0 2px 6px rgba(0,0,0,.5)">${short}</span>
-    </div>`;
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;width:52px;height:52px;cursor:pointer";
+  wrap.innerHTML = `
+    <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;border:2.5px solid #60a5fa;
+                background:#0f1d32;display:flex;align-items:center;justify-content:center;
+                box-shadow:0 0 0 3px rgba(59,130,246,.22),0 4px 14px rgba(0,0,0,.65)">
+      ${
+        photo
+          ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover" />`
+          : `<span style="font-size:13px;font-weight:700;color:#60a5fa">${m.initials}</span>`
+      }
+    </div>
+    <span style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+                 background:#3b82f6;color:#030711;font-size:9px;font-weight:800;
+                 padding:1px 7px;border-radius:8px;white-space:nowrap;
+                 box-shadow:0 2px 6px rgba(0,0,0,.5)">${m.name.split(" ")[0]}</span>`;
+  return wrap;
 }
 
 function MapContent() {
@@ -55,13 +61,14 @@ function MapContent() {
   const [busy, setBusy] = useState(false);
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const mapEl = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<LeafletMap | null>(null);
+  const mapRef = useRef<MapboxMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
-  const lineRef = useRef<Polyline | null>(null);
-  const LRef = useRef<any>(null);
-  const [ready, setReady] = useState(false);
+  const meMarkerRef = useRef<Marker | null>(null);
+  const mbRef = useRef<any>(null);
 
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["live-location"],
@@ -76,25 +83,55 @@ function MapContent() {
     let cancelled = false;
 
     (async () => {
-      const L = (await import("leaflet")).default;
+      if (!MAPBOX_TOKEN) {
+        setMapError("Harita yapılandırması eksik (Mapbox token yok)");
+        return;
+      }
+
+      const mb = (await import("mapbox-gl")).default;
       if (cancelled || !mapEl.current || mapRef.current) return;
-      LRef.current = L;
+      mbRef.current = mb;
+      mb.accessToken = MAPBOX_TOKEN;
 
-      const map = L.map(mapEl.current, {
-        zoomControl: false,
-        attributionControl: true,
-      }).setView([ISTANBUL.lat, ISTANBUL.lng], FOCUS_ZOOM);
+      const map = new mb.Map({
+        container: mapEl.current,
+        style: "mapbox://styles/mapbox/dark-v11",
+        center: [ISTANBUL.lng, ISTANBUL.lat],
+        zoom: FOCUS_ZOOM,
+        attributionControl: false,
+      });
 
-      // OSM standart tile: API anahtarı istemez, ücretsiz. Koyu görünüm CSS filtresiyle.
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap katkıcıları',
-        crossOrigin: true,
-      }).addTo(map);
+      map.addControl(new mb.AttributionControl({ compact: true }), "bottom-left");
+      map.addControl(new mb.NavigationControl({ showCompass: false }), "bottom-right");
 
-      L.control.zoom({ position: "bottomright" }).addTo(map);
+      map.on("load", () => {
+        // Konvoy çizgisi katmanı — veri boşken görünmez
+        map.addSource("convoy", {
+          type: "geojson",
+          data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
+        });
+        map.addLayer({
+          id: "convoy-line",
+          type: "line",
+          source: "convoy",
+          paint: {
+            "line-color": "#3b82f6",
+            "line-width": 2,
+            "line-opacity": 0.55,
+            "line-dasharray": [2, 2],
+          },
+        });
+        setMapReady(true);
+      });
+
+      map.on("error", (e: any) => {
+        const msg = String(e?.error?.message || "");
+        if (/token|unauthorized|401|403/i.test(msg)) {
+          setMapError("Mapbox token geçersiz veya URL kısıtı engelliyor");
+        }
+      });
+
       mapRef.current = map;
-      setReady(true);
     })();
 
     return () => {
@@ -108,64 +145,51 @@ function MapContent() {
 
   /* ---------------- Pinleri bas ---------------- */
   useEffect(() => {
-    const L = LRef.current;
+    const mb = mbRef.current;
     const map = mapRef.current;
-    if (!L || !map || !ready) return;
+    if (!mb || !map || !mapReady) return;
 
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
-    if (lineRef.current) {
-      lineRef.current.remove();
-      lineRef.current = null;
-    }
 
-    const points: [number, number][] = [];
+    const coords: [number, number][] = [];
 
     members.forEach((m) => {
-      const marker = L.marker([m.lat, m.lng], {
-        icon: L.divIcon({
-          html: pinHtml(m),
-          className: "",
-          iconSize: [52, 52],
-          iconAnchor: [26, 26],
-        }),
-      })
-        .addTo(map)
-        .on("click", () => setSelected(m.userId));
+      const marker = new mb.Marker({ element: pinEl(m), anchor: "center" })
+        .setLngLat([m.lng, m.lat])
+        .addTo(map);
+      marker.getElement().addEventListener("click", () => setSelected(m.userId));
       markersRef.current.push(marker);
-      points.push([m.lat, m.lng]);
+      coords.push([m.lng, m.lat]);
     });
 
+    // Kendi konumum
     if (myPos) {
-      const me = L.marker([myPos.lat, myPos.lng], {
-        icon: L.divIcon({
-          html: `<div style="width:18px;height:18px;border-radius:50%;background:#22c55e;
-                 border:3px solid #030711;box-shadow:0 0 0 4px rgba(34,197,94,.3)"></div>`,
-          className: "",
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        }),
-      }).addTo(map);
-      markersRef.current.push(me);
-      points.unshift([myPos.lat, myPos.lng]);
+      if (meMarkerRef.current) meMarkerRef.current.remove();
+      const dot = document.createElement("div");
+      dot.style.cssText =
+        "width:18px;height:18px;border-radius:50%;background:#22c55e;border:3px solid #030711;" +
+        "box-shadow:0 0 0 4px rgba(34,197,94,.3)";
+      meMarkerRef.current = new mb.Marker({ element: dot, anchor: "center" })
+        .setLngLat([myPos.lng, myPos.lat])
+        .addTo(map);
+      coords.unshift([myPos.lng, myPos.lat]);
     }
 
-    if (points.length > 1) {
-      lineRef.current = L.polyline(points, {
-        color: "#3b82f6",
-        weight: 2,
-        opacity: 0.5,
-        dashArray: "6 8",
-      }).addTo(map);
+    // Konvoy çizgisi
+    const src = map.getSource("convoy") as any;
+    if (src) {
+      src.setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: coords },
+      });
     }
 
-    if (points.length > 0) {
-      
-      // Konum tuşunun kullandığı zoom sabit tutulur (kullanıcı: "en iyi gösteren o").
-      // Pin'ler sığsın diye sadece merkez hesaplanır, ölçek değiştirilmez.
-      map.setView(L.latLngBounds(points).getCenter(), FOCUS_ZOOM, { animate: true });
+    if (coords.length > 0) {
+      map.easeTo({ center: coords[0], zoom: FOCUS_ZOOM, duration: 600 });
     }
-  }, [members, myPos, ready]);
+  }, [members, myPos, mapReady]);
 
   /* ---------------- Konum gönderimi ---------------- */
 
@@ -202,26 +226,21 @@ function MapContent() {
   }, []);
 
   const centerOn = (lat: number, lng: number) => {
-    mapRef.current?.flyTo([lat, lng], FOCUS_ZOOM, { duration: 0.9 });
+    mapRef.current?.easeTo({ center: [lng, lat], zoom: FOCUS_ZOOM, duration: 900 });
     setSelected(null);
   };
 
   /**
-   * Yol tarifi linki.
-   * ⚠️ `dir/?api=1` formu iOS'ta Google Maps uygulamasını açıp BULUNDUĞUN konumdan
-   * rota hesaplamaya çalışır; konum izni yoksa/uygulama yoksa boş haritada kalır.
-   * Tek noktayı göstermek için `search/?api=1&query=` kullan (uygulama varsa açar,
-   * yoksa Google Maps web'e düşer ve noktayı doğrudan gösterir).
+   * Tek noktayı Google Maps'te göster.
+   * `search/?api=1&query=` formu konum izni istemez ve noktayı doğrudan açar.
    */
-  const directionsUrl = (m: LiveMember) => {
-    // Koordinat yoksa/bozuksa Google Maps'e boş sorgu gönderme
+  const searchUrl = (m: LiveMember) => {
     if (!Number.isFinite(m.lat) || !Number.isFinite(m.lng)) return "#";
     return `https://www.google.com/maps/search/?api=1&query=${m.lat.toFixed(6)},${m.lng.toFixed(6)}`;
   };
 
   return (
     <Layout hideFooter>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <div className="mx-auto max-w-[430px] px-4 pb-28 pt-4">
         <div className="flex flex-col gap-3.5">
           {/* Başlık */}
@@ -254,46 +273,35 @@ function MapContent() {
             <div ref={mapEl} className="absolute inset-0 z-0" />
 
             <style jsx global>{`
-              .leaflet-container {
-                background: #030711;
-                font-family: inherit;
-              }
-              /* OSM karolarını koyu temaya çevir — pinler etkilenmesin */
-              /**
-               * OSM karolarını uygulama paletine çevirir:
-               * invert → koyu zemin, hue-rotate(195) → mavi-kobalt ton,
-               * saturate(.45) → marka mavisiyle uyum, brightness(.72) → #030711 zeminine yakın.
-               */
-              .leaflet-tile-pane {
-                filter: invert(1) hue-rotate(195deg) brightness(0.72) contrast(1.12) saturate(0.45);
-              }
-              .leaflet-control-attribution {
+              .mapboxgl-ctrl-attrib {
                 background: rgba(3, 7, 17, 0.72) !important;
                 color: #6b7d94 !important;
                 font-size: 9px !important;
               }
-              .leaflet-control-attribution a {
+              .mapboxgl-ctrl-attrib a {
                 color: #7a8da4 !important;
               }
-              .leaflet-bar {
+              .mapboxgl-ctrl-group {
+                background: rgba(10, 22, 40, 0.92) !important;
                 border: 1px solid #162544 !important;
                 border-radius: 12px !important;
                 overflow: hidden;
                 box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
               }
-              .leaflet-bar a {
-                background: rgba(10, 22, 40, 0.92) !important;
-                color: #9fb0c4 !important;
-                border-color: #162544 !important;
-                font-size: 17px !important;
-                line-height: 30px !important;
+              .mapboxgl-ctrl-group button + button {
+                border-top: 1px solid #162544 !important;
               }
-              .leaflet-bar a:first-child {
-                border-bottom: 1px solid #162544 !important;
+              .mapboxgl-ctrl-group button span {
+                filter: invert(70%) sepia(12%) saturate(700%) hue-rotate(180deg) brightness(95%);
               }
-              .leaflet-bar a:hover {
+              .mapboxgl-ctrl-group button:hover {
                 background: #162544 !important;
-                color: #60a5fa !important;
+              }
+              .mapboxgl-canvas {
+                outline: none;
+              }
+              .mapboxgl-ctrl-logo {
+                opacity: 0.35;
               }
             `}</style>
 
@@ -320,7 +328,15 @@ function MapContent() {
               </button>
             )}
 
-            {members.length === 0 && (
+            {mapError && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-[#030711]/95 px-6 text-center">
+                <Radio className="h-6 w-6 text-[#2a3a54]" />
+                <p className="text-[12.5px] font-semibold text-white">Harita yüklenemedi</p>
+                <p className="text-[11px] leading-relaxed text-[#7a8da4]">{mapError}</p>
+              </div>
+            )}
+
+            {!mapError && members.length === 0 && mapReady && (
               <div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 rounded-[18px] border border-[#162544] bg-[#030711]/88 px-4 py-3 text-center backdrop-blur-md">
                 <p className="text-[12.5px] font-semibold text-white">Kimse konum paylaşmıyor</p>
                 <p className="mt-0.5 text-[11px] text-[#7a8da4]">
@@ -387,10 +403,10 @@ function MapContent() {
                     </div>
                   </button>
                   <a
-                    href={directionsUrl(m)}
+                    href={searchUrl(m)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${m.name} için yol tarifi`}
+                    aria-label={`${m.name} için haritada aç`}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#162544] text-[#60a5fa] transition hover:bg-[#3b82f6]/15"
                   >
                     <Navigation className="h-4 w-4" />
