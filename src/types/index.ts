@@ -308,6 +308,9 @@ export interface ChatMessage {
   id: string;
   channel: string;
   content: string;
+  /** Tek gönderimlik fotoğraf — 24 saat sonra null'lanır */
+  imageUrl?: string | null;
+  imageExpiresAt?: string | null;
   senderId: string;
   senderName: string;
   createdAt: string;

@@ -657,10 +657,10 @@ export const notificationsApi = {
 export const chatApi = {
   getMessages: (channel: string) =>
     request<ApiResponse<any[]>>(`/api/chat/${channel}`),
-  sendMessage: (channel: string, content: string) =>
+  sendMessage: (channel: string, content: string, imageUrl?: string | null) =>
     request<ApiResponse<any>>(`/api/chat/${channel}`, {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, imageUrl }),
     }),
   getActivity: () =>
     request<ApiResponse<Record<string, { count: number; lastMessage: { content: string; senderName: string; createdAt: string } | null }>>>(
@@ -728,6 +728,19 @@ export const mediaApi = {
     ),
 
   gallery: () => request<ApiResponse<GalleryImageItem[]>>("/api/media/gallery"),
+
+  /**
+   * Tek fotoğraf yükle (sohbet tek gönderimlik görsel).
+   * Backend Cloudinary URL'i döner: { success, data: { url } }
+   */
+  uploadSingle: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return request<ApiResponse<{ url: string }>>("/api/upload", {
+      method: "POST",
+      body: fd,
+    });
+  },
 
   uploadGallery: (files: File[], meta?: { caption?: string; eventName?: string }) => {
     const fd = new FormData();

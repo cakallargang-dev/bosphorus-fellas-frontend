@@ -6,7 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { chatApi, authApi } from "@/lib/api";
+import { chatApi, authApi, mediaApi } from "@/lib/api";
+import { compressImage } from "@/lib/imageCompress";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,9 @@ import {
   Flame,
   Flag,
   Car,
+  Camera,
+  ImagePlus,
+  Download,
   X,
 } from "lucide-react";
 import type { ChatMessage, SupportMessage, UserPublicProfile } from "@/types";
@@ -364,6 +368,12 @@ function ChannelChatView({
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  /** Tek gönderimlik fotoğraf */
+  const [attachPreview, setAttachPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [viewer, setViewer] = useState<string | null>(null);
+  const galleryRef = useRef<HTMLInputElement | null>(null);
+  const cameraRef = useRef<HTMLInputElement | null>(null);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserPublicProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -433,13 +443,33 @@ function ChannelChatView({
     }
   };
 
+  /** Fotoğraf seç → tarayıcıda küçült → yükle (boyut limiti yok) */
+  const handlePickImage = async (file: File | undefined) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { file: small } = await compressImage(file);
+      const res = await mediaApi.uploadSingle(small);
+      const url = res.data?.url;
+      if (!url) throw new Error("url yok");
+      setAttachPreview(url);
+    } catch {
+      toast.error("Fotoğraf yüklenemedi");
+    } finally {
+      setUploading(false);
+      if (galleryRef.current) galleryRef.current.value = "";
+      if (cameraRef.current) cameraRef.current.value = "";
+    }
+  };
+
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || sending) return;
+    if ((!trimmed && !attachPreview) || sending || uploading) return;
     setSending(true);
     try {
-      await chatApi.sendMessage(channel.id, trimmed);
+      await chatApi.sendMessage(channel.id, trimmed, attachPreview);
       setInput("");
+      setAttachPreview(null);
       // Optimistically mark own message as read
       setReadCount(channel.id, messages.length + 1);
       queryClient.invalidateQueries({ queryKey: ["chat-messages", channel.id] });
@@ -525,7 +555,25 @@ function ChannelChatView({
                     </span>
                   </div>
                 )}
-                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                {msg.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setViewer(msg.imageUrl as string)}
+                    className="mb-1 block w-full overflow-hidden rounded-[14px]"
+                    title="Büyüt"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={msg.imageUrl}
+                      alt="Fotoğraf"
+                      className="max-h-[240px] w-full cursor-zoom-in object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                )}
+                {msg.content ? (
+                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                ) : null}
                 <span className="text-[10px] text-[#7a8da4] mt-1 block text-right">
                   {formatTime(msg.createdAt)}
                 </span>
@@ -535,6 +583,46 @@ function ChannelChatView({
         </AnimatePresence>
         <div ref={bottomRef} />
       </div>
+
+      {/* Gizli dosya girişleri: kamera ve galeri */}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => handlePickImage(e.target.files?.[0])}
+      />
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handlePickImage(e.target.files?.[0])}
+      />
+
+      {/* Seçilen fotoğraf önizlemesi */}
+      {attachPreview && (
+        <div className="shrink-0 pb-1">
+          <div className="relative inline-block">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={attachPreview}
+              alt="Önizleme"
+              className="h-[72px] w-[72px] rounded-[12px] border border-[#3b82f6]/40 object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => setAttachPreview(null)}
+              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#ef4444] text-white"
+              aria-label="Kaldır"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+          <p className="mt-1 text-[10px] text-[#7a8da4]">24 saat sonra silinir</p>
+        </div>
+      )}
 
       {/* Input — her zaman en altta, klavyenin üstünde */}
       <div className="flex shrink-0 gap-2 pb-1">
@@ -563,14 +651,77 @@ function ChannelChatView({
           className="min-h-[44px] h-[44px] resize-none bg-white/5 border-white/20 text-white placeholder:text-[#7a8da4] text-sm"
         />
         <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => cameraRef.current?.click()}
+          disabled={uploading}
+          className="h-[44px] w-[44px] shrink-0 border-white/20 bg-white/5 text-[#8b9bb0] hover:text-white"
+          title="Kameradan çek"
+        >
+          <Camera className="w-4 h-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => galleryRef.current?.click()}
+          disabled={uploading}
+          className="h-[44px] w-[44px] shrink-0 border-white/20 bg-white/5 text-[#8b9bb0] hover:text-white"
+          title="Galeriden seç"
+        >
+          {uploading ? (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          ) : (
+            <ImagePlus className="w-4 h-4" />
+          )}
+        </Button>
+        <Button
           onClick={handleSend}
-          disabled={!input.trim() || sending}
+          disabled={(!input.trim() && !attachPreview) || sending || uploading}
           size="icon"
           className="h-[44px] w-[44px] shrink-0 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/80 text-black"
         >
           <Send className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Tam ekran fotoğraf görüntüleyici */}
+      {viewer && (
+        <div
+          className="fixed inset-0 z-[90] flex flex-col bg-black/95"
+          onClick={() => setViewer(null)}
+        >
+          <div className="flex items-center justify-between p-4 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
+            <span className="text-[11px] text-white/60">24 saat sonra silinir</span>
+            <button
+              type="button"
+              onClick={() => setViewer(null)}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white"
+              aria-label="Kapat"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex flex-1 items-center justify-center p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={viewer} alt="Fotoğraf" className="max-h-full max-w-full object-contain" />
+          </div>
+          <div className="p-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+            <a
+              href={viewer}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center justify-center gap-2 rounded-[16px] border border-white/20 py-3 text-[13px] font-medium text-white"
+            >
+              <Download className="w-4 h-4" />
+              İndir
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Profile Dialog */}
       <Dialog open={!!profileUserId} onOpenChange={() => setProfileUserId(null)}>
