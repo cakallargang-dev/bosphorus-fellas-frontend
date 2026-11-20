@@ -2,19 +2,21 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { authApi } from "@/lib/api";
+import { authApi, referansApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Phone, Lock, ArrowLeft } from "lucide-react";
+import { Phone, Lock, ArrowLeft, Ticket } from "lucide-react";
 import { Footer } from "@/components/Footer";
 
-type Step = "phone" | "password";
+type Step = "ref" | "phone" | "password";
 
 export default function KayitPage() {
-  const [step, setStep] = useState<Step>("phone");
+  const [step, setStep] = useState<Step>("ref");
+  const [refCode, setRefCode] = useState("");
+  const [refOwner, setRefOwner] = useState<string | null>(null);
   const [phone, setPhone] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,10 +24,32 @@ export default function KayitPage() {
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Kayıt = üyelik: SMS/OTP doğrulaması KALDIRILDI (kullanıcı isteği).
-   * Telefon numarası alınır, doğrudan şifre adımına geçilir.
-   */
+  /** Adım 1 — Referans kodu ZORUNLU. Doğrulanmadan telefona geçilemez. */
+  const verifyRef = async () => {
+    const code = refCode.trim().toUpperCase();
+    if (!code) {
+      toast.error("Referans kodu zorunludur");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await referansApi.verifyCode(code);
+      if (!res.success) {
+        toast.error(res.message || "Geçersiz referans kodu");
+        return;
+      }
+      const owner = (res.data as { ownerName?: string } | undefined)?.ownerName;
+      setRefOwner(owner || "Bosphorus Fellas");
+      setStep("phone");
+      toast.success("Referans kodu doğrulandı");
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Referans kodu doğrulanamadı");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /** Adım 2 — Telefon. SMS kodu YOK, doğrudan şifreye geçer. */
   const sendCode = () => {
     if (phone.replace(/\D/g, "").length < 10) {
       toast.error("Geçerli bir telefon numarası giriniz");
@@ -55,6 +79,7 @@ export default function KayitPage() {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         password,
+        referansKodu: refCode.trim().toUpperCase(),
       });
       const token = (res.data as { token?: string } | undefined)?.token;
       if (res.success && token) {
@@ -85,11 +110,38 @@ export default function KayitPage() {
         <CardHeader>
           <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>
           <CardDescription className="text-[#7a8da4]">
-            {step === "phone" && "Telefon numaranı gir, doğrulama kodu gönderelim."}
+            {step === "ref" && "Sadece davetli üyeler kayıt olabilir. Referans kodunu gir."}
+            {step === "phone" && "Telefon numaranı gir."}
             {step === "password" && "Son adım: bilgilerini tamamla ve şifreni belirle."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {step === "ref" && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="refCode" className="text-[#b9c6d8]">Referans Kodu</Label>
+                <div className="relative">
+                  <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
+                  <Input
+                    id="refCode"
+                    placeholder="Örn. FELLAS26"
+                    value={refCode}
+                    onChange={(e) => setRefCode(e.target.value.toUpperCase())}
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    className="pl-10 bg-mancave-bg border-[#162544] text-white uppercase tracking-[0.14em] placeholder:tracking-normal placeholder:text-[#7a8da4]"
+                  />
+                </div>
+                <p className="text-[11.5px] text-[#7a8da4]">
+                  Kodu olmayan üyelerden birinden isteyebilirsin.
+                </p>
+              </div>
+              <Button onClick={verifyRef} disabled={loading} className="w-full">
+                {loading ? "Doğrulanıyor..." : "Devam Et"}
+              </Button>
+            </>
+          )}
+
           {step === "phone" && (
             <>
               <div className="space-y-2">

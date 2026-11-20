@@ -186,6 +186,8 @@ export const authApi = {
     password: string;
     /** OTP kapalıyken gönderilmez (kayıt = üyelik) */
     idToken?: string;
+    /** ZORUNLU: kayıt için geçerli referans kodu */
+    referansKodu: string;
   }) =>
     request<ApiResponse<LoginResponse>>("/api/auth/register", {
       method: "POST",
