@@ -98,13 +98,20 @@ export default function KayitPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 py-10 bg-mancave-bg animate-fade-in overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-[#030711] animate-fade-in overflow-hidden">
+      {/*
+        Arka plan: yalnızca düz zemin + hafif mavi parıltı.
+        `brand-bg-square.webp` görselinde "BOSPHORUS FELLAS" yazısı vardı ve
+        kartın sağında yazı olarak görünüyordu — kaldırıldı.
+      */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: "url('/brand-bg-square.webp')" }}
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.14) 0%, transparent 62%)",
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#030711]/70 via-[#030711]/50 to-[#030711]" />
       </div>
       <Card className="w-full max-w-md bg-mancave-surface border-[#162544]">
         <CardHeader>
