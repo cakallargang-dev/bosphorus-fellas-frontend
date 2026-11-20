@@ -108,8 +108,17 @@ export default function KayitPage() {
       </div>
       <Card className="w-full max-w-md bg-mancave-surface border-[#162544]">
         <CardHeader>
-          <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>
-          <CardDescription className="text-[#7a8da4]">
+          {/* Logo üstte ortalanmış */}
+          <div className="mb-3 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand-mark-white.png"
+              alt="Bosphorus Fellas"
+              className="h-12 w-auto opacity-95"
+            />
+          </div>
+          <CardTitle className="text-center text-white text-xl">Üye Kaydı</CardTitle>
+          <CardDescription className="text-center text-[#7a8da4]">
             {step === "ref" && "Sadece davetli üyeler kayıt olabilir. Referans kodunu gir."}
             {step === "phone" && "Telefon numaranı gir."}
             {step === "password" && "Son adım: bilgilerini tamamla ve şifreni belirle."}
@@ -160,7 +169,7 @@ export default function KayitPage() {
                 </div>
               </div>
               <Button onClick={sendCode} disabled={loading} className="w-full">
-                {loading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
+                Devam Et
               </Button>
             </>
           )}
