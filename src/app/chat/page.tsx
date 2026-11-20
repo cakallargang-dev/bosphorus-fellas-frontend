@@ -485,7 +485,28 @@ function ChannelChatView({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Messages */}
-      <div ref={scrollRef} data-chat-scroll className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-1 pr-1">
+      {/*
+        Sohbet zemini: Boğaz Köprüsü + şehir haritası deseni.
+        Üzerine koyu katman: balonlar okunaklı kalsın, desen silik dursun.
+      */}
+      <div
+        ref={scrollRef}
+        data-chat-scroll
+        className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-1 px-1 py-2"
+        style={{
+          backgroundImage: "url('/chat-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center top",
+          backgroundAttachment: "local",
+        }}
+      >
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(3,7,17,.72) 0%, rgba(3,7,17,.62) 40%, rgba(3,7,17,.78) 100%)",
+          }}
+        />
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
@@ -495,6 +516,7 @@ function ChannelChatView({
             <p className="text-sm">Henüz mesaj yok. Sohbeti başlat!</p>
           </div>
         )}
+        <div className="relative z-10 space-y-2">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
@@ -525,23 +547,23 @@ function ChannelChatView({
                   </AvatarFallback>
                 </Avatar>
               </button>
-              {/* Bubble */}
+              {/* Bubble — WhatsApp tarzı */}
               <div
-                className={`max-w-[75%] rounded-[22px] px-3 py-2 text-sm ${
+                className={`max-w-[78%] rounded-[16px] px-3 py-2 text-[13.5px] leading-relaxed shadow-[0_1px_2px_rgba(0,0,0,.35)] ${
                   msg.senderId === user?.id
-                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#030711] font-bold rounded-tr-md"
-                    : "bg-white/5 text-[#030711] font-bold/90 rounded-tl-md"
+                    ? "bg-[#1e4b6b] text-white rounded-br-[5px]"
+                    : "bg-[#1b2a3a] text-[#e6edf5] rounded-bl-[5px]"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-medium text-[#3b82f6]/70">
+                  <span className="text-[11.5px] font-semibold text-[#7cc4f0]">
                     {msg.senderId === user?.id ? "Sen" : msg.senderName}
                   </span>
                 </div>
                 {(msg.sender?.carBrand || msg.sender?.plateNumber) && (
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Car className="w-3 h-3 text-[#7a8da4]" />
-                    <span className="text-[10px] text-[#7a8da4]">
+                    <Car className="w-3 h-3 text-[#6e8299]" />
+                    <span className="text-[10px] text-[#8fa3b8]">
                       {[msg.sender.carBrand, msg.sender.carModel]
                         .filter(Boolean)
                         .join(" ") || "—"}
@@ -575,14 +597,18 @@ function ChannelChatView({
                 {msg.content ? (
                   <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                 ) : null}
-                <span className="text-[10px] text-[#7a8da4] mt-1 block text-right">
+                <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-[#8fa3b8]">
                   {formatTime(msg.createdAt)}
+                  {msg.senderId === user?.id && (
+                    <Check className="h-3 w-3 text-[#53bdeb]" />
+                  )}
                 </span>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
         <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Gizli dosya girişleri: kamera ve galeri */}
