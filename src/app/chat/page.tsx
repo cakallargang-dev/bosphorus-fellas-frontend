@@ -489,24 +489,37 @@ function ChannelChatView({
         Sohbet zemini: Boğaz Köprüsü + şehir haritası deseni.
         Üzerine koyu katman: balonlar okunaklı kalsın, desen silik dursun.
       */}
-      <div
-        ref={scrollRef}
-        data-chat-scroll
-        className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 mb-1 px-1 py-2"
-        style={{
-          backgroundImage: "url('/chat-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-          backgroundAttachment: "local",
-        }}
-      >
+      {/*
+        Zemin iki parçalı:
+        - Altta SABİT (absolute) katman: kaydırınca hareket etmez.
+          `background-attachment: fixed` iOS'ta bozuk olduğu için ayrı div kullanıldı.
+        - Üstte kayan içerik.
+      */}
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: "url('/chat-bg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        <div
+          aria-hidden
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(3,7,17,.72) 0%, rgba(3,7,17,.62) 40%, rgba(3,7,17,.78) 100%)",
+              "linear-gradient(to bottom, rgba(3,7,17,.74) 0%, rgba(3,7,17,.64) 40%, rgba(3,7,17,.80) 100%)",
           }}
         />
+
+      <div
+        ref={scrollRef}
+        data-chat-scroll
+        className="relative z-10 h-full overflow-y-auto overscroll-contain space-y-2 px-1 py-2"
+      >
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
@@ -609,6 +622,7 @@ function ChannelChatView({
         </AnimatePresence>
         <div ref={bottomRef} />
         </div>
+      </div>
       </div>
 
       {/* Gizli dosya girişleri: kamera ve galeri */}
