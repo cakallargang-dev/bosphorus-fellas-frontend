@@ -133,7 +133,6 @@ export default function KayitPage() {
                   <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
                   <Input
                     id="refCode"
-                    placeholder="Örn. FELLAS26"
                     value={refCode}
                     onChange={(e) => setRefCode(e.target.value.toUpperCase())}
                     autoCapitalize="characters"
