@@ -184,7 +184,8 @@ export const authApi = {
     firstName: string;
     lastName: string;
     password: string;
-    idToken: string;
+    /** OTP kapalıyken gönderilmez (kayıt = üyelik) */
+    idToken?: string;
   }) =>
     request<ApiResponse<LoginResponse>>("/api/auth/register", {
       method: "POST",

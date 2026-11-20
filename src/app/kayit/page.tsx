@@ -8,72 +8,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Phone, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
+import { Phone, Lock, ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/Footer";
 
-type Step = "phone" | "code" | "password";
+type Step = "phone" | "password";
 
 export default function KayitPage() {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const idTokenRef = useRef<string>("");
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
-
-  const sendCode = async () => {
+  /**
+   * Kayıt = üyelik: SMS/OTP doğrulaması KALDIRILDI (kullanıcı isteği).
+   * Telefon numarası alınır, doğrudan şifre adımına geçilir.
+   */
+  const sendCode = () => {
     if (phone.replace(/\D/g, "").length < 10) {
       toast.error("Geçerli bir telefon numarası giriniz");
       return;
     }
-    setLoading(true);
-    try {
-      // Kod backend'den gönderilir (WhatsApp/SMS) — tarayıcı doğrulaması yok
-      const res = await authApi.otpSend(phone);
-      if (!res.success) {
-        toast.error(res.message || "Kod gönderilemedi");
-        return;
-      }
-      setCooldown(60);
-      setStep("code");
-      toast.success("Doğrulama kodu gönderildi");
-    } catch (err) {
-      toast.error(err instanceof Error && err.message ? err.message : "Kod gönderilemedi");
-    } finally {
-      setLoading(false);
-    }
+    setStep("password");
   };
 
-  const verifyCode = async () => {
-    if (code.replace(/\D/g, "").length !== 6) {
-      toast.error("6 haneli kodu giriniz");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await authApi.otpVerify(phone, code);
-      if (!res.success || !res.data?.idToken) {
-        toast.error(res.message || "Kod doğrulanamadı");
-        return;
-      }
-      idTokenRef.current = res.data.idToken;
-      setStep("password");
-    } catch (err) {
-      toast.error(err instanceof Error && err.message ? err.message : "Kod doğrulanamadı");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const finish = async () => {
     if (!firstName.trim() || !lastName.trim()) {
@@ -95,7 +55,6 @@ export default function KayitPage() {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         password,
-        idToken: idTokenRef.current,
       });
       const token = (res.data as { token?: string } | undefined)?.token;
       if (res.success && token) {
@@ -127,7 +86,6 @@ export default function KayitPage() {
           <CardTitle className="text-white text-xl">Üye Kaydı</CardTitle>
           <CardDescription className="text-[#7a8da4]">
             {step === "phone" && "Telefon numaranı gir, doğrulama kodu gönderelim."}
-            {step === "code" && "Telefonuna gelen 6 haneli kodu gir."}
             {step === "password" && "Son adım: bilgilerini tamamla ve şifreni belirle."}
           </CardDescription>
         </CardHeader>
@@ -152,42 +110,6 @@ export default function KayitPage() {
               <Button onClick={sendCode} disabled={loading} className="w-full">
                 {loading ? "Gönderiliyor..." : "Doğrulama Kodu Gönder"}
               </Button>
-            </>
-          )}
-
-          {step === "code" && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="code" className="text-[#b9c6d8]">SMS / WhatsApp Kodu</Label>
-                <div className="relative">
-                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a8da4]" />
-                  <Input
-                    id="code"
-                    inputMode="numeric"
-                    placeholder="6 haneli kod"
-                    maxLength={6}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="pl-10 bg-mancave-bg border-[#162544] text-white tracking-widest placeholder:text-[#7a8da4]"
-                  />
-                </div>
-              </div>
-              <Button onClick={verifyCode} disabled={loading} className="w-full">
-                {loading ? "Doğrulanıyor..." : "Kodu Doğrula"}
-              </Button>
-              <button
-                onClick={sendCode}
-                disabled={loading || cooldown > 0}
-                className="text-xs text-[#7a8da4] hover:text-white disabled:opacity-50"
-              >
-                {cooldown > 0 ? `Kodu tekrar gönder (${cooldown}s)` : "Kodu tekrar gönder"}
-              </button>
-              <button
-                onClick={() => setStep("phone")}
-                className="text-xs text-[#7a8da4] hover:text-white flex items-center gap-1"
-              >
-                <ArrowLeft className="w-3 h-3" /> Numarayı değiştir
-              </button>
             </>
           )}
 
