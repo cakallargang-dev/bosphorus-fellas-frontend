@@ -960,6 +960,32 @@ export default function ChatPage() {
   }, [channel.id]);
 
   /**
+   * Sohbet ekranı açıkken backend'e "buradayım" sinyali.
+   *
+   * Bildirim susturma tamamen buna dayanır: sinyal 45 sn'de bir yenilenir,
+   * backend 90 sn sessizlik görürse kullanıcıyı "gitmiş" sayar. Sekme arka
+   * plana düşünce gönderim durur — arka plandaysa bildirim gelmeli.
+   */
+  useEffect(() => {
+    let alive = true;
+    const ping = () => {
+      if (!alive || document.visibilityState !== "visible") return;
+      void chatApi.presence(channel.id).catch(() => {});
+    };
+    ping();
+    const id = setInterval(ping, 45_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") ping();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      alive = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [channel.id]);
+
+  /**
    * Klavye takibi.
    *
    * iOS'ta `100dvh` klavye açılınca DEĞİŞMEZ. Klavye açıkken gerçek

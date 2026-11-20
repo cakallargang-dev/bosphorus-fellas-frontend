@@ -682,6 +682,15 @@ export const chatApi = {
     }),
   getSupportUnread: () =>
     request<ApiResponse<{ count: number }>>("/api/chat/support/unread"),
+  /**
+   * Sohbet ekranı açıkken çağrılır (45 sn'de bir tekrarlanır).
+   * Backend bu kullanıcıya sohbet bildirimi göndermeyi durdurur — "sohbetteyken sus".
+   */
+  presence: (channel: string) =>
+    request<ApiResponse<null>>("/api/chat/presence", {
+      method: "POST",
+      body: JSON.stringify({ channel }),
+    }),
 };
 
 /**
