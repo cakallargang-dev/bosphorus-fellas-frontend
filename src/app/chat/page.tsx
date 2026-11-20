@@ -2,6 +2,7 @@
 
 import { markChannelRead } from "@/lib/chatRead";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -686,10 +687,16 @@ function ChannelChatView({
         </Button>
       </div>
 
-      {/* Tam ekran fotoğraf görüntüleyici */}
-      {viewer && (
+      {/*
+        Tam ekran fotoğraf görüntüleyici.
+        Portal ile doğrudan <body>'ye basılır: sohbet konteynerindeki
+        transform/overflow, "fixed" elemanı kırpıyor ve alttaki MESAJ
+        YAZMA ÇUBUĞU görüntüleyicinin üstünde kalıp İndir butonuna
+        basmayı engelliyordu. Portal'da böyle bir ata yok.
+      */}
+      {viewer && typeof document !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-[90] flex flex-col bg-black/95"
+          className="fixed inset-0 z-[999] flex flex-col bg-black/95"
           onClick={() => setViewer(null)}
         >
           <div className="flex items-center justify-between p-4 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
@@ -703,11 +710,11 @@ function ChannelChatView({
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex flex-1 items-center justify-center p-3">
+          <div className="relative z-0 flex flex-1 items-center justify-center overflow-hidden p-3 pb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={viewer} alt="Fotoğraf" className="max-h-full max-w-full object-contain" />
           </div>
-          <div className="p-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+          <div className="relative z-10 p-4 pb-[calc(env(safe-area-inset-bottom,0px)+28px)]">
             <a
               href={viewer}
               download
@@ -720,7 +727,8 @@ function ChannelChatView({
               İndir
             </a>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Profile Dialog */}
