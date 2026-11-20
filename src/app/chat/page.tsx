@@ -404,6 +404,29 @@ function ChannelChatView({
     el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
   }, []);
 
+  /**
+   * Açılışta en son mesaja atla.
+   * Mesajlar asenkron geldiği için ilk render'da scrollHeight henüz dolu değil;
+   * bu yüzden birkaç kare boyunca tekrar tekrar dibe yapıştırıyoruz.
+   */
+  const hasJumpedRef = useRef(false);
+  useEffect(() => {
+    if (hasJumpedRef.current || messages.length === 0) return;
+    hasJumpedRef.current = true;
+
+    const stick = () => scrollToBottom(false);
+    stick();
+    requestAnimationFrame(stick);
+    const t1 = setTimeout(stick, 60);
+    const t2 = setTimeout(stick, 200);
+    const t3 = setTimeout(stick, 450);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [messages.length, scrollToBottom]);
+
   // Auto-scroll on new messages & update read count
   useEffect(() => {
     if (messages.length > prevLengthRef.current) {
