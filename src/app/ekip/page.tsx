@@ -7,7 +7,7 @@ import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, typ
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check, Clock, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -566,7 +566,8 @@ function monthLabel(ym: string): string {
 /* ===== Aidat durumu — kim ödedi / kim ödemedi (herkese açık) ===== */
 function AidatStatusBlock() {
   const [month, setMonth] = useState<string>("");
-  const [expanded, setExpanded] = useState(false);
+  const [expandedPaid, setExpandedPaid] = useState(false);
+  const [expandedUnpaid, setExpandedUnpaid] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["aidat-status", month],
@@ -582,99 +583,294 @@ function AidatStatusBlock() {
 
   const members = status?.members ?? [];
   const paidCount = status?.paidCount ?? 0;
-  const total = members.length;
+  const total = members.length || (status?.expected ?? 0);
   const unpaidCount = Math.max(0, total - paidCount);
-  const visible = expanded ? members : members.slice(0, 12);
+  const percent = total > 0 ? Math.round((paidCount / total) * 100) : 0;
+
+  const paid = members.filter((m) => m.paid);
+  const unpaid = members.filter((m) => !m.paid);
+  const paidVisible = expandedPaid ? paid : paid.slice(0, 6);
+  const unpaidVisible = expandedUnpaid ? unpaid : unpaid.slice(0, 6);
+
+  // ay seçici: aktif ayın aylar dizisindeki konumuna göre geri/ileri gezin
+  const activeIdx = Math.max(0, months.indexOf(activeMonth));
+  const canPrev = activeIdx < months.length - 1;
+  const canNext = activeIdx > 0;
+  const shiftMonth = (dir: 1 | -1) => {
+    const next = months[activeIdx + dir];
+    if (next) setMonth(next);
+  };
+
+  const initials = (name: string) =>
+    name
+      .split(" ")
+      .map((s) => s[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+  const paidDateLabel = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    const day = String(d.getDate()).padStart(2, "0");
+    const mon = d
+      .toLocaleDateString("tr-TR", { month: "short" })
+      .replace(".", "")
+      .toUpperCase();
+    return `${day} ${mon}`;
+  };
 
   return (
-    <div className="mx-5 mb-5 rounded-[14px] border border-[#162544] bg-[#0a1628]/70 px-4 py-3">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-[9.5px] font-medium uppercase tracking-[0.18em] text-[#3b82f6]/80">
-          Aidat durumu
-        </p>
-        {/* Ay seçici (çip şeridi) */}
-        <div className="flex gap-1 overflow-x-auto no-scrollbar">
-          {months.map((ym) => (
-            <button
-              key={ym}
-              onClick={() => setMonth(ym)}
-              className={`shrink-0 rounded-md px-2 py-1 text-[9px] font-medium uppercase tracking-wide transition-colors ${
-                activeMonth === ym
-                  ? "bg-[#3b82f6]/15 text-[#60a5fa] border border-[#3b82f6]/30"
-                  : "text-[#6b7d94] border border-transparent hover:text-[#b9c6d8]"
-              }`}
-            >
-              {ym.slice(2, 4)}.{ym.slice(5)}
-            </button>
-          ))}
+    <div className="mx-5 mb-5 overflow-hidden rounded-[14px] border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
+      {/* ------ Üst editoryal katman: etiket + ay seçici ------ */}
+      <div className="flex items-center justify-between border-b border-white/[0.05] px-4 py-3">
+        <div>
+          <p className="text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6]">
+            Aidat Durumu
+          </p>
+          <p className="mt-0.5 text-[10px] text-[#7a8da4]">
+            Bu ayki katılım defteri
+          </p>
+        </div>
+
+        {/* Ay seçici — ok butonlu, ortada ay-yıl */}
+        <div className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-[#0a1628]/60 px-1 py-1">
+          <button
+            onClick={() => shiftMonth(1)}
+            disabled={!canPrev}
+            aria-label="Önceki ay"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+          <span className="min-w-[86px] text-center font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#d4e3ff] tabular-nums">
+            {monthLabel(activeMonth)}
+          </span>
+          <button
+            onClick={() => shiftMonth(-1)}
+            disabled={!canNext}
+            aria-label="Sonraki ay"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
-      {/* X/Y özeti */}
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-[13px] font-medium text-white tabular-nums">
-          <span className="font-semibold text-[#34d399]">{paidCount}</span>
-          <span className="text-[#6b7d94]"> / {total} ödedi</span>
-        </p>
-        <div className="h-[5px] flex-1 mx-3 overflow-hidden rounded-full bg-[#162544]">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-[#3b82f6] to-[#34d399] transition-all duration-500"
-            style={{ width: `${total > 0 ? (paidCount / total) * 100 : 0}%` }}
-          />
+      {/* ------ Özet: 3 hücreli istatistik + ilerleme çubuğu ------ */}
+      <div className="px-4 pt-4">
+        <div className="grid grid-cols-3 divide-x divide-white/[0.07] rounded-xl border border-white/[0.05] bg-[#0a1628]/50">
+          <div className="px-3 py-2.5">
+            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
+              Ödeyen
+            </p>
+            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#34d399]">
+              {paidCount}
+            </p>
+          </div>
+          <div className="px-3 py-2.5">
+            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
+              Bekleyen
+            </p>
+            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#fbbf24]">
+              {unpaidCount}
+            </p>
+          </div>
+          <div className="px-3 py-2.5">
+            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
+              Toplam
+            </p>
+            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#d4e3ff]">
+              {total}
+            </p>
+          </div>
         </div>
-        <p className="text-[10.5px] text-[#5b6b80] tabular-nums shrink-0">
-          {unpaidCount} bekliyor
-        </p>
-      </div>
 
-      {isLoading && members.length === 0 ? (
-        <div className="h-16 flex items-center justify-center">
-          <p className="text-[11px] text-[#5b6b80]">Yükleniyor…</p>
-        </div>
-      ) : members.length === 0 ? (
-        <p className="text-[11px] text-[#5b6b80]">Onaylı üye yok</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-1.5">
-          {visible.map((m) => (
+        {/* ilerleme çubuğu */}
+        <div className="mt-3 flex items-center gap-2.5">
+          <p className="text-[28px] font-semibold leading-none tabular-nums tracking-tighter text-[#d4e3ff]">
+            {percent}
+            <span className="align-top text-[16px] font-medium text-[#7a8da4]">
+              %
+            </span>
+          </p>
+          <div className="h-[4px] flex-1 overflow-hidden rounded-full bg-[#162544]">
             <div
-              key={m.id}
-              className="flex items-center gap-2 rounded-lg bg-[#0f1d32]/50 border border-[#162544]/60 px-2 py-1.5"
-            >
-              <span className="w-6 h-6 shrink-0 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 border border-[#3b82f6]/20 flex items-center justify-center text-[10px] font-semibold text-[#60a5fa]">
-                {m.name
-                  .split(" ")
-                  .map((s) => s[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-[11.5px] text-[#d4e3ff]">
-                {m.name}
-              </span>
-              {m.paid ? (
-                <span className="shrink-0 flex items-center gap-0.5 text-[9.5px] font-medium text-[#34d399]">
-                  <Check className="w-3 h-3" />
-                  Ödedi
-                </span>
-              ) : (
-                <span className="shrink-0 rounded-full border border-[#23365c] px-1.5 py-0.5 text-[8.5px] uppercase tracking-wide text-[#4d5c70]">
-                  Bekliyor
-                </span>
+              className="h-full rounded-full bg-gradient-to-r from-[#3b82f6] to-[#34d399] transition-all duration-500"
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ------ Liste ------ */}
+      <div className="mt-4">
+        {isLoading && members.length === 0 ? (
+          <div className="flex h-24 items-center justify-center">
+            <p className="text-[11px] text-[#5b6b80]">Yükleniyor…</p>
+          </div>
+        ) : members.length === 0 ? (
+          <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-4">
+            <Users className="h-5 w-5 text-[#4d5c70]" />
+            <p className="text-[11px] text-[#5b6b80]">Bu ay için üye kaydı yok</p>
+          </div>
+        ) : (
+          <div>
+            {/* Ödeyenler */}
+            <SectionHeader
+              title="Ödedi"
+              count={paid.length}
+              dot="bg-[#34d399]"
+              text="text-[#34d399]"
+            />
+            <div className="border-b border-white/[0.05]">
+              {paidVisible.map((m) => (
+                <MemberRow
+                  key={m.id}
+                  m={m}
+                  initials={initials(m.name)}
+                  status="paid"
+                  dateLabel={paidDateLabel(m.paidAt)}
+                />
+              ))}
+              {paid.length > 6 && (
+                <ExpandButton
+                  onClick={() => setExpandedPaid((v) => !v)}
+                  expanded={expandedPaid}
+                  count={paid.length}
+                />
               )}
             </div>
-          ))}
-        </div>
+
+            {/* Bekleyenler */}
+            <div className="bg-amber-500/[0.04]">
+              <div className="border-t border-b border-white/[0.05]">
+                <SectionHeader
+                  title="Bekliyor"
+                  count={unpaid.length}
+                  dot="bg-[#fbbf24]"
+                  text="text-[#fbbf24]"
+                />
+                <div className="border-b border-white/[0.05]">
+                  {unpaidVisible.map((m) => (
+                    <MemberRow
+                      key={m.id}
+                      m={m}
+                      initials={initials(m.name)}
+                      status="waiting"
+                      dateLabel=""
+                    />
+                  ))}
+                  {unpaid.length > 6 && (
+                    <ExpandButton
+                      onClick={() => setExpandedUnpaid((v) => !v)}
+                      expanded={expandedUnpaid}
+                      count={unpaid.length}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SectionHeader({
+  title,
+  count,
+  dot,
+  text,
+}: {
+  title: string;
+  count: number;
+  dot: string;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 px-4 pb-2 pt-3">
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d4e3ff]">
+        {title}
+      </p>
+      <span className={`font-mono text-[10px] tabular-nums ${text}`}>{count}</span>
+    </div>
+  );
+}
+
+function MemberRow({
+  m,
+  initials,
+  status,
+  dateLabel,
+}: {
+  m: { id: string; name: string; avatar: string | null };
+  initials: string;
+  status: "paid" | "waiting";
+  dateLabel: string;
+}) {
+  const avatar = imgUrl(m.avatar);
+  return (
+    <div className="flex min-h-[48px] items-center gap-3 border-b border-white/[0.05] px-4 py-2">
+      {/* Avatar */}
+      {avatar ? (
+        <img
+          src={avatar}
+          alt={m.name}
+          className="h-9 w-9 shrink-0 rounded-full border border-white/[0.08] object-cover"
+        />
+      ) : (
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3b82f6]/20 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-[11px] font-semibold text-[#60a5fa]">
+          {initials}
+        </span>
       )}
 
-      {members.length > 12 && (
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-2 w-full text-center text-[10.5px] font-medium text-[#6b7d94] hover:text-[#b9c6d8] transition-colors"
-        >
-          {expanded ? "Daralt" : `Tümü (${members.length})`}
-        </button>
+      {/* İsim + tarih/alt satır */}
+      <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[#d4e3ff]">
+        {m.name}
+      </span>
+      {status === "paid" && dateLabel && (
+        <span className="shrink-0 font-mono text-[9.5px] uppercase tracking-wide text-[#5b6b80] tabular-nums">
+          {dateLabel}
+        </span>
+      )}
+
+      {/* Durum rozeti */}
+      {status === "paid" ? (
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#34d399]/30 bg-[#34d399]/10">
+          <Check className="h-3.5 w-3.5 text-[#34d399]" />
+        </span>
+      ) : (
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#fbbf24]/30 bg-[#fbbf24]/10">
+          <Clock className="h-3.5 w-3.5 text-[#fbbf24]" />
+        </span>
       )}
     </div>
+  );
+}
+
+function ExpandButton({
+  onClick,
+  expanded,
+  count,
+}: {
+  onClick: () => void;
+  expanded: boolean;
+  count: number;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex w-full items-center justify-center gap-1 py-2 text-[10px] font-medium text-[#7a8da4] transition-colors hover:text-[#d4e3ff]"
+    >
+      {expanded ? "Daralt" : `Tümünü gör (${count})`}
+      <ChevronRight
+        className={`h-3 w-3 transition-transform ${expanded ? "rotate-90" : ""}`}
+      />
+    </button>
   );
 }
 
