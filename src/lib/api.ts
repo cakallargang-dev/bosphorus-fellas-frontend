@@ -1043,6 +1043,12 @@ export const financeApi = {
       { method: "POST", body: JSON.stringify(data) }
     ),
 
+  sendAidatBildirim: (data: { month: string; title?: string; body?: string }) =>
+    request<ApiResponse<{ month: string; unpaidCount: number; targets: number; sent: number; total: number; failed: number }>>(
+      "/api/finance/aidat/bildirim",
+      { method: "POST", body: JSON.stringify(data) }
+    ),
+
   getSettings: () =>
     request<ApiResponse<{ monthlyAidat: number }>>("/api/finance/settings"),
 

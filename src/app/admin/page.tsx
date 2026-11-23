@@ -2241,6 +2241,16 @@ function FinanceTab() {
     },
   });
 
+  // Seçili ayın aidatını ödemeyenlere bildirim gönder
+  const sendBildirimMutation = useMutation({
+    mutationFn: () => financeApi.sendAidatBildirim({ month }),
+    onSuccess: (res) => {
+      const unpaid = res?.data?.unpaidCount ?? 0;
+      toast.success(unpaid > 0 ? `${unpaid} üyeye gönderildi` : "Bildirim gönderilecek üye yok");
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Bildirim gönderilemedi"),
+  });
+
   const saveAidatMutation = useMutation({
     mutationFn: (val: number) => financeApi.updateSettings({ monthlyAidat: val }),
     onSuccess: () => {
@@ -2476,6 +2486,29 @@ function FinanceTab() {
                   Tümünü işaretle
                 </button>
               </div>
+            )}
+
+            {/* Ödemeyenlere bildirim gönder */}
+            {status.unpaidCount > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={sendBildirimMutation.isPending}
+                onClick={() => {
+                  if (
+                    confirm(
+                      `${monthLabel(month)} ayı aidatını ödememiş ${status.unpaidCount} üyeye hatırlatma bildirimi gönderilecek. Devam edilsin mi?`
+                    )
+                  ) {
+                    sendBildirimMutation.mutate();
+                  }
+                }}
+                className="w-full border-[#162544] text-[#6b7688] hover:text-white hover:bg-mancave-surface"
+              >
+                <Bell className="w-4 h-4 mr-1.5" />
+                {sendBildirimMutation.isPending ? "Gönderiliyor…" : "Ödemeyenlere bildirim gönder"}
+              </Button>
             )}
 
             {/* Üye listesi — tek tıkla ödedi/ödemedi */}
