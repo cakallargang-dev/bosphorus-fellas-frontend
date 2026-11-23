@@ -2168,10 +2168,16 @@ const FINANCE_CATEGORIES = [
 // Kalem ekleme formunda aidat SEÇİLEMEZ — aidat artık tek tıkla işaretlenir.
 const FINANCE_FORM_CATEGORIES = FINANCE_CATEGORIES.filter((c) => c.value !== "aidat");
 
+// "2026-11" -> "Kasım 2026" (tr-TR sabit; locale fallback'e düşmez)
+const TR_MONTH_NAMES = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
 function monthLabel(ym: string): string {
   const [y, m] = ym.split("-").map(Number);
-  const d = new Date(y, (m || 1) - 1, 1);
-  return format(d, "MMMM yyyy", { locale: tr });
+  const name = TR_MONTH_NAMES[(m || 1) - 1] ?? "";
+  return `${name} ${y}`;
 }
 
 function FinanceTab() {
