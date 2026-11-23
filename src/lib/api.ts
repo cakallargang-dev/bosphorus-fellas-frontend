@@ -1036,4 +1036,19 @@ export const financeApi = {
 
   membersStatus: () =>
     request<ApiResponse<FinanceMembersStatus>>("/api/finance/members-status"),
+
+  toggleAidat: (data: { memberId: string; month: string; paid: boolean; amount?: number }) =>
+    request<ApiResponse<{ created?: boolean; already?: boolean; removed?: number; amount?: number; id?: string }>>(
+      "/api/finance/aidat/toggle",
+      { method: "POST", body: JSON.stringify(data) }
+    ),
+
+  getSettings: () =>
+    request<ApiResponse<{ monthlyAidat: number }>>("/api/finance/settings"),
+
+  updateSettings: (data: { monthlyAidat: number }) =>
+    request<ApiResponse<{ monthlyAidat: number }>>("/api/finance/settings", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
 };

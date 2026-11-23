@@ -19,6 +19,7 @@ import {
   mediaApi,
   financeApi,
   type FinanceTransaction,
+  type FinanceAidatStatus,
   imgUrl,
 } from "@/lib/api";
 import { AdminGuard } from "@/components/AdminGuard";
@@ -86,6 +87,9 @@ import {
   RefreshCw,
   ImagePlus,
   Wallet,
+  Check,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type {
   MembershipApplication,
@@ -93,6 +97,7 @@ import type {
   Event,
   Sponsor,
   Product,
+  ApiResponse,
 } from "@/types";
 
 // ============================================================
@@ -2160,6 +2165,9 @@ const FINANCE_CATEGORIES = [
   { value: "diger", label: "Diğer" },
 ];
 
+// Kalem ekleme formunda aidat SEÇİLEMEZ — aidat artık tek tıkla işaretlenir.
+const FINANCE_FORM_CATEGORIES = FINANCE_CATEGORIES.filter((c) => c.value !== "aidat");
+
 function monthLabel(ym: string): string {
   const [y, m] = ym.split("-").map(Number);
   const d = new Date(y, (m || 1) - 1, 1);
@@ -2170,9 +2178,21 @@ function FinanceTab() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [month, setMonth] = useState<string>("");
+  const [month, setMonth] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
   const [txOffset, setTxOffset] = useState(0);
   const [loadedTx, setLoadedTx] = useState<FinanceTransaction[]>([]);
+  const [editAidat, setEditAidat] = useState(false);
+  const [aidatDraft, setAidatDraft] = useState("");
+
+  const { data: settingsRes } = useQuery({
+    queryKey: ["finance-settings"],
+    queryFn: () => financeApi.getSettings(),
+    staleTime: 60_000,
+  });
+  const monthlyAidat = settingsRes?.data?.monthlyAidat ?? 0;
 
   const { data: summaryRes } = useQuery({
     queryKey: ["finance-summary"],
@@ -2208,6 +2228,109 @@ function FinanceTab() {
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
   });
+
+  // Tek tıkla aidat işaretle/kaldır. Başarıda tüm kasa cache'ini tazele
+  // (summary'deki son hareketler + admin kalem tablosu + aidat durumu otomatik yansır).
+  const toggleAidatMutation = useMutation({
+    mutationFn: (vars: { memberId: string; paid: boolean }) =>
+      financeApi.toggleAidat({ memberId: vars.memberId, month, paid: vars.paid }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["finance-aidat-status"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
+    },
+  });
+
+  const saveAidatMutation = useMutation({
+    mutationFn: (val: number) => financeApi.updateSettings({ monthlyAidat: val }),
+    onSuccess: () => {
+      toast.success("Aidat tutarı güncellendi");
+      queryClient.invalidateQueries({ queryKey: ["finance-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-aidat-status"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Kaydedilemedi"),
+  });
+
+  const shiftMonth = (delta: number) => {
+    const [y, m] = month.split("-").map(Number);
+    const d = new Date(y, (m || 1) - 1 + delta, 1);
+    setMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  };
+
+  const togglePaid = (memberId: string, paid: boolean) => {
+    // Optimistic: önce cache'i elle güncelle
+    queryClient.setQueryData<ApiResponse<FinanceAidatStatus>>(
+      ["finance-aidat-status", month],
+      (old) => {
+        if (!old?.data) return old;
+        const members = old.data.members.map((m) =>
+          m.id === memberId ? { ...m, paid, paidAt: paid ? new Date().toISOString() : null } : m
+        );
+        const paidCount = members.filter((m) => m.paid).length;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            members,
+            paidCount,
+            unpaidCount: members.length - paidCount,
+            collected: paidCount * monthlyAidat,
+            expected: members.length * monthlyAidat,
+          },
+        };
+      }
+    );
+    toggleAidatMutation.mutate(
+      { memberId, paid },
+      {
+        onError: () => {
+          toast.error("Aidat işareti güncellenemedi");
+          queryClient.invalidateQueries({ queryKey: ["finance-aidat-status"] });
+        },
+      }
+    );
+  };
+
+  const saveAidatValue = () => {
+    const n = parseFloat(aidatDraft);
+    if (!Number.isFinite(n) || n < 0) {
+      toast.error("Geçerli bir tutar giriniz");
+      return;
+    }
+    saveAidatMutation.mutate(n, {
+      onSuccess: () => setEditAidat(false),
+    });
+  };
+
+  const markAllPaid = () => {
+    if (!status?.members) return;
+    const unpaid = status.members.filter((m) => !m.paid);
+    if (unpaid.length === 0) return;
+    unpaid.forEach((m) => {
+      queryClient.setQueryData<ApiResponse<FinanceAidatStatus>>(
+        ["finance-aidat-status", month],
+        (old) => {
+          if (!old?.data) return old;
+          const members = old.data.members.map((x) =>
+            x.id === m.id ? { ...x, paid: true, paidAt: new Date().toISOString() } : x
+          );
+          const paidCount = members.filter((x) => x.paid).length;
+          return {
+            ...old,
+            data: { ...old.data, members, paidCount, unpaidCount: members.length - paidCount, collected: paidCount * monthlyAidat, expected: members.length * monthlyAidat },
+          };
+        }
+      );
+    });
+    Promise.allSettled(
+      unpaid.map((m) => financeApi.toggleAidat({ memberId: m.id, month, paid: true }))
+    ).then(() => {
+      queryClient.invalidateQueries({ queryKey: ["finance-aidat-status"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
+    });
+  };
 
   const summary = summaryRes?.data;
   const txData = txRes?.data;
@@ -2263,48 +2386,139 @@ function FinanceTab() {
         </div>
       )}
 
-      {/* Aidat durumu */}
+      {/* Aidat — ay bazlı tik ile işaretleme */}
       {status && (
         <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base">
-              {month ? `${monthLabel(month)} Aidat Durumu` : "Bu Ay Aidat Durumu"}
-            </CardTitle>
-            <CardDescription className="text-[#6b7688]">
-              {status.paidCount} / {status.members.length} üye ödedi{" "}
-              {month && `(${monthLabel(month)})`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3 mb-4">
-              <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
-                <p className="text-green-500 text-[18px] font-semibold tabular-nums">{status.paidCount}</p>
-                <p className="text-[11px] text-[#6b7688]">Ödeyen</p>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-white text-base">Aidat Takibi</CardTitle>
+                <CardDescription className="text-[#6b7688]">
+                  {status.paidCount} / {status.members.length} üye ödedi · {fmt(status.collected)} ₺ toplandı
+                </CardDescription>
               </div>
-              <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
-                <p className="text-red-400 text-[18px] font-semibold tabular-nums">{status.unpaidCount}</p>
-                <p className="text-[11px] text-[#6b7688]">Ödemeyen</p>
-              </div>
-            </div>
-            {status.unpaidCount > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-[12px] font-medium text-[#6b7688]">Ödemeyenler</p>
-                {status.members
-                  .filter((m) => !m.paid)
-                  .slice(0, 20)
-                  .map((m) => (
-                    <div key={m.id} className="flex items-center gap-2.5 py-1 border-b border-white/5 last:border-0">
-                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                      <span className="text-[13px] text-white">{m.name}</span>
-                    </div>
-                  ))}
-                {status.members.filter((m) => !m.paid).length > 20 && (
-                  <p className="text-[11px] text-[#6b7688] pt-1">
-                    +{status.members.filter((m) => !m.paid).length - 20} üye daha
-                  </p>
+              {/* Aylık aidat tutarı — düzenlenebilir */}
+              <div className="flex items-center gap-2">
+                {editAidat ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="number"
+                      min="0"
+                      value={aidatDraft}
+                      onChange={(e) => setAidatDraft(e.target.value)}
+                      className="w-24 h-8 bg-mancave-surface border-gray-800 text-white text-sm"
+                      autoFocus
+                    />
+                    <Button
+                      size="sm"
+                      onClick={saveAidatValue}
+                      disabled={saveAidatMutation.isPending}
+                      className="h-8 bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black text-xs"
+                    >
+                      Kaydet
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] text-[#6b7688]">
+                      Aylık aidat: <span className="text-white font-semibold tabular-nums">{fmt(monthlyAidat)} ₺</span>
+                    </span>
+                    <button
+                      onClick={() => {
+                        setAidatDraft(String(monthlyAidat || ""));
+                        setEditAidat(true);
+                      }}
+                      className="text-xs text-[#3b82f6] hover:text-[#60a5fa]"
+                    >
+                      Düzenle
+                    </button>
+                  </div>
                 )}
               </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Ay seçici */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => shiftMonth(-1)}
+                className="p-1.5 rounded-lg border border-[#162544] text-[#6b7688] hover:text-white hover:bg-mancave-surface"
+                aria-label="Önceki ay"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <div className="text-center">
+                <p className="text-white font-semibold text-[15px] uppercase tracking-wide">{monthLabel(month)}</p>
+                <p className="text-[11px] text-[#6b7688]">
+                  {status.unpaidCount} üye bekliyor · beklenen {fmt(status.expected)} ₺
+                </p>
+              </div>
+              <button
+                onClick={() => shiftMonth(1)}
+                className="p-1.5 rounded-lg border border-[#162544] text-[#6b7688] hover:text-white hover:bg-mancave-surface"
+                aria-label="Sonraki ay"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Toplu işaretle */}
+            {status.unpaidCount > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-[#6b7688]">
+                  {status.unpaidCount} üye henüz ödemedi ·{" "}
+                  <span className="text-green-500 font-medium tabular-nums">{fmt(status.collected)} ₺</span>
+                </span>
+                <button
+                  onClick={markAllPaid}
+                  className="text-xs text-[#3b82f6] hover:text-[#60a5fa] font-medium"
+                >
+                  Tümünü işaretle
+                </button>
+              </div>
             )}
+
+            {/* Üye listesi — tek tıkla ödedi/ödemedi */}
+            <div className="space-y-1">
+              {status.members.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => togglePaid(m.id, !m.paid)}
+                  className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-left transition-colors ${
+                    m.paid ? "bg-green-500/10" : "bg-[#0a1628]/40 hover:bg-[#0a1628]/70"
+                  }`}
+                >
+                  <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarImage src={imgUrl(m.avatar) || undefined} />
+                    <AvatarFallback className="bg-[#162544] text-[#6b7688] text-sm">
+                      {m.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13.5px] text-white font-medium truncate">{m.name}</p>
+                    {m.paid && m.paidAt && (
+                      <p className="text-[11px] text-green-500/80">
+                        {new Date(m.paidAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+                      </p>
+                    )}
+                  </div>
+                  {/* BÜYÜK tik kutusu */}
+                  <span
+                    className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center shrink-0 transition-colors ${
+                      m.paid
+                        ? "bg-green-500 border-green-500 text-black"
+                        : "border-[#162544] text-transparent hover:border-[#3b82f6]"
+                    }`}
+                  >
+                    <Check className="w-5 h-5" strokeWidth={3} />
+                  </span>
+                </button>
+              ))}
+              {status.members.length === 0 && (
+                <p className="text-[13px] text-[#6b7688] text-center py-6">Onaylı üye yok</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -2494,7 +2708,7 @@ function FinanceForm({
   const isEditing = !!editingId;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [type, setType] = useState<"income" | "expense">("income");
-  const [category, setCategory] = useState("aidat");
+  const [category, setCategory] = useState("diger");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [description, setDescription] = useState("");
@@ -2588,7 +2802,7 @@ function FinanceForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-mancave-card border-gray-800">
-              {FINANCE_CATEGORIES.map((c) => (
+              {FINANCE_FORM_CATEGORIES.map((c) => (
                 <SelectItem key={c.value} value={c.value} className="text-gray-300">
                   {c.label}
                 </SelectItem>
