@@ -7,7 +7,7 @@ import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, typ
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check, Clock, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check, Clock, ChevronLeft, ChevronRight, ChevronDown, Users } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -328,15 +328,6 @@ function KasaSection() {
     n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
   const balance = summary.balance;
-  const totalMovement = summary.totalIncome + summary.totalExpense;
-  const incomePct =
-    totalMovement > 0 ? Math.round((summary.totalIncome / totalMovement) * 100) : 0;
-
-  const expected = summary.memberCount * summary.monthlyAidat;
-  const aidatPct =
-    expected > 0
-      ? Math.min(100, Math.round((summary.thisMonthIncome / expected) * 100))
-      : 0;
 
   const isNegative = balance < 0;
   const balanceTone = isNegative ? "text-[#f87171]" : "text-[#d4e3ff]";
@@ -394,8 +385,8 @@ function KasaSection() {
           )}
         </div>
 
-        {/* 4 — Üçlü istatistik şeridi */}
-        <div className="mt-5 grid grid-cols-3 divide-x divide-white/[0.07] border-t border-white/[0.07]">
+        {/* 4 — İstatistik şeridi */}
+        <div className="mt-5 grid grid-cols-2 divide-x divide-white/[0.07] border-t border-white/[0.07]">
           <div className="px-2 pt-4 pb-3">
             <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
               Toplam giriş
@@ -412,37 +403,7 @@ function KasaSection() {
               −{fmt(summary.totalExpense)}
             </p>
           </div>
-          <div className="px-2 pt-4 pb-3">
-            <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
-              Bu ay aidat
-            </p>
-            <p className="mt-1 text-[15px] font-semibold text-white tabular-nums">
-              {fmt(summary.thisMonthIncome)} TL
-            </p>
-          </div>
         </div>
-
-        {/* 5 — Giriş/çıkış oran çubuğu */}
-        {totalMovement > 0 && (
-          <div className="px-5 pb-4">
-            <div className="flex items-center justify-between mb-1.5 text-[9px] uppercase tracking-[0.16em]">
-              <span className="flex items-center gap-1.5 text-[#6b7d94]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#34d399]" />
-                Toplanan
-              </span>
-              <span className="flex items-center gap-1.5 text-[#6b7d94]">
-                Harcanan
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f87171]" />
-              </span>
-            </div>
-            <div className="h-[6px] w-full overflow-hidden rounded-full bg-[#f87171]/40">
-              <div
-                className="h-full rounded-full bg-[#34d399] transition-all duration-700"
-                style={{ width: `${incomePct}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* 6 — Aidat durumu bloğu (kim ödedi) */}
         <AidatStatusBlock />
@@ -563,8 +524,21 @@ function monthLabel(ym: string): string {
     .toUpperCase();
 }
 
+const TR_MONTHS = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
+// "Kasım 2026" (başlıkta / cümle içinde, title case)
+function monthLabelTitle(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  if (!y || !m || m < 1 || m > 12) return ym;
+  return `${TR_MONTHS[m - 1]} ${y}`;
+}
+
 /* ===== Aidat durumu — kim ödedi / kim ödemedi (herkese açık) ===== */
 function AidatStatusBlock() {
+  const [open, setOpen] = useState(false);
   const [month, setMonth] = useState<string>("");
   const [expandedPaid, setExpandedPaid] = useState(false);
   const [expandedUnpaid, setExpandedUnpaid] = useState(false);
@@ -585,7 +559,6 @@ function AidatStatusBlock() {
   const paidCount = status?.paidCount ?? 0;
   const total = members.length || (status?.expected ?? 0);
   const unpaidCount = Math.max(0, total - paidCount);
-  const percent = total > 0 ? Math.round((paidCount / total) * 100) : 0;
 
   const paid = members.filter((m) => m.paid);
   const unpaid = members.filter((m) => !m.paid);
@@ -622,159 +595,141 @@ function AidatStatusBlock() {
   };
 
   return (
-    <div className="mx-5 mb-5 overflow-hidden rounded-[14px] border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
-      {/* ------ Üst editoryal katman: etiket + ay seçici ------ */}
-      <div className="flex items-center justify-between border-b border-white/[0.05] px-4 py-3">
-        <div>
-          <p className="text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6]">
-            Aidat Durumu
-          </p>
-          <p className="mt-0.5 text-[10px] text-[#7a8da4]">
-            Bu ayki katılım defteri
-          </p>
-        </div>
-
-        {/* Ay seçici — ok butonlu, ortada ay-yıl */}
-        <div className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-[#0a1628]/60 px-1 py-1">
-          <button
-            onClick={() => shiftMonth(1)}
-            disabled={!canPrev}
-            aria-label="Önceki ay"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </button>
-          <span className="min-w-[86px] text-center font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#d4e3ff] tabular-nums">
-            {monthLabel(activeMonth)}
+    <div className="mx-5 mb-5 overflow-hidden rounded-xl border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
+      {/* ------ Kapalı/tek satır başlık (tıklanabilir) ------ */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#0f1d32]/60"
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3b82f6]/30 bg-[#3b82f6]/10">
+          <span className="h-2 w-2 rounded-full bg-[#3b82f6]" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13px] font-semibold tracking-tight text-[#d4e3ff]">
+            {monthLabelTitle(activeMonth)} Aidatı
           </span>
-          <button
-            onClick={() => shiftMonth(-1)}
-            disabled={!canNext}
-            aria-label="Sonraki ay"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
+          <span className="mt-0.5 block text-[10.5px] text-[#7a8da4] tabular-nums">
+            {paidCount}/{total} ödedi
+          </span>
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#7a8da4] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
 
-      {/* ------ Özet: 3 hücreli istatistik + ilerleme çubuğu ------ */}
-      <div className="px-4 pt-4">
-        <div className="grid grid-cols-3 divide-x divide-white/[0.07] rounded-xl border border-white/[0.05] bg-[#0a1628]/50">
-          <div className="px-3 py-2.5">
-            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
-              Ödeyen
-            </p>
-            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#34d399]">
-              {paidCount}
-            </p>
-          </div>
-          <div className="px-3 py-2.5">
-            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
-              Bekleyen
-            </p>
-            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#fbbf24]">
-              {unpaidCount}
-            </p>
-          </div>
-          <div className="px-3 py-2.5">
-            <p className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-[#5b6b80]">
-              Toplam
-            </p>
-            <p className="mt-0.5 text-[20px] font-semibold leading-none tabular-nums tracking-tight text-[#d4e3ff]">
-              {total}
-            </p>
-          </div>
-        </div>
-
-        {/* ilerleme çubuğu */}
-        <div className="mt-3 flex items-center gap-2.5">
-          <p className="text-[28px] font-semibold leading-none tabular-nums tracking-tighter text-[#d4e3ff]">
-            {percent}
-            <span className="align-top text-[16px] font-medium text-[#7a8da4]">
-              %
-            </span>
-          </p>
-          <div className="h-[4px] flex-1 overflow-hidden rounded-full bg-[#162544]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#3b82f6] to-[#34d399] transition-all duration-500"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ------ Liste ------ */}
-      <div className="mt-4">
-        {isLoading && members.length === 0 ? (
-          <div className="flex h-24 items-center justify-center">
-            <p className="text-[11px] text-[#5b6b80]">Yükleniyor…</p>
-          </div>
-        ) : members.length === 0 ? (
-          <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-4">
-            <Users className="h-5 w-5 text-[#4d5c70]" />
-            <p className="text-[11px] text-[#5b6b80]">Bu ay için üye kaydı yok</p>
-          </div>
-        ) : (
-          <div>
-            {/* Ödeyenler */}
-            <SectionHeader
-              title="Ödedi"
-              count={paid.length}
-              dot="bg-[#34d399]"
-              text="text-[#34d399]"
-            />
-            <div className="border-b border-white/[0.05]">
-              {paidVisible.map((m) => (
-                <MemberRow
-                  key={m.id}
-                  m={m}
-                  initials={initials(m.name)}
-                  status="paid"
-                  dateLabel={paidDateLabel(m.paidAt)}
-                />
-              ))}
-              {paid.length > 6 && (
-                <ExpandButton
-                  onClick={() => setExpandedPaid((v) => !v)}
-                  expanded={expandedPaid}
-                  count={paid.length}
-                />
-              )}
+      {/* ------ Açık gövde (katlanır) ------ */}
+      {open && (
+        <div className="animate-fade-in">
+          {/* Ay seçici + üst editoryal katman */}
+          <div className="flex items-center justify-between border-b border-white/[0.05] px-4 py-3">
+            <div>
+              <p className="text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6]">
+                Aidat Durumu
+              </p>
+              <p className="mt-0.5 text-[10px] text-[#7a8da4]">
+                Bu ayki katılım defteri
+              </p>
             </div>
 
-            {/* Bekleyenler */}
-            <div className="bg-amber-500/[0.04]">
-              <div className="border-t border-b border-white/[0.05]">
+            {/* Ay seçici — ok butonlu, ortada ay-yıl */}
+            <div className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-[#0a1628]/60 px-1 py-1">
+              <button
+                onClick={() => shiftMonth(1)}
+                disabled={!canPrev}
+                aria-label="Önceki ay"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+              <span className="min-w-[86px] text-center font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#d4e3ff] tabular-nums">
+                {monthLabel(activeMonth)}
+              </span>
+              <button
+                onClick={() => shiftMonth(-1)}
+                disabled={!canNext}
+                aria-label="Sonraki ay"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* ------ Liste ------ */}
+          <div className="mt-2">
+            {isLoading && members.length === 0 ? (
+              <div className="flex h-24 items-center justify-center">
+                <p className="text-[11px] text-[#5b6b80]">Yükleniyor…</p>
+              </div>
+            ) : members.length === 0 ? (
+              <div className="flex h-24 flex-col items-center justify-center gap-1.5 px-4">
+                <Users className="h-5 w-5 text-[#4d5c70]" />
+                <p className="text-[11px] text-[#5b6b80]">Bu ay için üye kaydı yok</p>
+              </div>
+            ) : (
+              <div>
+                {/* Ödeyenler */}
                 <SectionHeader
-                  title="Bekliyor"
-                  count={unpaid.length}
-                  dot="bg-[#fbbf24]"
-                  text="text-[#fbbf24]"
+                  title="Ödedi"
+                  count={paid.length}
+                  dot="bg-[#34d399]"
+                  text="text-[#34d399]"
                 />
                 <div className="border-b border-white/[0.05]">
-                  {unpaidVisible.map((m) => (
+                  {paidVisible.map((m) => (
                     <MemberRow
                       key={m.id}
                       m={m}
                       initials={initials(m.name)}
-                      status="waiting"
-                      dateLabel=""
+                      status="paid"
+                      dateLabel={paidDateLabel(m.paidAt)}
                     />
                   ))}
-                  {unpaid.length > 6 && (
+                  {paid.length > 6 && (
                     <ExpandButton
-                      onClick={() => setExpandedUnpaid((v) => !v)}
-                      expanded={expandedUnpaid}
-                      count={unpaid.length}
+                      onClick={() => setExpandedPaid((v) => !v)}
+                      expanded={expandedPaid}
+                      count={paid.length}
                     />
                   )}
                 </div>
+
+                {/* Bekleyenler */}
+                <div className="bg-amber-500/[0.04]">
+                  <div className="border-t border-b border-white/[0.05]">
+                    <SectionHeader
+                      title="Bekliyor"
+                      count={unpaid.length}
+                      dot="bg-[#fbbf24]"
+                      text="text-[#fbbf24]"
+                    />
+                    <div className="border-b border-white/[0.05]">
+                      {unpaidVisible.map((m) => (
+                        <MemberRow
+                          key={m.id}
+                          m={m}
+                          initials={initials(m.name)}
+                          status="waiting"
+                          dateLabel=""
+                        />
+                      ))}
+                      {unpaid.length > 6 && (
+                        <ExpandButton
+                          onClick={() => setExpandedUnpaid((v) => !v)}
+                          expanded={expandedUnpaid}
+                          count={unpaid.length}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
