@@ -7,11 +7,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { chatApi, authApi, mediaApi } from "@/lib/api";
+import { chatApi, authApi, mediaApi, teamApi, type TeamMember, imgUrl } from "@/lib/api";
 import { compressImage } from "@/lib/imageCompress";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { TeamMemberSheet } from "@/components/TeamMemberSheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -80,7 +81,6 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
   const { data, isLoading } = useQuery({
     queryKey: ["support-messages"],
@@ -266,7 +266,7 @@ function SupportChatView({ onBack }: { onBack: () => void }) {
               >
                 <Avatar className="w-7 h-7 shrink-0 mt-0.5">
                   <AvatarImage
-                    src={msg.sender?.avatar ? `${apiBase}${msg.sender.avatar}` : undefined}
+                    src={imgUrl(msg.sender?.avatar)}
                   />
                   <AvatarFallback className="text-[10px] bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6]">
                     {msg.senderName.charAt(0)}
@@ -365,7 +365,6 @@ function ChannelChatView({
   onBack: () => void;
 }) {
   const { user } = useAuth();
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -378,12 +377,23 @@ function ChannelChatView({
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<UserPublicProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  /** Ekibin zengin modalı (TeamSheet) için seçilen üye */ 
+  const [sheetMember, setSheetMember] = useState<TeamMember | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
   const msgCountRef = useRef(0);
 
   const Icon = channel.icon;
+
+  // Ekip sayfasıyla aynı cache anahtarını paylaşan üye listesi —
+  // avatar tıklanınca zengin TeamSheet'i buradan buluruz.
+  const { data: directory } = useQuery({
+    queryKey: ["team-directory"],
+    queryFn: () => teamApi.list(),
+    staleTime: 60_000,
+  });
+  const members = directory?.data ?? [];
 
   const { data, isLoading } = useQuery({
     queryKey: ["chat-messages", channel.id],
@@ -454,6 +464,13 @@ function ChannelChatView({
 
   const handleOpenProfile = async (userId: string) => {
     if (userId === user?.id) return;
+    // Önce ekip dizininde bu üyeyi ara → zengin TeamSheet modalını aç.
+    const member = members.find((m) => m.id === userId);
+    if (member) {
+      setSheetMember(member);
+      return;
+    }
+    // Dizin henüz yüklenmemişse eski basit profile dialog'una düş (fallback).
     setProfileUserId(userId);
     setProfileLoading(true);
     setProfileData(null);
@@ -572,11 +589,7 @@ function ChannelChatView({
               >
                 <Avatar className="w-8 h-8 hover:ring-2 hover:ring-[#3b82f6]/50 transition-all">
                   <AvatarImage
-                    src={
-                      msg.sender?.avatar
-                        ? `${apiBase}${msg.sender.avatar}`
-                        : undefined
-                    }
+                    src={imgUrl(msg.sender?.avatar)}
                   />
                   <AvatarFallback className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/20 text-[#3b82f6] text-xs">
                     {msg.senderName.charAt(0).toUpperCase()}
@@ -805,7 +818,7 @@ function ChannelChatView({
             <div className="text-center space-y-4">
               <Avatar className="w-20 h-20 mx-auto border-2 border-[#3b82f6]/30">
                 <AvatarImage
-                  src={profileData.avatar ? `${apiBase}${profileData.avatar}` : undefined}
+                  src={imgUrl(profileData.avatar)}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-[#3b82f6] text-2xl">
                   {profileData.firstName?.[0]}{profileData.lastName?.[0]}
@@ -844,6 +857,11 @@ function ChannelChatView({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Zengin üye profili — ekip sayfasındaki TeamSheet'in aynısı */}
+      {sheetMember && (
+        <TeamMemberSheet member={sheetMember} onClose={() => setSheetMember(null)} />
+      )}
     </div>
   );
 }
