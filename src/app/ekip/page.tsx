@@ -319,7 +319,7 @@ function KasaSection() {
 
         {/* 4 — İstatistik şeridi */}
         <div className="mt-5 grid grid-cols-2 divide-x divide-white/[0.07] border-t border-white/[0.07]">
-          <div className="px-2 pt-4 pb-3">
+          <div className="px-5 pt-4 pb-3">
             <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
               Toplam giriş
             </p>
@@ -327,7 +327,7 @@ function KasaSection() {
               +{fmt(summary.totalIncome)}
             </p>
           </div>
-          <div className="px-2 pt-4 pb-3">
+          <div className="px-5 pt-4 pb-3 text-right">
             <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
               Toplam çıkış
             </p>
