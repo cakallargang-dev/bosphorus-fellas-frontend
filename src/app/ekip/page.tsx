@@ -14,6 +14,11 @@ import { findBrand, brandLogo } from "@/lib/brands";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
 // Kasa verileri için TEK başlangıç tabanı — 2026 Kasım öncesi hiçbir kayıt/ay gösterilmez.
+const TR_MONTH_NAMES = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
 const FINANCE_START_MONTH = "2026-11";
 const FINANCE_START_AT = new Date("2026-11-01T00:00:00.000Z").getTime();
 
@@ -417,15 +422,11 @@ function TransactionRow({
           {isIncome ? "+" : "−"}
           {fmt(t.amount)} TL
         </p>
-        <p className="mt-0.5 font-mono text-[9.5px] uppercase tracking-wide text-[#4d5c70]">
-          {new Date(t.date)
-            .toLocaleDateString("tr-TR", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-            .toUpperCase()
-            .replace(/\./g, "")}
+        <p className="mt-0.5 text-[9.5px] uppercase tracking-wide text-[#4d5c70]">
+          {new Date(t.date).getDate().toString().padStart(2, "0")}{" "}
+          {TR_MONTH_NAMES[new Date(t.date).getMonth()]}
+          {" "}
+          <span className="font-mono">{new Date(t.date).getFullYear()}</span>
         </p>
       </div>
     </div>
