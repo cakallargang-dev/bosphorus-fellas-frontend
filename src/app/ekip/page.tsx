@@ -505,12 +505,12 @@ function TransactionRow({
   );
 }
 
-/* Son 12 ay etiketi üretir (güncel ay dahil, geriye doğru) */
-function lastMonths(count: number): string[] {
+/* Bu aydan başlayıp İLERİYE doğru ay etiketleri üretir (ilki bu ay) */
+function forwardMonths(count: number): string[] {
   const out: string[] = [];
   const now = new Date();
   for (let i = 0; i < count; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
     out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
   }
   return out;
@@ -551,9 +551,17 @@ function AidatStatusBlock() {
 
   const status: FinanceAidatStatus | undefined = data?.data;
 
-  // aylar — bu ay + geçmiş 5 ay
-  const months = useMemo(() => lastMonths(6), []);
-  const activeMonth = month || (status?.month ?? months[0] ?? "");
+  // ay seçici: bu ay ile başla, ok butonlarıyla İLERİ/GERİ gezin (geçmiş -12, gelecek +12)
+  const months = useMemo(() => {
+    const out: string[] = [];
+    const now = new Date();
+    for (let i = -12; i <= 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+    }
+    return out;
+  }, []);
+  const activeMonth = month || (status?.month ?? months[12] ?? "");
 
   const members = status?.members ?? [];
   const paidCount = status?.paidCount ?? 0;
@@ -565,10 +573,10 @@ function AidatStatusBlock() {
   const paidVisible = expandedPaid ? paid : paid.slice(0, 6);
   const unpaidVisible = expandedUnpaid ? unpaid : unpaid.slice(0, 6);
 
-  // ay seçici: aktif ayın aylar dizisindeki konumuna göre geri/ileri gezin
-  const activeIdx = Math.max(0, months.indexOf(activeMonth));
-  const canPrev = activeIdx < months.length - 1;
-  const canNext = activeIdx > 0;
+  // ay seçici: aktif ayın aylar dizisindeki konumuna göre ileri/geri gezin
+  const activeIdx = months.indexOf(activeMonth) >= 0 ? months.indexOf(activeMonth) : 12;
+  const canPrev = activeIdx > 0; // geri (geçmiş)
+  const canNext = activeIdx < months.length - 1; // ileri (gelecek)
   const shiftMonth = (dir: 1 | -1) => {
     const next = months[activeIdx + dir];
     if (next) setMonth(next);
@@ -636,7 +644,7 @@ function AidatStatusBlock() {
             {/* Ay seçici — ok butonlu, ortada ay-yıl */}
             <div className="flex items-center gap-1 rounded-full border border-white/[0.07] bg-[#0a1628]/60 px-1 py-1">
               <button
-                onClick={() => shiftMonth(1)}
+                onClick={() => shiftMonth(-1)}
                 disabled={!canPrev}
                 aria-label="Önceki ay"
                 className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
@@ -647,7 +655,7 @@ function AidatStatusBlock() {
                 {monthLabel(activeMonth)}
               </span>
               <button
-                onClick={() => shiftMonth(-1)}
+                onClick={() => shiftMonth(1)}
                 disabled={!canNext}
                 aria-label="Sonraki ay"
                 className="flex h-7 w-7 items-center justify-center rounded-full text-[#7a8da4] transition-colors hover:text-white disabled:opacity-30 disabled:hover:text-[#7a8da4]"
@@ -871,7 +879,7 @@ function TransactionsSheet({ onClose }: { onClose: () => void }) {
     }
   }, [display, isFetching, loaded.length]);
 
-  const months = useMemo(() => lastMonths(12), []);
+  const months = useMemo(() => forwardMonths(12), []);
 
   const fmt = (n: number) =>
     n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
