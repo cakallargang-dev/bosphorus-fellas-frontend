@@ -7,7 +7,7 @@ import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, typ
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check, Clock, ChevronLeft, ChevronRight, ChevronDown, Users } from "lucide-react";
+import { X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check, Clock, ChevronLeft, ChevronRight, ChevronDown, Users } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -85,8 +85,6 @@ export default function TeamPage() {
 }
 
 function TeamContent() {
-  const [q, setQ] = useState("");
-  const [brand, setBrand] = useState<string | null>(null);
   const [open, setOpen] = useState<TeamMember | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -96,27 +94,6 @@ function TeamContent() {
   });
 
   const all = data?.data ?? [];
-
-  const brands = useMemo(() => {
-    const map = new Map<string, number>();
-    all.forEach((m) => {
-      const b = findBrand(m.car);
-      if (b) map.set(b.label, (map.get(b.label) || 0) + 1);
-    });
-    return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-  }, [all]);
-
-  const members = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return all.filter((m) => {
-      if (brand && findBrand(m.car)?.label !== brand) return false;
-      if (!needle) return true;
-      return (
-        m.name.toLowerCase().includes(needle) ||
-        m.car.toLowerCase().includes(needle)
-      );
-    });
-  }, [all, q, brand]);
 
   return (
     <Layout>
@@ -142,44 +119,14 @@ function TeamContent() {
 
         <KasaSection />
 
-        <div className="relative mb-3.5">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#5b6b80]" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="İsim, araç veya teknik özellik"
-            className="w-full rounded-[16px] bg-[#0a1628]/80 border border-[#162544] pl-10 pr-3 py-2.5 text-[13px] text-white placeholder:text-[#4d5c70] focus:outline-none focus:border-[#3b82f6]/40 focus:bg-[#0a1628] transition-all duration-300"
-          />
+        <div className="flex items-center justify-between mb-3.5 mt-1">
+          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#3b82f6]/80">
+            Üyeler
+          </p>
+          <p className="text-[10.5px] font-mono text-[#5b6b80] tabular-nums">
+            {all.length}
+          </p>
         </div>
-
-        {brands.length > 0 && (
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-4 -mx-4 px-4">
-            <button
-              onClick={() => setBrand(null)}
-              className={`shrink-0 px-3 py-1.5 rounded-lg text-[11.5px] font-medium border transition-all duration-300 ${
-                !brand
-                  ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/15 border-[#3b82f6]/40 text-[#60a5fa]"
-                  : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
-              }`}
-            >
-              Tümü
-            </button>
-            {brands.map(([label, count]) => (
-              <button
-                key={label}
-                onClick={() => setBrand(brand === label ? null : label)}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-medium border transition-all duration-300 ${
-                  brand === label
-                    ? "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/15 border-[#3b82f6]/40 text-[#60a5fa]"
-                    : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
-                }`}
-              >
-                {label}
-                <span className="text-[10px] opacity-50 tabular-nums">{count}</span>
-              </button>
-            ))}
-          </div>
-        )}
 
         {isLoading ? (
           <div className="space-y-3">
@@ -187,13 +134,13 @@ function TeamContent() {
             <SkeletonCard className="h-28" />
             <SkeletonCard className="h-28" />
           </div>
-        ) : members.length === 0 ? (
+        ) : all.length === 0 ? (
           <div className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border border-[#162544] rounded-[22px] premium-shadow p-10 text-center">
-            <p className="text-[13px] text-[#7a8da4]">Eşleşen üye yok.</p>
+            <p className="text-[13px] text-[#7a8da4]">Henüz üye yok.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {members.map((m, i) => {
+            {all.map((m, i) => {
               const b = findBrand(m.car);
               return (
                 <article
