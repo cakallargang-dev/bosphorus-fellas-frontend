@@ -12,6 +12,10 @@ import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
+// Kasa verileri için TEK başlangıç tabanı — 2026 Kasım öncesi hiçbir kayıt/ay gösterilmez.
+const FINANCE_START_MONTH = "2026-11";
+const FINANCE_START_AT = new Date("2026-11-01T00:00:00.000Z").getTime();
+
 /* ---------- Marka logolari (gercek SVG) ---------- */
 
 function BrandBadge({ car, size = 34 }: { car: string; size?: number }) {
@@ -332,7 +336,9 @@ function KasaSection() {
   const isNegative = balance < 0;
   const balanceTone = isNegative ? "text-[#f87171]" : "text-[#d4e3ff]";
 
-  const recent = summary.transactions.slice(0, 8);
+  const recent = summary.transactions
+    .filter((t) => new Date(t.date).getTime() >= FINANCE_START_AT)
+    .slice(0, 8);
   const hasMore = summary.totalCount > 8;
 
   return (
@@ -505,12 +511,17 @@ function TransactionRow({
   );
 }
 
-/* Bu aydan başlayıp İLERİYE doğru ay etiketleri üretir (ilki bu ay) */
+/* FINANCE_START_MONTH'tan başlayıp İLERİYE doğru ay etiketleri üretir (ilki Kasım 2026).
+ * Bu ay saatini aşarsa geri düşer ki geçmiş ay hiç üretilmesin. */
 function forwardMonths(count: number): string[] {
   const out: string[] = [];
+  const [sy, sm] = FINANCE_START_MONTH.split("-").map(Number);
   const now = new Date();
+  const cur = new Date(now.getFullYear(), now.getMonth(), 1);
+  const base = new Date(sy, sm - 1, 1);
+  const start = base > cur ? base : cur;
   for (let i = 0; i < count; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
     out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
   }
   return out;
@@ -551,17 +562,17 @@ function AidatStatusBlock() {
 
   const status: FinanceAidatStatus | undefined = data?.data;
 
-  // ay seçici: bu ay ile başla, ok butonlarıyla İLERİ/GERİ gezin (geçmiş -12, gelecek +12)
+  // ay seçici: FINANCE_START_MONTH (Kasım 2026) ile başla, ok butonlarıyla İLERİ/GERİ gezin (geri = başlangıç ayında durur)
   const months = useMemo(() => {
     const out: string[] = [];
-    const now = new Date();
-    for (let i = -12; i <= 12; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const [sy, sm] = FINANCE_START_MONTH.split("-").map(Number);
+    for (let i = 0; i <= 24; i++) {
+      const d = new Date(sy, sm - 1 + i, 1);
       out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
     }
     return out;
   }, []);
-  const activeMonth = month || (status?.month ?? months[12] ?? "");
+  const activeMonth = month || (status?.month ?? months[0] ?? "");
 
   const members = status?.members ?? [];
   const paidCount = status?.paidCount ?? 0;
@@ -574,8 +585,8 @@ function AidatStatusBlock() {
   const unpaidVisible = expandedUnpaid ? unpaid : unpaid.slice(0, 6);
 
   // ay seçici: aktif ayın aylar dizisindeki konumuna göre ileri/geri gezin
-  const activeIdx = months.indexOf(activeMonth) >= 0 ? months.indexOf(activeMonth) : 12;
-  const canPrev = activeIdx > 0; // geri (geçmiş)
+  const activeIdx = months.indexOf(activeMonth) >= 0 ? months.indexOf(activeMonth) : 0;
+  const canPrev = activeIdx > 0 && activeMonth !== FINANCE_START_MONTH; // geri (geçmiş) — başlangıç ayında durur
   const canNext = activeIdx < months.length - 1; // ileri (gelecek)
   const shiftMonth = (dir: 1 | -1) => {
     const next = months[activeIdx + dir];
@@ -856,7 +867,9 @@ function TransactionsSheet({ onClose }: { onClose: () => void }) {
   });
 
   const page = data?.data;
-  const items = page?.items ?? [];
+  const items = (page?.items ?? []).filter(
+    (t) => new Date(t.date).getTime() >= FINANCE_START_AT
+  );
   const total = page?.total ?? 0;
   const hasMore = page?.hasMore ?? false;
 
