@@ -944,6 +944,23 @@ export interface FinanceTransaction {
   updatedAt: string;
 }
 
+export interface FinanceAidatMember {
+  id: string;
+  name: string;
+  avatar: string | null;
+  paid: boolean;
+  paidAt: string | null;
+}
+
+export interface FinanceAidatStatus {
+  month: string;
+  paidCount: number;
+  unpaidCount: number;
+  expected: number;
+  collected: number;
+  members: FinanceAidatMember[];
+}
+
 export interface FinanceSummary {
   balance: number;
   totalIncome: number;
@@ -951,6 +968,8 @@ export interface FinanceSummary {
   memberCount: number;
   monthlyAidat: number;
   thisMonthIncome: number;
+  totalCount: number;
+  aidatStatus: FinanceAidatStatus;
   transactions: FinanceTransaction[];
 }
 
@@ -958,12 +977,7 @@ export interface FinanceMembersStatus {
   total: number;
   paidCount: number;
   unpaidCount: number;
-  members: {
-    id: string;
-    name: string;
-    avatar: string | null;
-    paid: boolean;
-  }[];
+  members: FinanceAidatMember[];
 }
 
 export const financeApi = {
@@ -971,16 +985,20 @@ export const financeApi = {
 
   listTransactions: (params?: {
     type?: TransactionType;
+    month?: string;
+    q?: string;
     limit?: number;
     offset?: number;
   }) =>
     request<{
       success: boolean;
-      data: FinanceTransaction[];
-      total: number;
-      limit: number;
-      offset: number;
+      data: { items: FinanceTransaction[]; total: number; limit: number; offset: number; hasMore: boolean };
     }>(`/api/finance/transactions${buildQuery(params || {})}`),
+
+  getAidatStatus: (month?: string) =>
+    request<ApiResponse<FinanceAidatStatus>>(
+      `/api/finance/aidat-status${buildQuery(month ? { month } : {})}`
+    ),
 
   create: (data: {
     type: TransactionType;

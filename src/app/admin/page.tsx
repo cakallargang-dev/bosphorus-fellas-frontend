@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,7 @@ import {
   productsApi,
   mediaApi,
   financeApi,
+  type FinanceTransaction,
   imgUrl,
 } from "@/lib/api";
 import { AdminGuard } from "@/components/AdminGuard";
@@ -2159,10 +2160,19 @@ const FINANCE_CATEGORIES = [
   { value: "diger", label: "Diğer" },
 ];
 
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  const d = new Date(y, (m || 1) - 1, 1);
+  return format(d, "MMMM yyyy", { locale: tr });
+}
+
 function FinanceTab() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [month, setMonth] = useState<string>("");
+  const [txOffset, setTxOffset] = useState(0);
+  const [loadedTx, setLoadedTx] = useState<FinanceTransaction[]>([]);
 
   const { data: summaryRes } = useQuery({
     queryKey: ["finance-summary"],
@@ -2170,15 +2180,15 @@ function FinanceTab() {
     staleTime: 10_000,
   });
 
-  const { data: txRes, isLoading, isError } = useQuery({
-    queryKey: ["finance-transactions"],
-    queryFn: () => financeApi.listTransactions({ limit: 200 }),
+  const { data: txRes, isLoading, isError, isFetching } = useQuery({
+    queryKey: ["finance-transactions", month, txOffset],
+    queryFn: () => financeApi.listTransactions({ month: month || undefined, limit: 50, offset: txOffset }),
     staleTime: 10_000,
   });
 
   const { data: statusRes } = useQuery({
-    queryKey: ["finance-members-status"],
-    queryFn: () => financeApi.membersStatus(),
+    queryKey: ["finance-aidat-status", month],
+    queryFn: () => financeApi.getAidatStatus(month || undefined),
     staleTime: 15_000,
   });
 
@@ -2194,15 +2204,39 @@ function FinanceTab() {
       toast.success("Kalem silindi");
       queryClient.invalidateQueries({ queryKey: ["finance-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["finance-members-status"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-aidat-status"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
   });
 
   const summary = summaryRes?.data;
-  const transactions = txRes?.data ?? [];
+  const txData = txRes?.data;
+  const total = txData?.total ?? 0;
+  const hasMore = txData?.hasMore ?? false;
   const status = statusRes?.data;
   const members = membersRes?.data ?? [];
+
+  // Ay değişince sayfa durumunu sıfırla
+  useEffect(() => {
+    setTxOffset(0);
+    setLoadedTx([]);
+  }, [month]);
+
+  // Yüklü sayfaları birleştir (son sayfa aynı offset'i tekrar etmesin)
+  const pageItems = txData?.items ?? [];
+  const transactions = useMemo(() => {
+    if (txOffset === 0) return pageItems;
+    const existing = loadedTx;
+    // offset arttığında yeni sayfa append edilir
+    const existingIds = new Set(existing.map((t) => t.id));
+    return [...existing, ...pageItems.filter((t) => !existingIds.has(t.id))];
+  }, [pageItems, loadedTx, txOffset]);
+
+  useEffect(() => {
+    if (!isFetching && transactions.length > loadedTx.length) {
+      setLoadedTx(transactions);
+    }
+  }, [transactions, isFetching, loadedTx.length]);
 
   const fmt = (n: number) =>
     n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -2233,9 +2267,12 @@ function FinanceTab() {
       {status && (
         <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
           <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base">Bu Ay Aidat Durumu</CardTitle>
+            <CardTitle className="text-white text-base">
+              {month ? `${monthLabel(month)} Aidat Durumu` : "Bu Ay Aidat Durumu"}
+            </CardTitle>
             <CardDescription className="text-[#6b7688]">
-              {status.paidCount} / {status.total} üye ödedi
+              {status.paidCount} / {status.members.length} üye ödedi{" "}
+              {month && `(${monthLabel(month)})`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -2275,7 +2312,23 @@ function FinanceTab() {
       {/* Kalem listesi + ekle */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-medium">{transactions.length} kalem</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-white font-medium">{total} kalem</h3>
+            <input
+              type="month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="bg-mancave-surface border border-gray-800 text-gray-300 rounded-lg px-2.5 py-1.5 text-xs [color-scheme:dark]"
+            />
+            {month && (
+              <button
+                onClick={() => setMonth("")}
+                className="text-xs text-gray-400 hover:text-white"
+              >
+                Temizle
+              </button>
+            )}
+          </div>
           <Button
             onClick={() => {
               setEditingId(null);
@@ -2371,6 +2424,22 @@ function FinanceTab() {
             </Table>
           </div>
         )}
+
+        {transactions.length > 0 && hasMore && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => setTxOffset((o) => o + transactions.length)}
+              disabled={isFetching}
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 text-sm"
+            >
+              {isFetching ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              Daha fazla yükle
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Form modal */}
@@ -2441,7 +2510,7 @@ function FinanceForm({
 
   useEffect(() => {
     if (isEditing && editingId && txRes?.data) {
-      const t = txRes.data.find((x) => x.id === editingId);
+      const t = txRes.data.items.find((x) => x.id === editingId);
       if (t) {
         setType(t.type);
         setCategory(t.category);

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
-import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, imgUrl } from "@/lib/api";
+import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, type FinanceTransaction, type FinanceAidatStatus, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Wallet, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Check } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -305,7 +306,7 @@ function TeamContent() {
 
 /* ===== KASA — aidat + harcama defteri (premium/editoryal vitrin) ===== */
 function KasaSection() {
-  const [expanded, setExpanded] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["finance-summary"],
     queryFn: () => financeApi.getSummary(),
@@ -336,19 +337,12 @@ function KasaSection() {
     expected > 0
       ? Math.min(100, Math.round((summary.thisMonthIncome / expected) * 100))
       : 0;
-  const paidCount =
-    summary.monthlyAidat > 0
-      ? Math.min(
-          summary.memberCount,
-          Math.round(summary.thisMonthIncome / summary.monthlyAidat),
-        )
-      : 0;
-
-  const visible = expanded ? summary.transactions : summary.transactions.slice(0, 8);
-  const hasMore = summary.transactions.length > 8;
 
   const isNegative = balance < 0;
   const balanceTone = isNegative ? "text-[#f87171]" : "text-[#d4e3ff]";
+
+  const recent = summary.transactions.slice(0, 8);
+  const hasMore = summary.totalCount > 8;
 
   return (
     <section className="relative mb-6 overflow-hidden rounded-2xl border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
@@ -450,52 +444,11 @@ function KasaSection() {
           </div>
         )}
 
-        {/* 6 — Bu ay aidat durumu (dairesel gösterge) */}
-        {summary.monthlyAidat > 0 && (
-          <div className="mx-5 mb-5 flex items-center gap-4 rounded-[14px] border border-[#162544] bg-[#0a1628]/70 px-4 py-3">
-            <div className="relative h-12 w-12 shrink-0">
-              <svg className="h-12 w-12 -rotate-90" viewBox="0 0 48 48">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  fill="none"
-                  stroke="#162544"
-                  strokeWidth="4"
-                />
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeDasharray={`${(aidatPct / 100) * 125.66} 125.66`}
-                  className="transition-all duration-700"
-                />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold text-white tabular-nums">
-                %{aidatPct}
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-[#3b82f6]/80">
-                Bu ay aidat
-              </p>
-              <p className="mt-1 text-[14px] font-medium text-white tabular-nums">
-                {fmt(summary.thisMonthIncome)} TL{" "}
-                <span className="text-[#6b7d94]">/ {fmt(expected)} TL</span>
-              </p>
-              <p className="mt-0.5 text-[10.5px] text-[#7a8da4]">
-                {paidCount} üye ödedi · {Math.max(0, summary.memberCount - paidCount)} bekliyor
-              </p>
-            </div>
-          </div>
-        )}
+        {/* 6 — Aidat durumu bloğu (kim ödedi) */}
+        <AidatStatusBlock />
 
-        {/* 7 — Hareket defteri */}
-        {summary.transactions.length === 0 ? (
+        {/* 7 — Hareket defteri (son 8) */}
+        {recent.length === 0 ? (
           <div className="px-5 pb-5">
             <div className="rounded-[14px] border border-dashed border-[#23365c] px-4 py-8 text-center">
               <p className="text-[13px] font-medium text-[#b9c6d8]">Kasa henüz boş</p>
@@ -508,79 +461,390 @@ function KasaSection() {
           <div className="border-t border-white/[0.06]">
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <p className="text-[9.5px] uppercase tracking-[0.18em] text-[#6b7d94]">
-                Hareketler
+                Son hareketler
               </p>
               <span className="text-[10px] font-mono text-[#5b6b80] tabular-nums">
-                {summary.transactions.length} kalem
+                {summary.totalCount} kalem
               </span>
             </div>
             <div>
-              {visible.map((t) => {
-                const isIncome = t.type === "income";
-                return (
-                  <div
-                    key={t.id}
-                    className="flex items-center gap-3 border-b border-white/[0.05] px-5 py-3 last:border-b-0"
-                  >
-                    {/* Tür şeridi */}
-                    <span
-                      className={`h-8 w-[3px] shrink-0 rounded-full ${
-                        isIncome ? "bg-[#34d399]/80" : "bg-[#f87171]/80"
-                      }`}
-                    />
-                    {/* Açıklama */}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-medium text-[#d4e3ff]">
-                        {t.description || t.category}
-                      </p>
-                      <p className="mt-0.5 truncate text-[10.5px] uppercase tracking-wide text-[#5b6b80]">
-                        {t.category}
-                        {t.memberName ? (
-                          <span className="text-[#3b82f6]/70"> · {t.memberName}</span>
-                        ) : null}
-                      </p>
-                    </div>
-                    {/* Tarih + tutar */}
-                    <div className="shrink-0 text-right">
-                      <p
-                        className={`font-mono text-[14px] font-semibold tabular-nums ${
-                          isIncome ? "text-[#34d399]" : "text-[#f87171]"
-                        }`}
-                      >
-                        {isIncome ? "+" : "−"}
-                        {fmt(t.amount)} TL
-                      </p>
-                      <p className="mt-0.5 font-mono text-[9.5px] uppercase tracking-wide text-[#4d5c70]">
-                        {new Date(t.date)
-                          .toLocaleDateString("tr-TR", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                          .toUpperCase()
-                          .replace(/\./g, "")}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+              {recent.map((t) => (
+                <TransactionRow key={t.id} t={t} fmt={fmt} />
+              ))}
             </div>
 
-            {/* 8 — Genişletme butonu */}
+            {/* 8 — Genişletme butonu (tam ekran katman) */}
             {hasMore && (
               <div className="px-5 py-3">
                 <button
-                  onClick={() => setExpanded((v) => !v)}
+                  onClick={() => setSheetOpen(true)}
                   className="w-full rounded-[12px] border border-[#23365c] py-2.5 text-[11.5px] font-medium text-[#7a8da4] transition-colors hover:border-[#3b82f6]/40 hover:text-[#b9c6d8]"
                 >
-                  {expanded ? "Daralt" : "Tüm hareketler"}
+                  Tüm hareketler
                 </button>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {sheetOpen && <TransactionsSheet onClose={() => setSheetOpen(false)} />}
     </section>
+  );
+}
+
+/* Tek hareket satırı — tür şeridi + kategori + tarih + tutar */
+function TransactionRow({
+  t,
+  fmt,
+}: {
+  t: FinanceTransaction;
+  fmt: (n: number) => string;
+}) {
+  const isIncome = t.type === "income";
+  return (
+    <div className="flex items-center gap-3 border-b border-white/[0.05] px-5 py-3 last:border-b-0">
+      <span
+        className={`h-8 w-[3px] shrink-0 rounded-full ${
+          isIncome ? "bg-[#34d399]/80" : "bg-[#f87171]/80"
+        }`}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-medium text-[#d4e3ff]">
+          {t.description || t.category}
+        </p>
+        <p className="mt-0.5 truncate text-[10.5px] uppercase tracking-wide text-[#5b6b80]">
+          {t.category}
+          {t.memberName ? (
+            <span className="text-[#3b82f6]/70"> · {t.memberName}</span>
+          ) : null}
+        </p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p
+          className={`font-mono text-[14px] font-semibold tabular-nums ${
+            isIncome ? "text-[#34d399]" : "text-[#f87171]"
+          }`}
+        >
+          {isIncome ? "+" : "−"}
+          {fmt(t.amount)} TL
+        </p>
+        <p className="mt-0.5 font-mono text-[9.5px] uppercase tracking-wide text-[#4d5c70]">
+          {new Date(t.date)
+            .toLocaleDateString("tr-TR", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+            .toUpperCase()
+            .replace(/\./g, "")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* Son 12 ay etiketi üretir (güncel ay dahil, geriye doğru) */
+function lastMonths(count: number): string[] {
+  const out: string[] = [];
+  const now = new Date();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return out;
+}
+
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  const d = new Date(y, m - 1, 1);
+  return d
+    .toLocaleDateString("tr-TR", { month: "long", year: "numeric" })
+    .toUpperCase();
+}
+
+/* ===== Aidat durumu — kim ödedi / kim ödemedi (herkese açık) ===== */
+function AidatStatusBlock() {
+  const [month, setMonth] = useState<string>("");
+  const [expanded, setExpanded] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["aidat-status", month],
+    queryFn: () => financeApi.getAidatStatus(month || undefined),
+    staleTime: 15_000,
+  });
+
+  const status: FinanceAidatStatus | undefined = data?.data;
+
+  // aylar — bu ay + geçmiş 5 ay
+  const months = useMemo(() => lastMonths(6), []);
+  const activeMonth = month || (status?.month ?? months[0] ?? "");
+
+  const members = status?.members ?? [];
+  const paidCount = status?.paidCount ?? 0;
+  const total = members.length;
+  const unpaidCount = Math.max(0, total - paidCount);
+  const visible = expanded ? members : members.slice(0, 12);
+
+  return (
+    <div className="mx-5 mb-5 rounded-[14px] border border-[#162544] bg-[#0a1628]/70 px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[9.5px] font-medium uppercase tracking-[0.18em] text-[#3b82f6]/80">
+          Aidat durumu
+        </p>
+        {/* Ay seçici (çip şeridi) */}
+        <div className="flex gap-1 overflow-x-auto no-scrollbar">
+          {months.map((ym) => (
+            <button
+              key={ym}
+              onClick={() => setMonth(ym)}
+              className={`shrink-0 rounded-md px-2 py-1 text-[9px] font-medium uppercase tracking-wide transition-colors ${
+                activeMonth === ym
+                  ? "bg-[#3b82f6]/15 text-[#60a5fa] border border-[#3b82f6]/30"
+                  : "text-[#6b7d94] border border-transparent hover:text-[#b9c6d8]"
+              }`}
+            >
+              {ym.slice(2, 4)}.{ym.slice(5)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* X/Y özeti */}
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[13px] font-medium text-white tabular-nums">
+          <span className="font-semibold text-[#34d399]">{paidCount}</span>
+          <span className="text-[#6b7d94]"> / {total} ödedi</span>
+        </p>
+        <div className="h-[5px] flex-1 mx-3 overflow-hidden rounded-full bg-[#162544]">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#3b82f6] to-[#34d399] transition-all duration-500"
+            style={{ width: `${total > 0 ? (paidCount / total) * 100 : 0}%` }}
+          />
+        </div>
+        <p className="text-[10.5px] text-[#5b6b80] tabular-nums shrink-0">
+          {unpaidCount} bekliyor
+        </p>
+      </div>
+
+      {isLoading && members.length === 0 ? (
+        <div className="h-16 flex items-center justify-center">
+          <p className="text-[11px] text-[#5b6b80]">Yükleniyor…</p>
+        </div>
+      ) : members.length === 0 ? (
+        <p className="text-[11px] text-[#5b6b80]">Onaylı üye yok</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-1.5">
+          {visible.map((m) => (
+            <div
+              key={m.id}
+              className="flex items-center gap-2 rounded-lg bg-[#0f1d32]/50 border border-[#162544]/60 px-2 py-1.5"
+            >
+              <span className="w-6 h-6 shrink-0 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 border border-[#3b82f6]/20 flex items-center justify-center text-[10px] font-semibold text-[#60a5fa]">
+                {m.name
+                  .split(" ")
+                  .map((s) => s[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-[11.5px] text-[#d4e3ff]">
+                {m.name}
+              </span>
+              {m.paid ? (
+                <span className="shrink-0 flex items-center gap-0.5 text-[9.5px] font-medium text-[#34d399]">
+                  <Check className="w-3 h-3" />
+                  Ödedi
+                </span>
+              ) : (
+                <span className="shrink-0 rounded-full border border-[#23365c] px-1.5 py-0.5 text-[8.5px] uppercase tracking-wide text-[#4d5c70]">
+                  Bekliyor
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {members.length > 12 && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-2 w-full text-center text-[10.5px] font-medium text-[#6b7d94] hover:text-[#b9c6d8] transition-colors"
+        >
+          {expanded ? "Daralt" : `Tümü (${members.length})`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ===== Tüm hareketler — tam ekran katman (sayfalı) ===== */
+function TransactionsSheet({ onClose }: { onClose: () => void }) {
+  const [month, setMonth] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<"" | "income" | "expense">("");
+  const [offset, setOffset] = useState(0);
+  const [loaded, setLoaded] = useState<FinanceTransaction[]>([]);
+
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["finance-transactions", month, typeFilter, offset],
+    queryFn: () =>
+      financeApi.listTransactions({
+        month: month || undefined,
+        type: typeFilter || undefined,
+        limit: 50,
+        offset,
+      }),
+  });
+
+  const page = data?.data;
+  const items = page?.items ?? [];
+  const total = page?.total ?? 0;
+  const hasMore = page?.hasMore ?? false;
+
+  // Filtre değişince sıfırla
+  useEffect(() => {
+    setOffset(0);
+    setLoaded([]);
+  }, [month, typeFilter]);
+
+  // Ay/filtre sıfırlanınca yeni sayfayı biriktir
+  const display = useMemo(() => {
+    if (offset === 0) return items;
+    const ids = new Set(loaded.map((t) => t.id));
+    return [...loaded, ...items.filter((t) => !ids.has(t.id))];
+  }, [items, loaded, offset]);
+
+  useEffect(() => {
+    if (!isFetching && display.length > loaded.length) {
+      setLoaded(display);
+    }
+  }, [display, isFetching, loaded.length]);
+
+  const months = useMemo(() => lastMonths(12), []);
+
+  const fmt = (n: number) =>
+    n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[999] bg-[#050b16] overflow-hidden flex flex-col animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {/* Üst başlık */}
+      <div className="shrink-0 px-5 pt-5 pb-4 border-b border-white/[0.06]">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-[9.5px] font-medium uppercase tracking-[0.24em] text-[#3b82f6]/80">
+              Ekip kasası
+            </p>
+            <h2 className="mt-1 text-[26px] leading-[1.05] font-semibold tracking-[-0.035em] text-white">
+              Hareketler
+            </h2>
+            <p className="mt-1 text-[11px] text-[#5b6b80] tabular-nums">
+              {total} kalem
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Kapat"
+            className="tap w-9 h-9 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-white hover:bg-white/[0.1] transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="mt-3 h-[1px] bg-gradient-to-r from-[#3b82f6]/40 via-[#162544] to-transparent" />
+      </div>
+
+      {/* Filtreler */}
+      <div className="shrink-0 px-5 py-3 space-y-2.5">
+        {/* Ay çip şeridi (tümü + son 12 ay) */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setMonth("")}
+            className={`shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+              month === ""
+                ? "bg-[#3b82f6]/15 border-[#3b82f6]/30 text-[#60a5fa]"
+                : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
+            }`}
+          >
+            Tümü
+          </button>
+          {months.map((ym) => (
+            <button
+              key={ym}
+              onClick={() => setMonth(ym)}
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                month === ym
+                  ? "bg-[#3b82f6]/15 border-[#3b82f6]/30 text-[#60a5fa]"
+                  : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
+              }`}
+            >
+              {monthLabel(ym)}
+            </button>
+          ))}
+        </div>
+
+        {/* Tür filtresi */}
+        <div className="flex gap-1.5">
+          {([
+            { v: "", label: "Tümü" },
+            { v: "income", label: "Giriş" },
+            { v: "expense", label: "Çıkış" },
+          ] as const).map((f) => (
+            <button
+              key={f.v}
+              onClick={() => setTypeFilter(f.v)}
+              className={`flex-1 px-3 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                typeFilter === f.v
+                  ? "bg-[#3b82f6]/15 border-[#3b82f6]/30 text-[#60a5fa]"
+                  : "bg-[#0a1628]/60 border-[#162544] text-[#6b7d94] hover:text-[#b9c6d8]"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Liste */}
+      <div className="flex-1 overflow-y-auto">
+        {isLoading && display.length === 0 ? (
+          <div className="px-5 pt-12 text-center">
+            <p className="text-[12px] text-[#5b6b80]">Yükleniyor…</p>
+          </div>
+        ) : display.length === 0 ? (
+          <div className="px-5 pt-12 text-center">
+            <p className="text-[13px] font-medium text-[#b9c6d8]">Bu filtrede kalem yok</p>
+          </div>
+        ) : (
+          <div className="border-t border-white/[0.05]">
+            {display.map((t) => (
+              <TransactionRow key={t.id} t={t} fmt={fmt} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Alt: daha fazla yükle */}
+      <div className="shrink-0 px-5 py-4 border-t border-white/[0.06] bg-[#0a1628]/40">
+        {hasMore ? (
+          <button
+            onClick={() => setOffset((o) => o + 50)}
+            disabled={isFetching}
+            className="w-full rounded-[12px] border border-[#23365c] py-3 text-[12px] font-medium text-[#7a8da4] transition-colors hover:border-[#3b82f6]/40 hover:text-[#b9c6d8] disabled:opacity-50"
+          >
+            {isFetching ? "Yükleniyor…" : "Daha fazla yükle"}
+          </button>
+        ) : (
+          <p className="text-center text-[10.5px] text-[#4d5c70] tabular-nums">
+            {display.length} / {total} kalem gösteriliyor
+          </p>
+        )}
+      </div>
+    </div>,
+    document.body
   );
 }
 
