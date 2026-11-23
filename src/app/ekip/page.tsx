@@ -303,8 +303,9 @@ function TeamContent() {
   );
 }
 
-/* ===== KASA — aidat + harcama defteri (herkes görebilir) ===== */
+/* ===== KASA — aidat + harcama defteri (premium/editoryal vitrin) ===== */
 function KasaSection() {
+  const [expanded, setExpanded] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["finance-summary"],
     queryFn: () => financeApi.getSummary(),
@@ -315,7 +316,7 @@ function KasaSection() {
   const summary: FinanceSummary | undefined = data?.data;
 
   if (isLoading) {
-    return <SkeletonCard className="h-28 mb-5" />;
+    return <SkeletonCard className="h-40 mb-5" />;
   }
 
   if (!summary) {
@@ -325,98 +326,257 @@ function KasaSection() {
   const fmt = (n: number) =>
     n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
-  const recent = summary.transactions.slice(0, 8);
+  const balance = summary.balance;
+  const totalMovement = summary.totalIncome + summary.totalExpense;
+  const incomePct =
+    totalMovement > 0 ? Math.round((summary.totalIncome / totalMovement) * 100) : 0;
+
+  const expected = summary.memberCount * summary.monthlyAidat;
+  const aidatPct =
+    expected > 0
+      ? Math.min(100, Math.round((summary.thisMonthIncome / expected) * 100))
+      : 0;
+  const paidCount =
+    summary.monthlyAidat > 0
+      ? Math.min(
+          summary.memberCount,
+          Math.round(summary.thisMonthIncome / summary.monthlyAidat),
+        )
+      : 0;
+
+  const visible = expanded ? summary.transactions : summary.transactions.slice(0, 8);
+  const hasMore = summary.transactions.length > 8;
+
+  const isNegative = balance < 0;
+  const balanceTone = isNegative ? "text-[#f87171]" : "text-[#d4e3ff]";
 
   return (
-    <section className="relative mb-6 overflow-hidden rounded-[22px] border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
-      {/* mavi ışık + accent çizgi */}
-      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 85% 0%, #3b82f622 0%, transparent 60%)" }} />
-      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#3b82f6]/70 to-transparent" />
+    <section className="relative mb-6 overflow-hidden rounded-2xl border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
+      {/* 1 — Tam-kanama katman: mavi ışık + okunabilirlik + accent çizgi */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at 88% -4%, #3b82f633 0%, transparent 55%)",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#050b16] via-[#050b16]/94 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#3b82f6]/80 via-[#3b82f6]/30 to-transparent" />
 
-      <div className="relative p-4">
-        <div className="flex items-center justify-between">
+      <div className="relative">
+        {/* 2 — Üst etiket + canlı durum şeridi */}
+        <div className="flex items-center justify-between px-5 pt-5">
           <p className="text-[9.5px] font-medium uppercase tracking-[0.24em] text-[#3b82f6]/80">
-            Kasa
+            Ekip kasası
           </p>
-          <span className="ml-auto text-[10px] font-mono text-[#5b6b80] tabular-nums">
-            {fmt(summary.balance)} ₺
+          <span className="flex items-center gap-1.5 text-[9.5px] font-medium uppercase tracking-[0.18em] text-[#5b6b80]">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399] opacity-60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#34d399]" />
+            </span>
+            Güncel
           </span>
         </div>
 
-        {/* Büyük bakiye + giriş/çıkış */}
-        <div className="mt-3 flex items-end gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">
-              <Wallet className="w-4 h-4 text-[#3b82f6]" />
+        {/* 3 — Bakiye bloğu */}
+        <div className="flex items-end justify-between px-5 mt-4">
+          <div>
+            <p className="text-[10.5px] uppercase tracking-[0.14em] text-[#6b7d94]">
+              Kalan bakiye
+            </p>
+            <p className="flex items-baseline gap-1.5 mt-1">
+              <span
+                className={`text-[46px] leading-[0.95] font-semibold tracking-tighter tabular-nums ${balanceTone}`}
+              >
+                {fmt(balance)}
+              </span>
+              <span className="text-[15px] font-medium text-[#7a8da4]">TL</span>
+            </p>
+          </div>
+          {isNegative && (
+            <span className="mb-1 rounded-md border border-[#f87171]/30 bg-[#f87171]/10 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-[#f87171]">
+              Açık
+            </span>
+          )}
+        </div>
+
+        {/* 4 — Üçlü istatistik şeridi */}
+        <div className="mt-5 grid grid-cols-3 divide-x divide-white/[0.07] border-t border-white/[0.07]">
+          <div className="px-2 pt-4 pb-3">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
+              Toplam giriş
+            </p>
+            <p className="mt-1 text-[15px] font-semibold text-[#34d399] tabular-nums">
+              +{fmt(summary.totalIncome)}
+            </p>
+          </div>
+          <div className="px-2 pt-4 pb-3">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
+              Toplam çıkış
+            </p>
+            <p className="mt-1 text-[15px] font-semibold text-[#f87171] tabular-nums">
+              −{fmt(summary.totalExpense)}
+            </p>
+          </div>
+          <div className="px-2 pt-4 pb-3">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-[#6b7d94]">
+              Bu ay aidat
+            </p>
+            <p className="mt-1 text-[15px] font-semibold text-white tabular-nums">
+              {fmt(summary.thisMonthIncome)} TL
+            </p>
+          </div>
+        </div>
+
+        {/* 5 — Giriş/çıkış oran çubuğu */}
+        {totalMovement > 0 && (
+          <div className="px-5 pb-4">
+            <div className="flex items-center justify-between mb-1.5 text-[9px] uppercase tracking-[0.16em]">
+              <span className="flex items-center gap-1.5 text-[#6b7d94]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#34d399]" />
+                Toplanan
+              </span>
+              <span className="flex items-center gap-1.5 text-[#6b7d94]">
+                Harcanan
+                <span className="h-1.5 w-1.5 rounded-full bg-[#f87171]" />
+              </span>
             </div>
-            <div>
-              <p className="text-[10.5px] text-[#7a8da4]">Güncel bakiye</p>
-              <p className="text-[24px] leading-tight font-semibold tracking-[-0.02em] text-white tabular-nums">
-                {fmt(summary.balance)} ₺
+            <div className="h-[6px] w-full overflow-hidden rounded-full bg-[#f87171]/40">
+              <div
+                className="h-full rounded-full bg-[#34d399] transition-all duration-700"
+                style={{ width: `${incomePct}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 6 — Bu ay aidat durumu (dairesel gösterge) */}
+        {summary.monthlyAidat > 0 && (
+          <div className="mx-5 mb-5 flex items-center gap-4 rounded-[14px] border border-[#162544] bg-[#0a1628]/70 px-4 py-3">
+            <div className="relative h-12 w-12 shrink-0">
+              <svg className="h-12 w-12 -rotate-90" viewBox="0 0 48 48">
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  fill="none"
+                  stroke="#162544"
+                  strokeWidth="4"
+                />
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={`${(aidatPct / 100) * 125.66} 125.66`}
+                  className="transition-all duration-700"
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold text-white tabular-nums">
+                %{aidatPct}
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#3b82f6]/80">
+                Bu ay aidat
+              </p>
+              <p className="mt-1 text-[14px] font-medium text-white tabular-nums">
+                {fmt(summary.thisMonthIncome)} TL{" "}
+                <span className="text-[#6b7d94]">/ {fmt(expected)} TL</span>
+              </p>
+              <p className="mt-0.5 text-[10.5px] text-[#7a8da4]">
+                {paidCount} üye ödedi · {Math.max(0, summary.memberCount - paidCount)} bekliyor
               </p>
             </div>
           </div>
-          <div className="ml-auto space-y-1 text-right">
-            <p className="text-[12px] font-medium text-[#34d399] tabular-nums flex items-center justify-end gap-1">
-              <ArrowDownRight className="w-3.5 h-3.5" />
-              +{fmt(summary.totalIncome)} ₺
-            </p>
-            <p className="text-[12px] font-medium text-[#f87171] tabular-nums flex items-center justify-end gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              −{fmt(summary.totalExpense)} ₺
-            </p>
-          </div>
-        </div>
+        )}
 
-        {/* İstatistik şeridi */}
-        <div className="mt-3 border-t border-white/[0.07] pt-2.5 grid grid-cols-3 gap-2">
-          <div>
-            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Bu ay aidat</p>
-            <p className="text-[13px] font-semibold text-white tabular-nums">{fmt(summary.thisMonthIncome)} ₺</p>
+        {/* 7 — Hareket defteri */}
+        {summary.transactions.length === 0 ? (
+          <div className="px-5 pb-5">
+            <div className="rounded-[14px] border border-dashed border-[#23365c] px-4 py-8 text-center">
+              <p className="text-[13px] font-medium text-[#b9c6d8]">Kasa henüz boş</p>
+              <p className="mt-1 text-[11px] text-[#5b6b80]">
+                İlk aidat ve harcamalar burada görünecek
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Aidat (aylık)</p>
-            <p className="text-[13px] font-semibold text-white tabular-nums">
-              {summary.monthlyAidat > 0 ? `${fmt(summary.monthlyAidat)} ₺` : "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Üye</p>
-            <p className="text-[13px] font-semibold text-white tabular-nums">{summary.memberCount}</p>
-          </div>
-        </div>
-
-        {/* Son kalemler */}
-        {recent.length > 0 && (
-          <div className="mt-3 border-t border-white/[0.06] pt-2.5">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-[#6b7d94] mb-2">Son kalemler</p>
-            <div className="space-y-1.5">
-              {recent.map((t) => {
+        ) : (
+          <div className="border-t border-white/[0.06]">
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <p className="text-[9.5px] uppercase tracking-[0.18em] text-[#6b7d94]">
+                Hareketler
+              </p>
+              <span className="text-[10px] font-mono text-[#5b6b80] tabular-nums">
+                {summary.transactions.length} kalem
+              </span>
+            </div>
+            <div>
+              {visible.map((t) => {
                 const isIncome = t.type === "income";
                 return (
-                  <div key={t.id} className="flex items-center gap-2.5">
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-3 border-b border-white/[0.05] px-5 py-3 last:border-b-0"
+                  >
+                    {/* Tür şeridi */}
+                    <span
+                      className={`h-8 w-[3px] shrink-0 rounded-full ${
+                        isIncome ? "bg-[#34d399]/80" : "bg-[#f87171]/80"
+                      }`}
+                    />
+                    {/* Açıklama */}
                     <div className="min-w-0 flex-1">
-                      <p className="text-[12.5px] text-[#b9c6d8] truncate">
+                      <p className="truncate text-[13px] font-medium text-[#d4e3ff]">
                         {t.description || t.category}
-                        {t.category === "aidat" && t.memberName ? (
-                          <span className="text-[#7a8da4]"> · {t.memberName}</span>
+                      </p>
+                      <p className="mt-0.5 truncate text-[10.5px] uppercase tracking-wide text-[#5b6b80]">
+                        {t.category}
+                        {t.memberName ? (
+                          <span className="text-[#3b82f6]/70"> · {t.memberName}</span>
                         ) : null}
                       </p>
-                      <p className="text-[10px] font-mono text-[#5b6b80] tabular-nums">
-                        {new Date(t.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+                    </div>
+                    {/* Tarih + tutar */}
+                    <div className="shrink-0 text-right">
+                      <p
+                        className={`font-mono text-[14px] font-semibold tabular-nums ${
+                          isIncome ? "text-[#34d399]" : "text-[#f87171]"
+                        }`}
+                      >
+                        {isIncome ? "+" : "−"}
+                        {fmt(t.amount)} TL
+                      </p>
+                      <p className="mt-0.5 font-mono text-[9.5px] uppercase tracking-wide text-[#4d5c70]">
+                        {new Date(t.date)
+                          .toLocaleDateString("tr-TR", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          .toUpperCase()
+                          .replace(/\./g, "")}
                       </p>
                     </div>
-                    <span
-                      className={`text-[13px] font-semibold tabular-nums shrink-0 ${
-                        isIncome ? "text-[#34d399]" : "text-[#f87171]"
-                      }`}
-                    >
-                      {isIncome ? "+" : "−"}{fmt(t.amount)} ₺
-                    </span>
                   </div>
                 );
               })}
             </div>
+
+            {/* 8 — Genişletme butonu */}
+            {hasMore && (
+              <div className="px-5 py-3">
+                <button
+                  onClick={() => setExpanded((v) => !v)}
+                  className="w-full rounded-[12px] border border-[#23365c] py-2.5 text-[11.5px] font-medium text-[#7a8da4] transition-colors hover:border-[#3b82f6]/40 hover:text-[#b9c6d8]"
+                >
+                  {expanded ? "Daralt" : "Tüm hareketler"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
