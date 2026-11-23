@@ -139,6 +139,11 @@
       radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.015) 0%, transparent 70%);
     background-attachment: fixed;
   }
+  html,
+  body {
+    /* iOS rubber-band kaydırmasında fixed elemanların kaymasını azaltır */
+    overscroll-behavior-y: none;
+  }
   html {
     @apply font-sans;
     color-scheme: dark;

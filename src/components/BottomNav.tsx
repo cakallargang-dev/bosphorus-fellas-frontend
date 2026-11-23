@@ -64,13 +64,24 @@ export function BottomNav() {
 
   return (
     <nav
-      className={`fixed left-0 right-0 z-[60] mx-auto transition-opacity duration-150 ${kbOpen ? "pointer-events-none opacity-0" : "opacity-100"} w-[calc(100%-1.5rem)] max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628]/95 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)]`}
+      className={`fixed z-[60] transition-opacity duration-150 ${kbOpen ? "pointer-events-none opacity-0" : "opacity-100"} max-w-[406px] rounded-[22px] border border-[#162544] bg-[#0a1628] shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_0_1px_rgba(59,130,246,0.06)]`}
       style={{
-        // iOS Safari'de backdrop-filter + scroll kombinasyonu nav'ı kaydırıyordu.
-        // Sabit konumu GPU katmanına alıp backdrop-filter'ı kaldırdık (bg opak yapıldı).
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
+        // iOS Safari'de scroll sırasında `fixed` nav'ın dikey zıplaması (repaint/compositing
+        // titremesi) şunlardan kaynaklanıyordu ve teker teker giderildi:
+        // 1) yarı saydam bg + shadow repaint'i — bg opak yapıldı (alpha'sız).
+        // 2) fixed + mx-auto güvensizdi — left/right sabit değerlere taşındı.
+        // 3) bottom'daki env() her klavye/viewport değişiminde yeniden hesaplanıyordu —
+        //    bottom sabit tutuldu, safe-area iç padding'de tüketildi.
+        // 5) will-change: transform (kalıcı GPU katmanı) titremeyi artırıyordu — kaldırıldı.
+        left: "12px",
+        right: "12px",
+        marginLeft: "auto",
+        marginRight: "auto",
+        bottom: "0",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
         transform: "translate3d(0,0,0)",
-        willChange: "transform",
+        WebkitTransform: "translate3d(0,0,0)",
+        contain: "layout paint",
         isolation: "isolate",
         WebkitBackfaceVisibility: "hidden",
       }}
