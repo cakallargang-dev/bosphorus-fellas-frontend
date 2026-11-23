@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { teamApi, carsApi, type TeamMember, imgUrl } from "@/lib/api";
+import { teamApi, carsApi, financeApi, type TeamMember, type FinanceSummary, imgUrl } from "@/lib/api";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { SkeletonCard } from "@/components/LoadingSpinner";
-import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench } from "lucide-react";
+import { Search, X, Gauge, CalendarDays, CalendarCheck, MapPin, Hash, Wrench, Wallet, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { findBrand, brandLogo } from "@/lib/brands";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -134,6 +134,8 @@ function TeamContent() {
           </div>
           <div className="mt-3 h-[1px] bg-gradient-to-r from-[#3b82f6]/40 via-[#162544] to-transparent" />
         </div>
+
+        <KasaSection />
 
         <div className="relative mb-3.5">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#5b6b80]" />
@@ -298,6 +300,127 @@ function TeamContent() {
 
       {open && <TeamSheet member={open} onClose={() => setOpen(null)} />}
     </Layout>
+  );
+}
+
+/* ===== KASA — aidat + harcama defteri (herkes görebilir) ===== */
+function KasaSection() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["finance-summary"],
+    queryFn: () => financeApi.getSummary(),
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+  });
+
+  const summary: FinanceSummary | undefined = data?.data;
+
+  if (isLoading) {
+    return <SkeletonCard className="h-28 mb-5" />;
+  }
+
+  if (!summary) {
+    return null;
+  }
+
+  const fmt = (n: number) =>
+    n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  const recent = summary.transactions.slice(0, 8);
+
+  return (
+    <section className="relative mb-6 overflow-hidden rounded-[22px] border border-[#162544] bg-[#0f1d32]/70 premium-shadow">
+      {/* mavi ışık + accent çizgi */}
+      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse at 85% 0%, #3b82f622 0%, transparent 60%)" }} />
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#3b82f6]/70 to-transparent" />
+
+      <div className="relative p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[9.5px] font-medium uppercase tracking-[0.24em] text-[#3b82f6]/80">
+            Kasa
+          </p>
+          <span className="ml-auto text-[10px] font-mono text-[#5b6b80] tabular-nums">
+            {fmt(summary.balance)} ₺
+          </span>
+        </div>
+
+        {/* Büyük bakiye + giriş/çıkış */}
+        <div className="mt-3 flex items-end gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/12 border border-[#3b82f6]/20 flex items-center justify-center shrink-0">
+              <Wallet className="w-4 h-4 text-[#3b82f6]" />
+            </div>
+            <div>
+              <p className="text-[10.5px] text-[#7a8da4]">Güncel bakiye</p>
+              <p className="text-[24px] leading-tight font-semibold tracking-[-0.02em] text-white tabular-nums">
+                {fmt(summary.balance)} ₺
+              </p>
+            </div>
+          </div>
+          <div className="ml-auto space-y-1 text-right">
+            <p className="text-[12px] font-medium text-[#34d399] tabular-nums flex items-center justify-end gap-1">
+              <ArrowDownRight className="w-3.5 h-3.5" />
+              +{fmt(summary.totalIncome)} ₺
+            </p>
+            <p className="text-[12px] font-medium text-[#f87171] tabular-nums flex items-center justify-end gap-1">
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              −{fmt(summary.totalExpense)} ₺
+            </p>
+          </div>
+        </div>
+
+        {/* İstatistik şeridi */}
+        <div className="mt-3 border-t border-white/[0.07] pt-2.5 grid grid-cols-3 gap-2">
+          <div>
+            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Bu ay aidat</p>
+            <p className="text-[13px] font-semibold text-white tabular-nums">{fmt(summary.thisMonthIncome)} ₺</p>
+          </div>
+          <div>
+            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Aidat (aylık)</p>
+            <p className="text-[13px] font-semibold text-white tabular-nums">
+              {summary.monthlyAidat > 0 ? `${fmt(summary.monthlyAidat)} ₺` : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#6b7d94]">Üye</p>
+            <p className="text-[13px] font-semibold text-white tabular-nums">{summary.memberCount}</p>
+          </div>
+        </div>
+
+        {/* Son kalemler */}
+        {recent.length > 0 && (
+          <div className="mt-3 border-t border-white/[0.06] pt-2.5">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-[#6b7d94] mb-2">Son kalemler</p>
+            <div className="space-y-1.5">
+              {recent.map((t) => {
+                const isIncome = t.type === "income";
+                return (
+                  <div key={t.id} className="flex items-center gap-2.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12.5px] text-[#b9c6d8] truncate">
+                        {t.description || t.category}
+                        {t.category === "aidat" && t.memberName ? (
+                          <span className="text-[#7a8da4]"> · {t.memberName}</span>
+                        ) : null}
+                      </p>
+                      <p className="text-[10px] font-mono text-[#5b6b80] tabular-nums">
+                        {new Date(t.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <span
+                      className={`text-[13px] font-semibold tabular-nums shrink-0 ${
+                        isIncome ? "text-[#34d399]" : "text-[#f87171]"
+                      }`}
+                    >
+                      {isIncome ? "+" : "−"}{fmt(t.amount)} ₺
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

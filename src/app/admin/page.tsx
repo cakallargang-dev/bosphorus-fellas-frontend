@@ -17,6 +17,7 @@ import {
   sponsorsApi,
   productsApi,
   mediaApi,
+  financeApi,
   imgUrl,
 } from "@/lib/api";
 import { AdminGuard } from "@/components/AdminGuard";
@@ -83,6 +84,7 @@ import {
   Film,
   RefreshCw,
   ImagePlus,
+  Wallet,
 } from "lucide-react";
 import type {
   MembershipApplication,
@@ -218,6 +220,10 @@ function AdminContent() {
               <Film className="w-4 h-4" />
               <span className="hidden sm:inline">Medya</span>
             </TabsTrigger>
+            <TabsTrigger value="finance" className="text-gray-400 data-active:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] data-active:text-black gap-2 shrink-0 px-3 py-2 text-sm">
+              <Wallet className="w-4 h-4" />
+              <span className="hidden sm:inline">Kasa</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -246,6 +252,10 @@ function AdminContent() {
 
           <TabsContent value="market">
             <MarketTab />
+          </TabsContent>
+
+          <TabsContent value="finance">
+            <FinanceTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -2135,5 +2145,468 @@ function MediaTab() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// ============================================================
+// Kasa Sekmesi — aidat + harcama defteri yönetimi
+// ============================================================
+
+const FINANCE_CATEGORIES = [
+  { value: "aidat", label: "Aidat" },
+  { value: "etkinlik", label: "Etkinlik" },
+  { value: "ekipman", label: "Ekipman" },
+  { value: "diger", label: "Diğer" },
+];
+
+function FinanceTab() {
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const { data: summaryRes } = useQuery({
+    queryKey: ["finance-summary"],
+    queryFn: () => financeApi.getSummary(),
+    staleTime: 10_000,
+  });
+
+  const { data: txRes, isLoading, isError } = useQuery({
+    queryKey: ["finance-transactions"],
+    queryFn: () => financeApi.listTransactions({ limit: 200 }),
+    staleTime: 10_000,
+  });
+
+  const { data: statusRes } = useQuery({
+    queryKey: ["finance-members-status"],
+    queryFn: () => financeApi.membersStatus(),
+    staleTime: 15_000,
+  });
+
+  const { data: membersRes } = useQuery({
+    queryKey: ["admin-members-all"],
+    queryFn: () => membersApi.list({ limit: 500 }),
+    staleTime: 60_000,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => financeApi.remove(id),
+    onSuccess: () => {
+      toast.success("Kalem silindi");
+      queryClient.invalidateQueries({ queryKey: ["finance-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["finance-members-status"] });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Silinemedi"),
+  });
+
+  const summary = summaryRes?.data;
+  const transactions = txRes?.data ?? [];
+  const status = statusRes?.data;
+  const members = membersRes?.data ?? [];
+
+  const fmt = (n: number) =>
+    n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  return (
+    <div className="space-y-6">
+      {/* Özet kartları */}
+      {summary && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: "Bakiye", value: `${fmt(summary.balance)} ₺`, color: "text-[#3b82f6]" },
+            { label: "Toplam Giriş", value: `${fmt(summary.totalIncome)} ₺`, color: "text-green-500" },
+            { label: "Toplam Çıkış", value: `${fmt(summary.totalExpense)} ₺`, color: "text-red-500" },
+            { label: "Bu Ay Aidat", value: `${fmt(summary.thisMonthIncome)} ₺`, color: "text-white" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544] rounded-2xl p-4"
+            >
+              <p className="text-[11px] text-[#6b7688] uppercase tracking-wider">{s.label}</p>
+              <p className={`text-[20px] font-semibold tabular-nums mt-1 ${s.color}`}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Aidat durumu */}
+      {status && (
+        <Card className="bg-gradient-to-b from-[#0f1d32]/85 to-[#0a1628]/85 border-[#162544]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-base">Bu Ay Aidat Durumu</CardTitle>
+            <CardDescription className="text-[#6b7688]">
+              {status.paidCount} / {status.total} üye ödedi
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+                <p className="text-green-500 text-[18px] font-semibold tabular-nums">{status.paidCount}</p>
+                <p className="text-[11px] text-[#6b7688]">Ödeyen</p>
+              </div>
+              <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
+                <p className="text-red-400 text-[18px] font-semibold tabular-nums">{status.unpaidCount}</p>
+                <p className="text-[11px] text-[#6b7688]">Ödemeyen</p>
+              </div>
+            </div>
+            {status.unpaidCount > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-[12px] font-medium text-[#6b7688]">Ödemeyenler</p>
+                {status.members
+                  .filter((m) => !m.paid)
+                  .slice(0, 20)
+                  .map((m) => (
+                    <div key={m.id} className="flex items-center gap-2.5 py-1 border-b border-white/5 last:border-0">
+                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                      <span className="text-[13px] text-white">{m.name}</span>
+                    </div>
+                  ))}
+                {status.members.filter((m) => !m.paid).length > 20 && (
+                  <p className="text-[11px] text-[#6b7688] pt-1">
+                    +{status.members.filter((m) => !m.paid).length - 20} üye daha
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Kalem listesi + ekle */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-white font-medium">{transactions.length} kalem</h3>
+          <Button
+            onClick={() => {
+              setEditingId(null);
+              setShowForm(true);
+            }}
+            className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium text-sm"
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            Kalem Ekle
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <SkeletonTable rows={4} />
+        ) : isError ? (
+          <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
+            <p className="text-gray-400">Kalemler yüklenemedi</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] p-10 text-center">
+            <Wallet className="w-10 h-10 text-mancave-muted mx-auto mb-3" />
+            <p className="text-mancave-muted">Henüz kalem eklenmemiş</p>
+          </div>
+        ) : (
+          <div className="bg-gray-900/50 border border-gray-800 rounded-[16px] overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gray-800 hover:bg-transparent">
+                  <TableHead className="text-gray-400">Tarih</TableHead>
+                  <TableHead className="text-gray-400">Açıklama</TableHead>
+                  <TableHead className="text-gray-400">Kategori</TableHead>
+                  <TableHead className="text-gray-400">Üye</TableHead>
+                  <TableHead className="text-gray-400 text-right">Tutar</TableHead>
+                  <TableHead className="text-gray-400 text-right">İşlem</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((t) => {
+                  const isIncome = t.type === "income";
+                  return (
+                    <TableRow key={t.id} className="border-gray-800 hover:bg-mancave-surface">
+                      <TableCell className="text-gray-400 text-sm font-mono">
+                        {new Date(t.date).toLocaleDateString("tr-TR", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell className="text-white text-sm">{t.description || t.category}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs border-gray-700 text-gray-400">
+                          {FINANCE_CATEGORIES.find((c) => c.value === t.category)?.label || t.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-400 text-sm">{t.memberName || "—"}</TableCell>
+                      <TableCell
+                        className={`text-right font-semibold tabular-nums ${isIncome ? "text-green-500" : "text-red-500"}`}
+                      >
+                        {isIncome ? "+" : "−"}{fmt(t.amount)} ₺
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingId(t.id);
+                              setShowForm(true);
+                            }}
+                            className="border-[#3b82f6]/30 text-[#3b82f6] hover:bg-gradient-to-br from-[#3b82f6] to-[#60a5fa]/10 text-xs"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Bu kalemi silmek istediğinize emin misiniz?")) {
+                                deleteMutation.mutate(t.id);
+                              }
+                            }}
+                            disabled={deleteMutation.isPending}
+                            className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+
+      {/* Form modal */}
+      <Dialog
+        open={showForm}
+        onOpenChange={(open) => {
+          if (!open) setShowForm(false);
+          setShowForm(open);
+        }}
+      >
+        <DialogContent className="bg-mancave-card border-gray-800 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingId ? "Kalemi Düzenle" : "Kalem Ekle"}
+            </DialogTitle>
+            <DialogDescription className="text-mancave-muted">
+              Kasa giriş/çıkış kalemi bilgilerini giriniz
+            </DialogDescription>
+          </DialogHeader>
+          <FinanceForm
+            editingId={editingId}
+            members={members}
+            onSuccess={() => {
+              setShowForm(false);
+              setEditingId(null);
+              queryClient.invalidateQueries({ queryKey: ["finance-transactions"] });
+              queryClient.invalidateQueries({ queryKey: ["finance-summary"] });
+              queryClient.invalidateQueries({ queryKey: ["finance-members-status"] });
+            }}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingId(null);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function FinanceForm({
+  editingId,
+  members,
+  onSuccess,
+  onCancel,
+}: {
+  editingId: string | null;
+  members: UserType[];
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const isEditing = !!editingId;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [type, setType] = useState<"income" | "expense">("income");
+  const [category, setCategory] = useState("aidat");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [description, setDescription] = useState("");
+  const [memberId, setMemberId] = useState<string>("");
+
+  // Düzenlemede mevcut değeri doldur (id üzerinden)
+  const { data: txRes } = useQuery({
+    queryKey: ["finance-transactions"],
+    queryFn: () => financeApi.listTransactions({ limit: 200 }),
+    enabled: isEditing,
+    staleTime: 10_000,
+  });
+
+  useEffect(() => {
+    if (isEditing && editingId && txRes?.data) {
+      const t = txRes.data.find((x) => x.id === editingId);
+      if (t) {
+        setType(t.type);
+        setCategory(t.category);
+        setAmount(String(t.amount));
+        setDate(new Date(t.date).toISOString().slice(0, 10));
+        setDescription(t.description || "");
+        setMemberId(t.memberId || "");
+      }
+    }
+  }, [isEditing, editingId, txRes]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = parseFloat(amount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      toast.error("Geçerli bir tutar giriniz");
+      return;
+    }
+    if (!date) {
+      toast.error("Tarih zorunludur");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const isAidat = type === "income" && category === "aidat";
+      const payload = {
+        type,
+        category,
+        amount: amt,
+        date: new Date(date).toISOString(),
+        description: description || undefined,
+        memberId: isAidat && memberId ? memberId : null,
+      };
+
+      if (isEditing && editingId) {
+        await financeApi.update(editingId, payload);
+        toast.success("Kalem güncellendi");
+      } else {
+        await financeApi.create(payload);
+        toast.success("Kalem eklendi");
+      }
+      onSuccess();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "İşlem başarısız");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const showMemberSelect = type === "income" && category === "aidat";
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label className="text-gray-300">Tür</Label>
+          <Select
+            value={type}
+            onValueChange={(v) => setType(v === "expense" ? "expense" : "income")}
+          >
+            <SelectTrigger className="bg-mancave-surface border-gray-800 text-gray-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-mancave-card border-gray-800">
+              <SelectItem value="income" className="text-gray-300">Giriş</SelectItem>
+              <SelectItem value="expense" className="text-gray-300">Çıkış</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-gray-300">Kategori</Label>
+          <Select value={category} onValueChange={(v) => setCategory(v || "diger")}>
+            <SelectTrigger className="bg-mancave-surface border-gray-800 text-gray-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-mancave-card border-gray-800">
+              {FINANCE_CATEGORIES.map((c) => (
+                <SelectItem key={c.value} value={c.value} className="text-gray-300">
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label className="text-gray-300">Tutar (₺)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="500"
+            className="bg-mancave-surface border-gray-800 text-white"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-gray-300">Tarih</Label>
+          <Input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="bg-mancave-surface border-gray-800 text-white [color-scheme:dark]"
+            required
+          />
+        </div>
+      </div>
+
+      {showMemberSelect && (
+        <div className="space-y-2">
+          <Label className="text-gray-300">Ödeyen Üye</Label>
+          <Select value={memberId || undefined} onValueChange={(v) => setMemberId(v || "")}>
+            <SelectTrigger className="bg-mancave-surface border-gray-800 text-gray-300">
+              <SelectValue placeholder="Üye seç" />
+            </SelectTrigger>
+            <SelectContent className="bg-mancave-card border-gray-800 max-h-64">
+              {members.map((m) => (
+                <SelectItem key={m.id} value={m.id} className="text-gray-300">
+                  {m.firstName} {m.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label className="text-gray-300">Açıklama (opsiyonel)</Label>
+        <Input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Örn: Mayıs aidatı"
+          className="bg-mancave-surface border-gray-800 text-white"
+        />
+      </div>
+
+      <div className="flex gap-3 justify-end pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        >
+          İptal
+        </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting || !amount}
+          className="bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-black hover:bg-[#60a5fa] font-medium"
+        >
+          {isSubmitting ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : isEditing ? (
+            <Pencil className="w-4 h-4 mr-2" />
+          ) : (
+            <Plus className="w-4 h-4 mr-2" />
+          )}
+          {isEditing ? "Güncelle" : "Ekle"}
+        </Button>
+      </div>
+    </form>
   );
 }

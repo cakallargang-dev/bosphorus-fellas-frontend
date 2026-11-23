@@ -924,3 +924,98 @@ export const locationApi = {
       }>
     >("/api/location/me"),
 };
+
+// ============================================================
+// Finans (Ekip Kasası — aidat + harcama defteri)
+// ============================================================
+
+export type TransactionType = "income" | "expense";
+
+export interface FinanceTransaction {
+  id: string;
+  type: TransactionType;
+  category: string;
+  amount: number;
+  description: string | null;
+  memberId: string | null;
+  memberName: string | null;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FinanceSummary {
+  balance: number;
+  totalIncome: number;
+  totalExpense: number;
+  memberCount: number;
+  monthlyAidat: number;
+  thisMonthIncome: number;
+  transactions: FinanceTransaction[];
+}
+
+export interface FinanceMembersStatus {
+  total: number;
+  paidCount: number;
+  unpaidCount: number;
+  members: {
+    id: string;
+    name: string;
+    avatar: string | null;
+    paid: boolean;
+  }[];
+}
+
+export const financeApi = {
+  getSummary: () => request<ApiResponse<FinanceSummary>>("/api/finance/summary"),
+
+  listTransactions: (params?: {
+    type?: TransactionType;
+    limit?: number;
+    offset?: number;
+  }) =>
+    request<{
+      success: boolean;
+      data: FinanceTransaction[];
+      total: number;
+      limit: number;
+      offset: number;
+    }>(`/api/finance/transactions${buildQuery(params || {})}`),
+
+  create: (data: {
+    type: TransactionType;
+    category: string;
+    amount: number;
+    description?: string;
+    memberId?: string | null;
+    date: string;
+  }) =>
+    request<ApiResponse<FinanceTransaction>>("/api/finance/transactions", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (
+    id: string,
+    data: Partial<{
+      type: TransactionType;
+      category: string;
+      amount: number;
+      description: string;
+      memberId: string | null;
+      date: string;
+    }>
+  ) =>
+    request<ApiResponse<FinanceTransaction>>(`/api/finance/transactions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  remove: (id: string) =>
+    request<ApiResponse<{ id: string }>>(`/api/finance/transactions/${id}`, {
+      method: "DELETE",
+    }),
+
+  membersStatus: () =>
+    request<ApiResponse<FinanceMembersStatus>>("/api/finance/members-status"),
+};
