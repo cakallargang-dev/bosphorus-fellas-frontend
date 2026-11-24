@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 import { LocationTracker } from "@/components/LocationTracker";
-import { ServiceWorkerInit } from "@/components/ServiceWorkerInit";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -54,7 +53,6 @@ export function Providers({ children }: { children: ReactNode }) {
       <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <PushNotificationProvider />
-          <ServiceWorkerInit />
           <LocationTracker />
           <div className="pb-16">{children}</div>
           <BottomNav />
