@@ -1,13 +1,17 @@
 "use client";
 
 import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomNav } from "@/components/BottomNav";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 import { LocationTracker } from "@/components/LocationTracker";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useState, type ReactNode } from "react";
+import { PERSIST_KEY, persistOptions, persistStorage } from "@/lib/offline";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -24,6 +28,20 @@ export function Providers({ children }: { children: ReactNode }) {
           },
         },
       })
+  );
+
+  /**
+   * Cache'i localStorage'a yazan persister. Uçak modunda uygulama açıldığında
+   * son görülen etkinlik/ekip/sohbet verisi diskten okunur.
+   */
+  const [persister] = useState(() =>
+    typeof window === "undefined"
+      ? null
+      : createAsyncStoragePersister({
+          storage: persistStorage,
+          key: PERSIST_KEY,
+          throttleTime: 1500,
+        })
   );
 
   /**
@@ -48,17 +66,29 @@ export function Providers({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const body = (
+    <AuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <PushNotificationProvider />
+        <LocationTracker />
+        <OfflineBanner />
+        <div className="pb-16">{children}</div>
+        <BottomNav />
+        <Toaster richColors position="top-right" />
+      </ThemeProvider>
+    </AuthProvider>
+  );
+
+  if (!persister) {
+    return <QueryClientProvider client={queryClient}>{body}</QueryClientProvider>;
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <PushNotificationProvider />
-          <LocationTracker />
-          <div className="pb-16">{children}</div>
-          <BottomNav />
-          <Toaster richColors position="top-right" />
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister, ...persistOptions }}
+    >
+      {body}
+    </PersistQueryClientProvider>
   );
 }
