@@ -25,6 +25,7 @@ import type {
   AdminDashboardStats,
   ProfileUpdateData,
   PasswordChangeData,
+  ChatMessage,
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
@@ -657,13 +658,27 @@ export const notificationsApi = {
 // Chat
 // ============================================================
 
+export interface ChatMessagesResponse {
+  success: boolean;
+  data: ChatMessage[];
+  hasMore: boolean;
+  lastReads: { userId: string; lastReadMessageId: string }[];
+}
+
 export const chatApi = {
-  getMessages: (channel: string) =>
-    request<ApiResponse<any[]>>(`/api/chat/${channel}`),
+  getMessages: (channel: string, before?: string, take = 30) =>
+    request<ChatMessagesResponse>(
+      `/api/chat/${channel}${buildQuery({ before, take })}`
+    ),
   sendMessage: (channel: string, content: string, imageUrl?: string | null) =>
-    request<ApiResponse<any>>(`/api/chat/${channel}`, {
+    request<ApiResponse<ChatMessage>>(`/api/chat/${channel}`, {
       method: "POST",
       body: JSON.stringify({ content, imageUrl }),
+    }),
+  markRead: (channel: string, lastReadMessageId: string) =>
+    request<ApiResponse<null>>(`/api/chat/${channel}/read`, {
+      method: "POST",
+      body: JSON.stringify({ lastReadMessageId }),
     }),
   getActivity: () =>
     request<ApiResponse<Record<string, { count: number; lastMessage: { content: string; senderName: string; createdAt: string } | null }>>>(
