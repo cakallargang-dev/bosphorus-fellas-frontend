@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { chatApi, authApi, mediaApi, teamApi, type TeamMember, imgUrl } from "@/lib/api";
 import { compressImage } from "@/lib/imageCompress";
-import { enqueue, isOnline, loadOutbox, newLocalId, removeFromOutbox, type OutboxItem } from "@/lib/offline";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ import {
   ImagePlus,
   Download,
   X,
-  WifiOff,
 } from "lucide-react";
 import type { ChatMessage, SupportMessage, UserPublicProfile } from "@/types";
 
@@ -386,21 +384,6 @@ function ChannelChatView({
   const prevLengthRef = useRef(0);
   const msgCountRef = useRef(0);
 
-  // ─── Çevrimdışı gönderim kuyruğu ─────────────────────────────────────────
-  const [outbox, setOutbox] = useState<OutboxItem[]>(loadOutbox);
-  const [online, setOnline] = useState(isOnline);
-
-  useEffect(() => {
-    const up = () => setOnline(true);
-    const down = () => setOnline(false);
-    window.addEventListener("online", up);
-    window.addEventListener("offline", down);
-    return () => {
-      window.removeEventListener("online", up);
-      window.removeEventListener("offline", down);
-    };
-  }, []);
-
   const Icon = channel.icon;
 
   // Ekip sayfasıyla aynı cache anahtarını paylaşan üye listesi —
@@ -419,27 +402,6 @@ function ChannelChatView({
   });
 
   const messages: ChatMessage[] = (data as any)?.data ?? [];
-
-  /** Sunucudan gelmiş mesajlar + gönderilmeyi bekleyen mesajlar */
-  const allMessages: ChatMessage[] = [
-    ...messages,
-    ...outbox
-      .filter((o) => o.channel === channel.id)
-      .map(
-        (o) =>
-          ({
-            id: o.localId,
-            channel: o.channel,
-            content: o.content,
-            imageUrl: o.imageUrl ?? null,
-            senderId: o.senderId,
-            senderName: o.senderName,
-            createdAt: o.createdAt,
-            pending: true,
-            failed: o.status === "error",
-          }) as unknown as ChatMessage
-      ),
-  ];
 
   /**
    * En son mesaja kaydır.
@@ -541,76 +503,9 @@ function ChannelChatView({
     }
   };
 
-  /**
-   * Çevrimdışıyken mesajı kuyruğa al (Kuyruk: localStorage `mancave_chat_outbox_v1`).
-   * Bağlantı gelince `flushOutbox` sırayla gönderir; sıra bozulmasın diye
-   * kuyruk boşalana kadar yeni mesaj da kuyruğa girer.
-   */
-  const sendFromOutbox = useCallback(
-    async (item: OutboxItem) => {
-      await chatApi.sendMessage(item.channel, item.content, item.imageUrl ?? null);
-      removeFromOutbox(item.localId);
-      setOutbox(loadOutbox());
-    },
-    []
-  );
-
-  /** Kuyruğu sırayla boşalt. Hata olursa durur, kayıtlar `error` olarak kalır. */
-  const flushOutbox = useCallback(async () => {
-    if (!isOnline()) return;
-    let items = loadOutbox();
-    if (items.length === 0) return;
-    for (const item of items) {
-      try {
-        await sendFromOutbox(item);
-      } catch {
-        const next = loadOutbox().map((i) =>
-          i.localId === item.localId ? { ...i, status: "error" as const } : i
-        );
-        setOutbox(next);
-        // kalıcı hata (401/403/validation) → kuyruğu kilitle, kullanıcı silebilsin
-        localStorage.setItem("mancave_chat_outbox_v1", JSON.stringify(next));
-        break;
-      }
-    }
-    setOutbox(loadOutbox());
-    queryClient.invalidateQueries({ queryKey: ["chat-messages", channel.id] });
-    queryClient.invalidateQueries({ queryKey: ["chat-activity"] });
-  }, [channel.id, queryClient, sendFromOutbox]);
-
-  // Bağlantı gelince kuyruğu otomatik boşalt
-  useEffect(() => {
-    if (online) void flushOutbox();
-  }, [online, flushOutbox]);
-
-  const dropOutboxItem = (localId: string) => {
-    removeFromOutbox(localId);
-    setOutbox(loadOutbox());
-  };
-
   const handleSend = async () => {
     const trimmed = input.trim();
     if ((!trimmed && !attachPreview) || sending || uploading) return;
-
-    // Kuyrukta bekleyen mesaj varsa ya da bağlantı yoksa → sırayı koru, kuyruğa ekle
-    if (!isOnline() || outbox.length > 0) {
-      const item: OutboxItem = {
-        localId: newLocalId(),
-        channel: channel.id,
-        content: trimmed,
-        imageUrl: attachPreview,
-        createdAt: new Date().toISOString(),
-        senderId: user?.id ?? "",
-        senderName: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Sen",
-        status: "pending",
-      };
-      enqueue(item);
-      setOutbox(loadOutbox());
-      setInput("");
-      setAttachPreview(null);
-      return;
-    }
-
     setSending(true);
     try {
       await chatApi.sendMessage(channel.id, trimmed, attachPreview);
@@ -668,7 +563,7 @@ function ChannelChatView({
         {isLoading && (
           <p className="text-center text-[#7a8da4] text-sm py-8">Yükleniyor...</p>
         )}
-        {!isLoading && allMessages.length === 0 && (
+        {!isLoading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-[#7a8da4]">
             <Icon className="w-12 h-12 mb-3 opacity-30" />
             <p className="text-sm">Henüz mesaj yok. Sohbeti başlat!</p>
@@ -676,7 +571,7 @@ function ChannelChatView({
         )}
         <div className="relative z-10 space-y-2">
         <AnimatePresence initial={false}>
-          {allMessages.map((msg) => (
+          {messages.map((msg) => (
             <motion.div
               key={msg.id}
               initial={{ opacity: 0, x: msg.senderId === user?.id ? 20 : -20 }}
@@ -753,24 +648,9 @@ function ChannelChatView({
                 ) : null}
                 <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-[#8fa3b8]">
                   {formatTime(msg.createdAt)}
-                  {msg.senderId === user?.id && (msg as any).failed ? (
-                    <button
-                      type="button"
-                      onClick={() => dropOutboxItem(msg.id)}
-                      className="flex items-center gap-0.5 text-[#f87171]"
-                      title="Gönderilemedi — kaldırmak için dokun"
-                    >
-                      <X className="h-3 w-3" />
-                      <span>Gönderilemedi</span>
-                    </button>
-                  ) : msg.senderId === user?.id && (msg as any).pending ? (
-                    <span className="flex items-center gap-0.5 text-[#fbbf24]" title="Gönderim bekliyor">
-                      <Clock className="h-3 w-3" />
-                      <span>Bekliyor</span>
-                    </span>
-                  ) : msg.senderId === user?.id ? (
+                  {msg.senderId === user?.id && (
                     <Check className="h-3 w-3 text-[#53bdeb]" />
-                  ) : null}
+                  )}
                 </span>
               </div>
             </motion.div>
@@ -821,12 +701,6 @@ function ChannelChatView({
         </div>
       )}
 
-      {!online && (
-        <div className="mb-1 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#f59e0b]/25 bg-[#f59e0b]/10 px-2.5 py-1.5 text-[10.5px] text-[#fbbf24]">
-          <WifiOff className="h-3 w-3 shrink-0" />
-          <span>Çevrimdışısın — mesajlar bağlantı gelince gönderilecek</span>
-        </div>
-      )}
       {/* Input — her zaman en altta, klavyenin üstünde */}
       <div className="flex shrink-0 gap-2 pb-1">
         {/*
